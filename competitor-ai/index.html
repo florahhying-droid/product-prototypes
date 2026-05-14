@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI推荐竞品链接功能 - 交互设计稿</title>
+  <style>
+    :root {
+      --teal: #28b7ac;
+      --teal-dark: #169e96;
+      --teal-soft: #e6faf7;
+      --line: #e7eaef;
+      --line-dark: #d9dee7;
+      --text: #2b3545;
+      --muted: #7b8794;
+      --bg: #f5f7fa;
+      --panel: #fff;
+      --danger: #f05b67;
+      --blue: #2b7de9;
+      --orange: #e6862a;
+      --shadow: 0 12px 36px rgba(18, 32, 56, .18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1280px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app-shell {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      grid-template-rows: 46px 1fr;
+      gap: 0;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #596579;
+      white-space: nowrap;
+    }
+
+    .crumb strong { color: #1f2a3a; font-weight: 600; }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+
+    .search {
+      width: 240px;
+      height: 30px;
+      border: 1px solid var(--line-dark);
+      border-radius: 2px;
+      padding: 0 10px;
+      color: #8b95a5;
+      background: #fff;
+    }
+
+    .language {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--teal);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .left-rail {
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 14px 10px;
+      overflow: auto;
+    }
+
+    .rail-title {
+      margin: 2px 6px 12px;
+      font-weight: 600;
+      color: #1f2a3a;
+    }
+
+    .nav-card {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 10px;
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: #f7f8fb;
+      color: #536173;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-card.active {
+      background: var(--teal-soft);
+      border-color: #bfeee9;
+      color: var(--teal-dark);
+      font-weight: 600;
+    }
+
+    .nav-card small {
+      color: #9aa5b3;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .canvas {
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .context-panel {
+      background: #fff;
+      border-left: 1px solid var(--line);
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .context-panel h3 {
+      margin: 2px 0 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .note-box {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .note-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #1f2a3a;
+    }
+
+    .note-box p, .note-box li {
+      color: #647186;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .note-box ul { padding-left: 16px; margin: 0; }
+
+    .page-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(31, 42, 58, .04);
+    }
+
+    .product-media { display: flex; gap: 12px; }
+
+    .main-photo {
+      width: 220px;
+      height: 140px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      background: #f1f3f6;
+    }
+
+    .thumb-stack { display: flex; flex-direction: column; gap: 7px; }
+
+    .thumb {
+      width: 55px;
+      height: 42px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 105px 1fr;
+      gap: 12px 8px;
+      align-content: start;
+      color: #697589;
+    }
+
+    .kv b { color: #333e50; font-weight: 500; }
+    .ok { color: var(--teal-dark); }
+
+    .ai-shortcut {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--teal-dark);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      background: #fafbfc;
+      overflow: hidden;
+    }
+
+    .tab {
+      padding: 11px 17px;
+      border-right: 1px solid var(--line);
+      color: #667386;
+      background: transparent;
+      border-top: 0;
+      border-left: 0;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--teal-dark);
+      background: #fff;
+      border-bottom-color: var(--teal);
+      font-weight: 600;
+    }
+
+    .content-pad { padding: 14px; }
+
+    .tab-panel[hidden] { display: none; }
+
+    .sales-preview {
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      min-height: 360px;
+      background: #fff;
+    }
+
+    .sales-preview-left {
+      padding: 26px 24px;
+      border-right: 1px solid var(--line);
+      color: #8a93a3;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .sales-preview-right { padding: 28px; }
+
+    .sales-preview-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: var(--teal-dark);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sales-preview-title::before {
+      content: "";
+      width: 4px;
+      height: 24px;
+      background: var(--teal);
+    }
+
+    .sales-field-row {
+      margin-bottom: 14px;
+      color: #5d6878;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .sales-field-row label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .sales-field-row input {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: #202938;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .competitor-field-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--teal-dark);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      height: 30px;
+      padding: 0 14px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      background: #fff;
+      color: #4c596c;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .btn.primary:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
+    .btn.danger { color: #fff; background: var(--danger); border-color: var(--danger); }
+    .btn.ghost-teal { color: var(--teal-dark); border-color: #9be0da; background: #f2fffd; }
+    .btn:disabled { cursor: not-allowed; background: #f1f3f6; color: #b5bdc9; border-color: #e1e5eb; }
+
+    .btn.with-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .icon-ai,
+    .icon-refresh {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      color: currentColor;
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .icon-ai::before { content: "✦"; }
+    .icon-ai::after {
+      content: "✧";
+      margin-left: -3px;
+      margin-top: -8px;
+      font-size: 10px;
+    }
+
+    .icon-refresh::before {
+      content: "↻";
+      font-size: 15px;
+    }
+
+    .hint-link {
+      color: var(--teal-dark);
+      cursor: pointer;
+      text-decoration: none;
+      margin-left: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 9px;
+      text-align: left;
+      vertical-align: middle;
+      color: #4d5a6d;
+      line-height: 1.45;
+    }
+
+    th {
+      background: #fafbfc;
+      color: #667386;
+      font-weight: 600;
+    }
+
+    .ellipsis {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .link { color: #138f88; text-decoration: none; cursor: pointer; }
+    .danger-link { color: var(--danger); cursor: pointer; }
+    .disabled-link {
+      color: #b8c0cc;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .req { color: #e45858; margin-right: 2px; }
+
+    .edit-layout {
+      display: grid;
+      grid-template-columns: 90px 1fr 280px;
+      min-height: 620px;
+      background: #fff;
+    }
+
+    .edit-side {
+      border-right: 1px solid var(--line);
+      background: #f7f8fb;
+      padding-top: 12px;
+    }
+
+    .side-item {
+      padding: 12px 14px;
+      color: #687589;
+      border-left: 3px solid transparent;
+    }
+
+    .side-item.active {
+      color: var(--teal-dark);
+      background: #fff;
+      border-left-color: var(--teal);
+      font-weight: 600;
+    }
+
+    .side-item.readonly {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #9aa5b3;
+    }
+
+    .readonly-tag {
+      padding: 1px 5px;
+      border-radius: 2px;
+      background: #e9edf3;
+      color: #7c8798;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .edit-main { padding: 18px 18px 80px; overflow: auto; }
+
+    .sku-strip {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 14px;
+      margin-bottom: 12px;
+      background: #dff8f4;
+      color: #243447;
+      font-weight: 600;
+    }
+
+    .section-title {
+      margin: 18px 0 10px;
+      color: #1f2a3a;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px 22px;
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #697589;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 6px 9px;
+      color: #475469;
+      background: #fff;
+    }
+
+    .field textarea { min-height: 62px; resize: vertical; }
+
+    .right-fill {
+      border-left: 1px solid var(--line);
+      background: #fff;
+      padding: 18px 12px;
+    }
+
+    .operation-box {
+      border: 1px solid #7fb8d2;
+      background: #fbfdff;
+    }
+
+    .operation-box h4 {
+      margin: 0;
+      padding: 10px;
+      color: #1684bd;
+      background: #f2f8ff;
+      border-bottom: 1px solid #dbeaf5;
+      font-size: 13px;
+    }
+
+    .operation-box .field { padding: 12px; }
+
+    .complete-competitor { padding: 0 12px 14px; }
+
+    .sticky-actions {
+      position: fixed;
+      right: 315px;
+      bottom: 18px;
+      display: flex;
+      gap: 8px;
+      z-index: 4;
+    }
+
+    .subtabs {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+
+    .subtab {
+      height: 28px;
+      padding: 0 10px;
+      color: var(--teal-dark);
+      background: #f4fffd;
+      border: 1px solid #c9eee9;
+      border-radius: 2px;
+    }
+
+    .table-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .48);
+      z-index: 20;
+    }
+
+    .modal-mask.show { display: flex; }
+
+    .modal, .batch-modal {
+      width: 1080px;
+      height: 760px;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-head {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title { font-size: 20px; font-weight: 500; color: #263142; }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: #98a2b2;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 18px 22px 0;
+    }
+
+    .rule-text {
+      padding: 4px 8px;
+      border: 1px solid #d9f0ee;
+      border-radius: 3px;
+      background: #f5fffd;
+      color: #657389;
+      line-height: 1.3;
+      text-align: left;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .rule-text b { color: #4d5a6d; font-weight: 600; }
+
+    .recommend-table-wrap {
+      flex: 1;
+      min-height: 0;
+      max-height: 520px;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      overflow: auto;
+    }
+
+    .recommend-table th { position: sticky; top: 0; z-index: 1; }
+    .recommend-table .pic { width: 58px; height: 58px; border: 1px solid var(--line); object-fit: cover; cursor: zoom-in; }
+    .rec-thumb {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, #f8fafc 0%, #e5f7f4 100%);
+      color: #8a97a8;
+      font-size: 11px;
+      cursor: zoom-in;
+    }
+
+    .rec-thumb.large {
+      width: 220px;
+      height: 220px;
+      font-size: 18px;
+      background: linear-gradient(135deg, #fff 0%, #dff8f4 100%);
+    }
+
+    .recommend-table .reason { color: #5c6879; }
+    .recommend-table tr.selected td { background: #f4fffd; }
+
+    .batch-modal {
+      width: 1120px;
+      height: 700px;
+    }
+
+    .batch-form {
+      padding: 18px 22px 0;
+      overflow: auto;
+    }
+
+    .batch-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .batch-row label {
+      text-align: right;
+      color: #687589;
+    }
+
+    .fake-select {
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      color: #536173;
+      background: #fff;
+    }
+
+    .fake-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag {
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: #eef2f7;
+      color: #5f6b7d;
+      font-size: 12px;
+    }
+
+    .batch-ai-panel {
+      display: none;
+      margin-top: 10px;
+      border: 1px solid #d8eeee;
+      background: #fbfffe;
+    }
+
+    .batch-ai-panel.show { display: block; }
+
+    .inline-ai-toolbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e3f2f1;
+    }
+
+    .inline-ai-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .inline-list {
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    .modal-foot {
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .status-line { color: #7d8899; }
+
+    .empty-state {
+      display: none;
+      height: 410px;
+      place-items: center;
+      color: #8390a3;
+      text-align: center;
+    }
+
+    .empty-state.show { display: grid; }
+
+    .empty-title {
+      color: #6f7d91;
+      font-weight: 600;
+    }
+
+    .empty-note {
+      margin-top: 12px;
+      color: #e45858;
+      font-size: 12px;
+    }
+
+    .removed-tip {
+      height: 340px;
+      display: grid;
+      place-items: center;
+      color: #7d8899;
+      font-size: 13px;
+    }
+
+    .inline-action-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 72px;
+      transform: translateX(-50%);
+      display: none;
+      padding: 10px 18px;
+      border-radius: 3px;
+      color: #fff;
+      background: rgba(28, 38, 54, .9);
+      z-index: 40;
+    }
+
+    .toast.show { display: block; }
+
+    .zoom-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .66);
+      z-index: 30;
+    }
+
+    .zoom-mask.show { display: flex; }
+    .zoom-mask img { max-width: 70vw; max-height: 78vh; background: #fff; border: 8px solid #fff; }
+
+    .hover-preview {
+      position: fixed;
+      right: 32px;
+      top: 88px;
+      display: none;
+      padding: 10px;
+      border: 1px solid var(--line-dark);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      z-index: 45;
+    }
+
+    .hover-preview.show { display: block; }
+
+    .skeleton-row td { height: 76px; }
+    .skeleton {
+      height: 14px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #f0f2f5, #e3e7ed, #f0f2f5);
+      background-size: 220% 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+
+    @keyframes shimmer {
+      from { background-position: 220% 0; }
+      to { background-position: -220% 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="crumb">首页 / 产品详情 / <strong id="pageCrumb">竞品信息</strong></div>
+      <div class="top-actions">
+        <button class="btn primary">利润计算器</button>
+        <button class="btn">下载列表</button>
+        <input class="search" value="" placeholder="搜索">
+        <span>铃</span>
+        <span>全</span>
+        <div class="language">英</div>
+      </div>
+    </header>
+
+    <aside class="left-rail">
+      <div class="rail-title">AI推荐竞品交互稿</div>
+      <button class="nav-card active" data-view="detail">
+        <span>入口一：竞品信息Tab</span><small>立即生效</small>
+      </button>
+      <button class="nav-card" data-view="sales">
+        <span>入口二/三：编辑页</span><small>随保存</small>
+      </button>
+      <button class="nav-card" data-view="states">
+        <span>异常 / 空态</span><small>弹窗状态</small>
+      </button>
+
+      <div class="note-box" style="margin-top:16px">
+        <strong>设计约定</strong>
+        <ul>
+          <li>保留原「添加竞品链接」和「+人工添加」。</li>
+          <li>新增「AI推荐竞品」作为同级入口。</li>
+          <li>AI条目链接、ASIN、相似原因只读。</li>
+          <li>入口二/三共用同一编辑页，仅入口来源不同。</li>
+          <li>批量设置内推荐列表平铺展开，不再叠加弹窗。</li>
+          <li>应用后写入当前编辑页，最终随销售信息保存生效。</li>
+          <li>标记移除即时生效，不受确定影响。</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="canvas">
+      <section id="detailView" class="page-card view">
+        <div class="tabs" id="detailTabs">
+          <button class="tab">采购信息</button>
+          <button class="tab">产品规格</button>
+          <button class="tab active" data-detail-tab="sales">销售信息</button>
+          <button class="tab">产品描述</button>
+          <button class="tab">产品知识库</button>
+          <button class="tab" data-detail-tab="competitor">竞品信息</button>
+          <button class="tab">库存及成本</button>
+          <button class="tab">关联Listing</button>
+        </div>
+        <div class="tab-panel" id="detailSalesPanel">
+          <div class="sales-preview">
+            <div class="sales-preview-left">开发填写区域（略）</div>
+            <div class="sales-preview-right">
+              <div class="sales-preview-title">运营填写</div>
+              <div class="sales-field-row">
+                <label><span class="req">*</span>关键词（英文）</label>
+                <input value="wireless headphones noise cancelling" readonly>
+              </div>
+              <div class="sales-field-row">
+                <label>竞品信息</label>
+                <a class="competitor-field-link" data-jump="competitor"><span class="icon-ai"></span>AI 已推荐 6 条竞品，去查看 &gt;</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="content-pad tab-panel" id="competitorArea" hidden>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <button class="btn primary">添加竞品链接</button>
+              <button class="btn ghost-teal with-icon open-ai" data-source="detail"><span class="icon-ai"></span>AI推荐竞品</button>
+              <span>数据更新时间：未抓取</span>
+            </div>
+          </div>
+          <table>
+            <colgroup>
+              <col style="width:180px"><col style="width:110px"><col style="width:92px"><col>
+              <col style="width:78px"><col style="width:110px"><col style="width:120px"><col style="width:92px"><col style="width:160px">
+              <col style="width:88px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>竞品链接</th>
+                <th>竞品ASIN</th>
+                <th>竞品类型</th>
+                <th>相似原因（AI）</th>
+                <th>主图</th>
+                <th>创建人</th>
+                <th>售价</th>
+                <th>评分/评分数</th>
+                <th>尺寸</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="detailRows">
+              <tr>
+                <td class="ellipsis"><a class="link">https://www.amazon.com/dp/B09J7TL1X1</a></td>
+                <td><a class="link" target="_blank" href="https://www.amazon.com/dp/B09J7TL1X1">B09J7TL1X1</a></td>
+                <td>同款</td>
+                <td>-</td>
+                <td></td>
+                <td>Flora</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td><a class="link">删除</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="salesView" class="page-card view" style="display:none">
+        <div class="edit-layout">
+          <aside class="edit-side">
+            <div class="side-item readonly"><span>基本信息</span><span class="readonly-tag">只读</span></div>
+            <div class="side-item readonly"><span>产品规格</span><span class="readonly-tag">只读</span></div>
+            <div class="side-item active">销售信息</div>
+            <div class="side-item readonly"><span>产品资料</span><span class="readonly-tag">只读</span></div>
+          </aside>
+          <div class="edit-main">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button class="btn primary open-batch">批量设置</button>
+                <button class="btn primary">批量复制</button>
+                <select class="btn"><option>颜色</option></select>
+              </div>
+            </div>
+            <div class="sku-strip"><span>PTH_338BY9AX</span><span>白色</span></div>
+            <div class="section-title">开发填写</div>
+            <div class="subtabs">
+              <button class="subtab">竞品信息</button>
+              <button class="subtab">基础信息</button>
+              <button class="subtab">核心卖点</button>
+              <button class="subtab">自定义卖点</button>
+              <button class="subtab">市场定位</button>
+            </div>
+            <div class="section-title">竞品信息</div>
+            <table>
+              <colgroup><col style="width:72px"><col><col style="width:160px"><col style="width:130px"><col><col style="width:84px"></colgroup>
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>竞品链接</th>
+                  <th>ASIN</th>
+                  <th>竞品类型</th>
+                  <th>相似原因（AI）</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="editRows">
+                <tr>
+                  <td>竞品1</td>
+                  <td><input value="https://www.amazon.com/dp/B0DCJWGR7D?t" style="width:100%;border:1px solid var(--line);height:28px;padding:0 8px"></td>
+                  <td><input value="B0DCJWGR7D" style="width:100%;border:1px solid var(--line);height:28px;padding:0 8px"></td>
+                  <td><select style="width:100%;height:28px;border:1px solid var(--line)"><option>同款</option><option>相似款</option></select></td>
+                  <td>-</td>
+                  <td><a class="disabled-link">删除</a></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="table-actions">
+              <button class="btn ghost-teal">+人工添加</button>
+              <button class="btn ghost-teal with-icon open-ai" data-source="edit"><span class="icon-ai"></span>AI推荐竞品</button>
+            </div>
+
+            <div class="section-title">基础信息</div>
+            <div class="form-grid">
+              <div class="field"><label><span class="req">*</span>可售区域</label><select><option>美区</option></select></div>
+              <div class="field"><label>产品标签</label><select><option>孔雀计划</option></select></div>
+              <div class="field"><label><span class="req">*</span>产品状态</label><select><option>开发中</option></select></div>
+              <div class="field"><label><span class="req">*</span>立项运营</label><select><option>许叶青</option></select></div>
+            </div>
+            <div class="section-title">核心卖点</div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr">
+              <div class="field"><label>人性化设计</label><textarea>2</textarea></div>
+              <div class="field"><label><span class="req">*</span>功能</label><textarea>112</textarea></div>
+            </div>
+          </div>
+          <aside class="right-fill">
+            <div class="operation-box">
+              <h4>运营填写</h4>
+              <div class="field">
+                <label><span class="req">*</span>关键词（英文）</label>
+                <textarea placeholder="请输入英文关键词，不允许输入中文"></textarea>
+              </div>
+              <div class="complete-competitor">
+                <div class="field" style="padding:0">
+                  <label>竞品信息</label>
+                  <a class="competitor-field-link" data-focus-competitor><span class="icon-ai"></span>AI 已推荐 6 条竞品，去查看 &gt;</a>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+        <div class="sticky-actions">
+          <button class="btn">保存为草稿</button>
+          <button class="btn primary">下一步</button>
+          <button class="btn primary">保存</button>
+        </div>
+      </section>
+
+      <section id="statesView" class="page-card view" style="display:none">
+        <div class="content-pad">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <button class="btn ghost-teal" data-state-open="loading">打开弹窗加载中</button>
+              <button class="btn ghost-teal" data-state-open="insufficient">推荐无结果</button>
+              <button class="btn ghost-teal" data-state-open="error">AI服务异常</button>
+              <button class="btn ghost-teal" data-state-open="removed">全部标记移除后空列表</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>状态</th><th>状态说明</th><th>展示文案</th><th>可用操作</th></tr></thead>
+            <tbody>
+              <tr><td>打开弹窗加载中</td><td>首次打开弹窗，请求推荐数据中</td><td>列表区展示骨架屏</td><td>-</td></tr>
+              <tr><td>推荐无结果</td><td>含信息不足、无匹配结果</td><td>暂未找到匹配竞品</td><td>-</td></tr>
+              <tr><td>AI服务异常</td><td>推荐接口异常或超时</td><td>推荐获取失败，请稍后重试</td><td>重试</td></tr>
+              <tr><td>全部标记移除后列表为空</td><td>当前列表推荐竞品均已标记移除</td><td>不展示空态，直接显示空列表</td><td>取消 / X</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <aside class="context-panel">
+      <h3 id="contextTitle">入口一：产品详情页 - 竞品信息Tab</h3>
+      <div class="note-box">
+        <strong>当前入口行为</strong>
+        <p id="contextBehavior">弹窗内选择竞品并确定后，直接写入后端竞品列表，列表立即刷新展示。</p>
+      </div>
+      <div class="note-box" id="entrySourceBox" style="display:none">
+        <strong>入口来源</strong>
+        <p>入口二：产品详情页 → 运营编辑 → 产品开发-new → 销售信息。</p>
+        <p>入口三：项目详情SPU列表 → 完善资料 → 产品开发-new → 销售信息。</p>
+        <p>两个入口进入后共用同一编辑页面和同一套交互。</p>
+      </div>
+      <div class="note-box">
+        <strong>弹窗字段</strong>
+        <ul>
+          <li>复选框：列头支持全选。</li>
+          <li>竞品链接 / ASIN：可点击跳转，只读。</li>
+          <li>主图：悬浮展示大图。</li>
+          <li>相似原因：AI 原文展示。</li>
+          <li>单次最多推荐 10 条，优先展示高质量推荐数据。</li>
+          <li>操作：选择 / 标记移除。</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <div id="aiModalMask" class="modal-mask">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div class="modal-title">AI推荐竞品</div>
+        <button class="close" id="closeModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="toolbar">
+          <div></div>
+          <div class="rule-text"><b>说明：</b>标记移除后，该竞品后续不再出现在本产品AI推荐中</div>
+        </div>
+        <div class="recommend-table-wrap" id="recommendWrap">
+          <table class="recommend-table">
+            <colgroup>
+              <col style="width:46px"><col style="width:54px"><col><col style="width:118px"><col style="width:82px"><col style="width:300px"><col style="width:110px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="checkAll"></th>
+                <th>序号</th>
+                <th>竞品链接</th>
+                <th>ASIN</th>
+                <th>主图</th>
+                <th>相似原因（AI）</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="recommendRows"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="status-line" id="selectedCount">已选择 0 条</div>
+        <div>
+          <button class="btn" id="cancelModal">取消</button>
+          <button class="btn primary" id="confirmModal">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="batchModalMask" class="modal-mask">
+    <div class="batch-modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div class="modal-title">批量设置销售信息</div>
+        <button class="close" id="closeBatchModal">×</button>
+      </div>
+      <div class="batch-form">
+        <div class="batch-row">
+          <label>请选择sku</label>
+          <div class="fake-select" style="max-width:260px">
+            <span class="fake-tags"><span class="tag">黑色 ×</span><span class="tag">+1</span></span>
+            <span>⌄</span>
+          </div>
+        </div>
+        <div class="batch-row">
+          <label>请选择需要批量<br>设置的信息</label>
+          <div class="fake-select">
+            <span class="fake-tags"><span class="tag">竞品信息 / 竞品信息 ×</span></span>
+            <span>⌄</span>
+          </div>
+        </div>
+
+        <div class="section-title">竞品信息</div>
+        <table>
+          <colgroup><col style="width:72px"><col><col style="width:150px"><col style="width:170px"><col><col style="width:100px"></colgroup>
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>竞品链接</th>
+              <th>ASIN</th>
+              <th><span class="req">*</span>竞品类型</th>
+              <th>相似原因（AI）</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="batchRows">
+            <tr data-empty="true">
+              <td>竞品1</td>
+              <td><input data-field="link" style="width:100%;height:28px;border:1px solid var(--line);padding:0 8px"></td>
+              <td><input data-field="asin" style="width:100%;height:28px;border:1px solid var(--line);padding:0 8px"></td>
+              <td><select style="width:100%;height:28px;border:1px solid var(--line);color:#9aa5b3"><option selected disabled>竞品类型</option><option>同款</option><option>相似款</option></select></td>
+              <td data-field="reason">-</td>
+              <td><a class="disabled-link">删除</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-actions">
+          <button class="btn ghost-teal">+人工添加</button>
+          <button class="btn ghost-teal with-icon" id="toggleBatchAi"><span class="icon-ai"></span>AI推荐竞品</button>
+        </div>
+
+        <div class="batch-ai-panel" id="batchAiPanel">
+          <div class="inline-ai-toolbar">
+            <div class="inline-ai-left">
+              <button class="btn primary" id="batchAddSelected">批量添加</button>
+              <span class="status-line" id="batchSelectedCount">已选择 0 条</span>
+            </div>
+            <div class="rule-text"><b>说明：</b>标记移除后，该竞品后续不再出现在本产品AI推荐中</div>
+          </div>
+          <div class="inline-list">
+            <table class="recommend-table">
+              <colgroup>
+                <col style="width:46px"><col style="width:54px"><col><col style="width:120px"><col style="width:82px"><col><col style="width:120px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="batchCheckAll"></th>
+                  <th>序号</th>
+                  <th>竞品链接</th>
+                  <th>ASIN</th>
+                  <th>主图</th>
+                  <th>相似原因（AI）</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="batchRecommendRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="status-line">应用后随销售信息整体保存生效</div>
+        <div>
+          <button class="btn" id="cancelBatchModal">取消</button>
+          <button class="btn primary" id="applyBatch">应用</button>
+          <button class="btn primary" id="applyContinueBatch">应用并继续设置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">请至少选择一条竞品</div>
+  <div class="zoom-mask" id="zoomMask"><div class="rec-thumb large" id="zoomThumb">主图</div></div>
+  <div class="hover-preview" id="hoverPreview"><div class="rec-thumb large" id="hoverThumb">主图</div></div>
+
+  <script>
+    const recommendations = [
+      { asin: 'B0F2Q8M1LG', reason: '尺寸标注方式、透明袋材质和收纳使用场景高度接近，适合作为同款功能竞品。' },
+      { asin: 'B0D7K4VN9Q', reason: '主图呈现同类透明收纳袋，目标用户关注防尘、防潮与分类整理。' },
+      { asin: 'B0CMT81L3R', reason: '包装结构和尺寸展示方式相似，可用于对比卖点表达和价格带。' },
+      { asin: 'B09J7TL1X1', reason: '同属家居收纳类目，关键词覆盖 closet storage、bag organizer 等核心词。' },
+      { asin: 'B0C9W2FH8X', reason: '产品形态、材质透明度和多规格组合策略接近。' },
+      { asin: 'B0H2K7M9PA', reason: '同类目下强调透明可视、防尘收纳和多场景整理，适合横向比较。' },
+      { asin: 'B0G8L3Q2TN', reason: '标题和主图都突出容量、耐用材质和家庭收纳场景。' },
+      { asin: 'B0F7N6R4XQ', reason: '尺寸组合与目标商品相近，可用于判断规格策略和价格带。' },
+      { asin: 'B0E5P9V7KS', reason: '用户搜索词覆盖 storage bag、closet organizer 等核心表达。' },
+      { asin: 'B0D4R8C6LM', reason: '卖点集中在便携、分类整理和透明材质，推荐相似度较高。' }
+    ];
+
+    let currentView = 'detail';
+    let activeSource = 'detail';
+    let removed = new Set();
+    let modalRows = [];
+    let batchRows = [];
+    let batchAddedItems = [];
+
+    const contexts = {
+      detail: ['入口一：产品详情页 - 竞品信息Tab', '弹窗内选择竞品并确定后，直接写入后端竞品列表，列表立即刷新展示。'],
+      sales: ['入口二/三：产品开发-new - 销售信息', '弹窗确定后写入当前销售信息编辑页，入口二/三都需保存整个销售信息后生效。'],
+      states: ['异常 / 空态设计', '用于评审弹窗在加载、信息不足、无结果、异常、全部标记移除后的表现。']
+    };
+
+    function qs(selector) { return document.querySelector(selector); }
+    function qsa(selector) { return Array.from(document.querySelectorAll(selector)); }
+
+    function setView(view) {
+      currentView = view;
+      qsa('.view').forEach(el => el.style.display = 'none');
+      qs(`#${view}View`).style.display = '';
+      qsa('.nav-card').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
+      qs('#contextTitle').textContent = contexts[view][0];
+      qs('#contextBehavior').textContent = contexts[view][1];
+      qs('#pageCrumb').textContent = view === 'detail' ? '竞品信息' : view === 'states' ? '弹窗状态' : '销售信息';
+      qs('#entrySourceBox').style.display = view === 'sales' ? '' : 'none';
+      if (view === 'detail') setDetailTab('sales');
+    }
+
+    function setDetailTab(tabName) {
+      const showSales = tabName === 'sales';
+      qs('#detailSalesPanel').hidden = !showSales;
+      qs('#competitorArea').hidden = showSales;
+      qsa('[data-detail-tab]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.detailTab === tabName);
+      });
+      qs('#pageCrumb').textContent = showSales ? '销售信息' : '竞品信息';
+    }
+
+    function itemLink(item) {
+      return `https://www.amazon.com/dp/${item.asin}`;
+    }
+
+    function thumbMarkup(item) {
+      return `<div class="rec-thumb" data-asin="${item.asin}">主图</div>`;
+    }
+
+    function openModal(source, state) {
+      activeSource = source || currentView;
+      qs('#aiModalMask').classList.add('show');
+      qs('#checkAll').checked = false;
+      qs('#emptyState').classList.remove('show');
+      qs('#recommendRows').style.display = '';
+      if (state) {
+        renderState(state);
+      } else {
+        renderRecommendations();
+      }
+    }
+
+    function renderRecommendations() {
+      modalRows = recommendations.filter(item => !removed.has(item.asin)).map(item => ({ ...item, checked: false }));
+      renderRows();
+    }
+
+    function renderRows() {
+      const tbody = qs('#recommendRows');
+      tbody.innerHTML = '';
+      qs('#emptyState').classList.remove('show');
+      qs('#recommendRows').style.display = '';
+      modalRows.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = item.checked ? 'selected' : '';
+        tr.innerHTML = `
+          <td><input type="checkbox" data-index="${index}" ${item.checked ? 'checked' : ''}></td>
+          <td>${index + 1}</td>
+          <td class="ellipsis"><a class="link" target="_blank" href="${itemLink(item)}">${itemLink(item)}</a></td>
+          <td><a class="link" target="_blank" href="${itemLink(item)}">${item.asin}</a></td>
+          <td>${thumbMarkup(item)}</td>
+          <td class="reason">${item.reason}</td>
+          <td><a class="link choose" data-index="${index}">${item.checked ? '已选择' : '选择'}</a>　<a class="danger-link remove" data-index="${index}">标记移除</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateCount();
+    }
+
+    function renderState(state) {
+      const tbody = qs('#recommendRows');
+      tbody.innerHTML = '';
+      modalRows = [];
+      qs('#checkAll').checked = false;
+      qs('#emptyState').classList.remove('show');
+      qs('#recommendRows').style.display = '';
+
+      if (state === 'loading') {
+        for (let i = 0; i < 5; i++) {
+          const tr = document.createElement('tr');
+          tr.className = 'skeleton-row';
+          tr.innerHTML = `<td></td><td>${i + 1}</td><td><div class="skeleton"></div></td><td><div class="skeleton"></div></td><td><div class="skeleton" style="width:56px;height:56px"></div></td><td><div class="skeleton"></div></td><td></td>`;
+          tbody.appendChild(tr);
+        }
+      } else if (state === 'removed') {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="removed-tip">当前列表推荐竞品均已标记移除</div></td></tr>';
+      } else {
+        const copy = {
+          insufficient: '<div><div class="empty-title">暂未找到匹配竞品</div></div>',
+          none: '<div><div class="empty-title">暂未找到匹配竞品</div></div>',
+          error: '<div class="inline-action-row"><strong>推荐获取失败，请稍后重试</strong><button class="btn primary" id="retryBtn">重试</button></div>'
+        }[state];
+        qs('#recommendRows').style.display = 'none';
+        qs('#emptyState').innerHTML = copy;
+        qs('#emptyState').classList.add('show');
+      }
+      updateCount();
+    }
+
+    function updateCount() {
+      const count = modalRows.filter(row => row.checked).length;
+      qs('#selectedCount').textContent = `已选择 ${count} 条`;
+      qs('#checkAll').checked = modalRows.length > 0 && count === modalRows.length;
+    }
+
+    function closeModal() {
+      qs('#aiModalMask').classList.remove('show');
+    }
+
+    function showToast(text) {
+      const toast = qs('#toast');
+      toast.textContent = text;
+      toast.classList.add('show');
+      window.setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function addSelectedRows() {
+      const selected = modalRows.filter(row => row.checked);
+      if (!selected.length) {
+        showToast('请至少选择一条竞品');
+        return;
+      }
+      if (activeSource === 'detail') {
+        const tbody = qs('#detailRows');
+        selected.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="ellipsis"><a class="link">${itemLink(item)}</a></td>
+            <td><a class="link" target="_blank" href="${itemLink(item)}">${item.asin}</a></td>
+            <td>相似款</td>
+            <td>${item.reason}</td>
+            <td>${thumbMarkup(item)}</td>
+            <td>Flora（AI推荐）</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td><a class="link">删除</a></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        showToast('已写入竞品列表，立即生效');
+      } else {
+        const tbody = qs('#editRows');
+        const baseIndex = tbody.children.length;
+        selected.forEach((item, offset) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>竞品${baseIndex + offset + 1}</td>
+            <td><input readonly value="${itemLink(item)}" style="width:100%;border:1px solid var(--line);height:28px;padding:0 8px;background:#f7f8fb"></td>
+            <td><input readonly value="${item.asin}" style="width:100%;border:1px solid var(--line);height:28px;padding:0 8px;background:#f7f8fb"></td>
+            <td><select style="width:100%;height:28px;border:1px solid var(--line)"><option>相似款</option><option>同款</option></select></td>
+            <td>${item.reason}</td>
+            <td><a class="link">删除</a></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        showToast('已写入当前编辑页，保存销售信息后生效');
+      }
+      closeModal();
+    }
+
+    function openBatchModal() {
+      qs('#batchModalMask').classList.add('show');
+      qs('#batchAiPanel').classList.remove('show');
+      batchRows = [];
+      batchAddedItems = [];
+      renderBatchRecommendations();
+    }
+
+    function closeBatchModal() {
+      qs('#batchModalMask').classList.remove('show');
+    }
+
+    function renderBatchRecommendations() {
+      batchRows = recommendations.filter(item => !removed.has(item.asin)).map(item => ({ ...item, checked: false }));
+      renderBatchRecommendRows();
+    }
+
+    function renderBatchRecommendRows() {
+      const tbody = qs('#batchRecommendRows');
+      tbody.innerHTML = '';
+      batchRows.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = item.checked ? 'selected' : '';
+        tr.innerHTML = `
+          <td><input type="checkbox" data-index="${index}" ${item.checked ? 'checked' : ''}></td>
+          <td>${index + 1}</td>
+          <td class="ellipsis"><a class="link" target="_blank" href="${itemLink(item)}">${itemLink(item)}</a></td>
+          <td><a class="link" target="_blank" href="${itemLink(item)}">${item.asin}</a></td>
+          <td>${thumbMarkup(item)}</td>
+          <td class="reason">${item.reason}</td>
+          <td><a class="link batch-add" data-index="${index}">添加</a>　<a class="danger-link batch-remove" data-index="${index}">标记移除</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateBatchCount();
+    }
+
+    function updateBatchCount() {
+      const count = batchRows.filter(row => row.checked).length;
+      qs('#batchSelectedCount').textContent = `已选择 ${count} 条`;
+      qs('#batchCheckAll').checked = batchRows.length > 0 && count === batchRows.length;
+    }
+
+    function appendBatchCompetitor(item) {
+      const tbody = qs('#batchRows');
+      const emptyRow = tbody.querySelector('tr[data-empty="true"]');
+      if (emptyRow) {
+        emptyRow.removeAttribute('data-empty');
+        emptyRow.querySelector('[data-field="link"]').outerHTML = `<input readonly value="${itemLink(item)}" style="width:100%;height:28px;border:1px solid var(--line);padding:0 8px;background:#f7f8fb">`;
+        emptyRow.querySelector('[data-field="asin"]').outerHTML = `<input readonly value="${item.asin}" style="width:100%;height:28px;border:1px solid var(--line);padding:0 8px;background:#f7f8fb">`;
+        emptyRow.querySelector('select').innerHTML = '<option>相似款</option><option>同款</option>';
+        emptyRow.querySelector('[data-field="reason"]').textContent = item.reason;
+        batchAddedItems.push(item);
+        return;
+      }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>竞品${tbody.children.length + 1}</td>
+        <td><input readonly value="${itemLink(item)}" style="width:100%;height:28px;border:1px solid var(--line);padding:0 8px;background:#f7f8fb"></td>
+        <td><input readonly value="${item.asin}" style="width:100%;height:28px;border:1px solid var(--line);padding:0 8px;background:#f7f8fb"></td>
+        <td><select style="width:100%;height:28px;border:1px solid var(--line)"><option>相似款</option><option>同款</option></select></td>
+        <td>${item.reason}</td>
+        <td><a class="link">删除</a></td>
+      `;
+      tbody.appendChild(tr);
+      batchAddedItems.push(item);
+    }
+
+    function appendEditCompetitor(tbody, item) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>竞品${tbody.children.length + 1}</td>
+        <td><input readonly value="${itemLink(item)}" style="width:100%;border:1px solid var(--line);height:28px;padding:0 8px;background:#f7f8fb"></td>
+        <td><input readonly value="${item.asin}" style="width:100%;border:1px solid var(--line);height:28px;padding:0 8px;background:#f7f8fb"></td>
+        <td><select style="width:100%;height:28px;border:1px solid var(--line)"><option>相似款</option><option>同款</option></select></td>
+        <td>${item.reason}</td>
+        <td><a class="link">删除</a></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function applyBatchToOuter(closeAfterApply) {
+      const target = qs('#editRows');
+      batchAddedItems.forEach(item => appendEditCompetitor(target, item));
+      batchAddedItems = [];
+      showToast('批量设置已应用，保存销售信息后生效');
+      if (closeAfterApply) closeBatchModal();
+    }
+
+    function addBatchByIndex(index) {
+      const item = batchRows[index];
+      appendBatchCompetitor(item);
+      batchRows.splice(index, 1);
+      renderBatchRecommendRows();
+    }
+
+    function addBatchSelected() {
+      const selected = batchRows.filter(row => row.checked);
+      if (!selected.length) {
+        showToast('请至少选择一条竞品');
+        return;
+      }
+      selected.forEach(appendBatchCompetitor);
+      batchRows = batchRows.filter(row => !row.checked);
+      renderBatchRecommendRows();
+      showToast('已批量添加到批量设置竞品列表');
+    }
+
+    function showHoverPreview(asin) {
+      qs('#hoverThumb').textContent = `${asin || '竞品'} 主图`;
+      qs('#hoverPreview').classList.add('show');
+    }
+
+    function hideHoverPreview() {
+      qs('#hoverPreview').classList.remove('show');
+    }
+
+    qsa('.nav-card').forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
+    qsa('[data-detail-tab]').forEach(tab => tab.addEventListener('click', () => setDetailTab(tab.dataset.detailTab)));
+    qsa('.open-ai').forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.source)));
+    qsa('.open-batch').forEach(btn => btn.addEventListener('click', openBatchModal));
+    qsa('[data-focus-competitor]').forEach(link => link.addEventListener('click', () => {
+      qs('#editRows').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showToast('已定位到竞品信息');
+    }));
+    qsa('[data-state-open]').forEach(btn => btn.addEventListener('click', () => openModal('states', btn.dataset.stateOpen)));
+
+    qs('#closeModal').addEventListener('click', closeModal);
+    qs('#cancelModal').addEventListener('click', closeModal);
+    qs('#confirmModal').addEventListener('click', addSelectedRows);
+    qs('#closeBatchModal').addEventListener('click', closeBatchModal);
+    qs('#cancelBatchModal').addEventListener('click', closeBatchModal);
+    qs('#applyBatch').addEventListener('click', () => applyBatchToOuter(true));
+    qs('#applyContinueBatch').addEventListener('click', () => applyBatchToOuter(false));
+    qs('#toggleBatchAi').addEventListener('click', () => qs('#batchAiPanel').classList.toggle('show'));
+    qs('#batchAddSelected').addEventListener('click', addBatchSelected);
+    qs('#batchCheckAll').addEventListener('change', event => {
+      batchRows.forEach(row => row.checked = event.target.checked);
+      renderBatchRecommendRows();
+    });
+
+    qs('#checkAll').addEventListener('change', event => {
+      modalRows.forEach(row => row.checked = event.target.checked);
+      renderRows();
+    });
+
+    qs('#recommendRows').addEventListener('click', event => {
+      const checkbox = event.target.closest('input[type="checkbox"]');
+      const choose = event.target.closest('.choose');
+      const remove = event.target.closest('.remove');
+      const pic = event.target.closest('.rec-thumb');
+
+      if (checkbox) {
+        modalRows[Number(checkbox.dataset.index)].checked = checkbox.checked;
+        renderRows();
+      }
+      if (choose) {
+        const row = modalRows[Number(choose.dataset.index)];
+        row.checked = !row.checked;
+        renderRows();
+      }
+      if (remove) {
+        const index = Number(remove.dataset.index);
+        removed.add(modalRows[index].asin);
+        modalRows.splice(index, 1);
+        renderRows();
+      }
+      if (pic) {
+        qs('#zoomThumb').textContent = `${pic.dataset.asin || '竞品'} 主图`;
+        qs('#zoomMask').classList.add('show');
+      }
+    });
+
+    qs('#batchRecommendRows').addEventListener('click', event => {
+      const checkbox = event.target.closest('input[type="checkbox"]');
+      const add = event.target.closest('.batch-add');
+      const remove = event.target.closest('.batch-remove');
+      const pic = event.target.closest('.rec-thumb');
+      if (checkbox) {
+        batchRows[Number(checkbox.dataset.index)].checked = checkbox.checked;
+        renderBatchRecommendRows();
+      }
+      if (add) addBatchByIndex(Number(add.dataset.index));
+      if (remove) {
+        const index = Number(remove.dataset.index);
+        removed.add(batchRows[index].asin);
+        batchRows.splice(index, 1);
+        renderBatchRecommendRows();
+      }
+      if (pic) {
+        qs('#zoomThumb').textContent = `${pic.dataset.asin || '竞品'} 主图`;
+        qs('#zoomMask').classList.add('show');
+      }
+    });
+
+    ['#recommendRows', '#batchRecommendRows'].forEach(selector => {
+      qs(selector).addEventListener('mouseover', event => {
+        const pic = event.target.closest('.rec-thumb');
+        if (pic) showHoverPreview(pic.dataset.asin);
+      });
+      qs(selector).addEventListener('mouseout', event => {
+        if (event.target.closest('.rec-thumb')) hideHoverPreview();
+      });
+    });
+
+    qs('#zoomMask').addEventListener('click', () => qs('#zoomMask').classList.remove('show'));
+    qsa('[data-jump="competitor"]').forEach(link => link.addEventListener('click', () => {
+      setView('detail');
+      setDetailTab('competitor');
+      qs('#competitorArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast('已定位到竞品信息Tab');
+    }));
+  </script>
+</body>
+</html>
