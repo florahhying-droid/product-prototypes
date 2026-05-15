@@ -463,7 +463,7 @@
     }
 
     .add-form {
-      padding: 16px 12px 360px;
+      padding: 16px 12px 28px;
       background: #fff;
       min-height: calc(100vh - 34px);
       overflow: visible;
@@ -472,6 +472,7 @@
     .add-table-scroll {
       overflow-x: auto;
       overflow-y: visible;
+      min-height: 520px;
       padding-bottom: 18px;
     }
 
@@ -712,7 +713,7 @@
     }
 
     .modal.choice {
-      width: 520px;
+      width: 760px;
     }
 
     .modal.wide {
@@ -752,14 +753,24 @@
 
     .choice-line {
       display: grid;
-      grid-template-columns: 110px 1fr 68px;
+      grid-template-columns: 146px 340px 68px;
       align-items: center;
       gap: 10px;
       margin-bottom: 12px;
     }
 
+    .choice-line span {
+      white-space: nowrap;
+    }
+
     .choice-line .selector {
       min-width: 0;
+      width: 100%;
+    }
+
+    .choice-line .selector input {
+      width: 300px;
+      min-width: 300px;
     }
 
     .modal-table-wrap {
@@ -1209,8 +1220,8 @@
           <h3>关联已有配件</h3>
           <div class="choice-line">
             <span>搜索已创建的配件产品</span>
-            <div class="selector sku-selector" data-mode="accessory">
-              <input placeholder="输入配件SKU，多个英文逗号隔开">
+            <div class="selector sku-selector" data-mode="accessory" data-placeholder="请输入配件SKU，多个英文逗号隔开">
+              <input placeholder="请输入配件SKU，多个英文逗号隔开">
               <div class="dropdown"></div>
             </div>
             <button class="btn" id="confirmExistingAccessory">关联</button>
@@ -1480,7 +1491,7 @@
         more.textContent = `+ ${selectedList.length - 1}`;
         selector.insertBefore(more, input);
       }
-      input.placeholder = selected.size ? "" : "多个以英文逗号/空格隔开";
+      input.placeholder = selected.size ? "" : (selector.dataset.placeholder || "多个以英文逗号/空格隔开");
 
       const dropdown = $(".dropdown", selector);
       if (!keyword) {
