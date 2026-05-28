@@ -55,11 +55,19 @@
     }
 
     .crumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       color: #657184;
       white-space: nowrap;
     }
 
     .crumb strong { color: #1f2a3a; font-weight: 600; }
+
+    .demo-title {
+      color: #1f2a3a;
+      font-weight: 700;
+    }
 
     .left-rail {
       padding: 14px 10px;
@@ -326,29 +334,84 @@
 
     .season-control select { flex: 1; min-width: 0; }
 
+    .competitor-field-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--teal-dark);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .competitor-ai-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      color: currentColor;
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .competitor-ai-mark::before { content: "✦"; }
+
+    .competitor-ai-mark::after {
+      content: "✧";
+      margin-left: -3px;
+      margin-top: -8px;
+      font-size: 10px;
+    }
+
     .ai-dot {
       position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 18px;
-      height: 18px;
-      flex: 0 0 18px;
-      border: 1px solid currentColor;
-      border-radius: 50%;
-      color: var(--gray);
-      background: #f3f5f8;
+      gap: 5px;
+      width: 76px;
+      height: 30px;
+      flex: 0 0 76px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ok);
+      background: var(--ok-soft);
       cursor: help;
-      font-size: 9px;
+      font-size: 13px;
       font-weight: 700;
+      line-height: 1;
     }
 
-    .ai-dot::before { content: "AI"; }
+    .ai-dot::before {
+      content: "✦";
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .ai-dot .ai-spark-small {
+      margin-left: -6px;
+      margin-top: -9px;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .ai-dot .ai-label { line-height: 1; }
     .ai-dot.green { color: var(--ok); background: var(--ok-soft); }
     .ai-dot.yellow { color: var(--warn); background: var(--warn-soft); }
     .ai-dot.gray { color: var(--gray); background: #f3f5f8; }
     .ai-dot.loading::before { content: ""; }
+    .ai-dot.loading .ai-spark-small,
+    .ai-dot.loading .ai-label { display: none; }
     .ai-dot.loading {
+      width: 30px;
+      flex-basis: 30px;
+      background: #f6f7f9;
+      border: 2px solid #d6dce6;
       border-color: #c3ccd8;
       border-top-color: var(--teal);
       animation: spin .8s linear infinite;
@@ -630,11 +693,10 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="crumb">产品原型 / <strong id="pageCrumb">产品详情页 - 销售信息</strong></div>
+      <div class="crumb"><span class="demo-title">AI推荐季节标签demo</span><span>/</span><strong id="pageCrumb">产品详情页 - 销售信息</strong></div>
     </header>
 
     <aside class="left-rail">
-      <div class="rail-title">AI推荐季节标签demo</div>
       <p class="rail-desc">场景入口为 Demo 辅助导航，不属于系统真实菜单。</p>
       <div class="nav-group">入口一：产品详情页</div>
       <button class="nav-card active" data-scene="detail-apparel"><span>服装类</span><small>改值/刷新看黄绿</small></button>
@@ -653,7 +715,7 @@
         <ul>
           <li>运营填写区新增必填【季节】字段。</li>
           <li>字段右侧展示 AI 图标，悬停查看判断详情。</li>
-          <li>点击浮窗底部【重新获取推荐】可手动触发。</li>
+          <li>点击浮窗底部【刷新推荐】可手动触发。</li>
           <li>黄/绿状态通过同一入口内修改下拉值或刷新推荐查看。</li>
           <li>异常场景中 AI 无法推荐、非法值保存各举一个例子。</li>
         </ul>
@@ -711,6 +773,10 @@
                   <label><span class="req">*</span>关键词（英文）</label>
                   <textarea id="detailKeyword" placeholder="请输入英文关键词，不允许输入中文">summer bucket hat sun protection</textarea>
                 </div>
+                <div class="field" style="margin-top:12px">
+                  <label>竞品信息</label>
+                  <a class="competitor-field-link"><span class="competitor-ai-mark"></span>AI 已推荐 6 条竞品，去查看 &gt;</a>
+                </div>
                 <div id="detailOpsSeason"></div>
               </div>
             </aside>
@@ -759,8 +825,12 @@
                 <h2 class="panel-title">运营填写</h2>
                 <div class="ops-inner">
                   <div class="field">
-                    <label><span class="req">*</span>关键词（英文）</label>
-                    <textarea id="editKeyword" placeholder="请输入英文关键词，不允许输入中文">summer bucket hat sun protection</textarea>
+                  <label><span class="req">*</span>关键词（英文）</label>
+                  <textarea id="editKeyword" placeholder="请输入英文关键词，不允许输入中文">summer bucket hat sun protection</textarea>
+                  </div>
+                  <div class="field" style="margin-top:12px">
+                    <label>竞品信息</label>
+                    <a class="competitor-field-link"><span class="competitor-ai-mark"></span>AI 已推荐 6 条竞品，去查看 &gt;</a>
                   </div>
                   <div id="editOpsSeason"></div>
                 </div>
@@ -778,11 +848,15 @@
         <h2>简短规则说明</h2>
         <ul>
           <li>非服装类下拉：冬 / 夏 / 无；服装类下拉：夏 / 秋 / 冬 / 四季。</li>
-          <li>AI 图标绿色表示推荐值与当前值一致且 confidence ≥ 0.80；黄色表示不一致或低置信；灰色表示无可用推荐。</li>
-          <li>【重新获取推荐】只更新 AI 推荐结果，不直接保存最终季节标签；最终以运营保存时字段值为准。</li>
+          <li>AI 图标绿色表示当前选择值与 AI 推荐一致且 confidence ≥ 0.80；黄色表示不一致或一致但低置信；灰色表示无可用推荐。</li>
+          <li>【刷新推荐】只更新 AI 推荐结果，不直接保存最终季节标签；最终以运营保存时字段值为准。</li>
+          <li>系统默认值场景下，若运营未手动改过季节，刷新推荐后右侧选择值随 AI 推荐值更新；若已手动修改，则只更新浮窗推荐内容。</li>
           <li>当前选择值为右侧运营填写区下拉框展示值；当前生效值为左侧开发填写区只读字段展示值。</li>
           <li>运营修改右侧季节后，左侧当前生效值不立即变化；保存成功后左侧才同步更新。</li>
           <li>AI 图标颜色始终基于“当前选择值”和 AI 推荐值重新计算。</li>
+          <li>AI 判断结果不每次打开页面都重新触发；无历史记录、AI 结果不可用、产品核心信息变化或运营点击【刷新推荐】时才触发。</li>
+          <li>核心信息包含 name / category / image_urls；服装类额外包含厚薄、主面料成分、特殊功能、袖长、裤长、裙长。</li>
+          <li>有 AI 历史记录且核心信息无变化时，直接展示最近一次 AI 推荐结果；每次手动刷新均记录，运营保存时关联当前展示的 ai_log_id。</li>
         </ul>
       </section>
     </main>
@@ -823,7 +897,30 @@
           reason: apparel ? '该商品为轻薄过渡款，无明显冬夏专属性，建议标记为四季。' : '该商品包含保暖使用场景，冬季备货价值更高，建议标记为冬。',
           logId: `AI_LOG_20260527${String(index + 50).padStart(3, '0')}`,
           usable: true
-        }
+        },
+        refetches: [
+          {
+            season: apparel ? '四季' : '夏',
+            confidence: 0.82,
+            reason: apparel ? '该商品为轻薄过渡款，无明显冬夏专属性，建议标记为四季。' : '该商品为防晒降温用品，建议标记为夏。',
+            logId: `AI_LOG_20260527${String(index + 50).padStart(3, '0')}`,
+            usable: true
+          },
+          {
+            season: current,
+            confidence: 0.76,
+            reason: apparel ? '该商品具备夏季防晒属性，但也可在换季场景使用，建议运营复核后确认。' : '该商品存在冬季保暖场景，但图片和标题未突出季节专属性，建议运营复核后确认。',
+            logId: `AI_LOG_20260527${String(index + 60).padStart(3, '0')}`,
+            usable: true
+          },
+          {
+            season: current,
+            confidence: 0.88,
+            reason: greenReason,
+            logId: `AI_LOG_20260527${String(index + 70).padStart(3, '0')}`,
+            usable: true
+          }
+        ]
       };
     }
 
@@ -834,7 +931,12 @@
         source: 'system-default',
         current: '无',
         ai: { season: '夏', confidence: 0.86, reason: '该商品为便携降温用品，主卖点集中在夏季清凉和户外通勤，建议标记为夏。', logId: 'AI_LOG_20260527002', usable: true },
-        refetch: { season: '冬', confidence: 0.82, reason: '该商品包含保暖使用场景，冬季备货价值更高，建议标记为冬。', logId: 'AI_LOG_20260527052', usable: true }
+        refetch: { season: '冬', confidence: 0.82, reason: '该商品包含保暖使用场景，冬季备货价值更高，建议标记为冬。', logId: 'AI_LOG_20260527052', usable: true },
+        refetches: [
+          { season: '冬', confidence: 0.82, reason: '该商品包含保暖使用场景，冬季备货价值更高，建议标记为冬。', logId: 'AI_LOG_20260527052', usable: true },
+          { season: '夏', confidence: 0.76, reason: '该商品为防晒降温用品，但标题中季节指向不够集中，建议运营复核后确认。', logId: 'AI_LOG_20260527062', usable: true },
+          { season: '夏', confidence: 0.88, reason: '该商品为便携降温用品，主卖点集中在夏季清凉和户外通勤，建议标记为夏。', logId: 'AI_LOG_20260527072', usable: true }
+        ]
       },
       'edit-apparel': makeScenario('edit', 'apparel', 3),
       'edit-nonapparel': makeScenario('edit', 'nonapparel', 4),
@@ -844,7 +946,11 @@
         source: 'manual',
         current: '无',
         ai: { season: '', confidence: 0, reason: '', logId: '', usable: false },
-        refetch: { season: '夏', confidence: 0.83, reason: '该商品为户外降温配件，使用场景集中在高温天气，建议标记为夏。', logId: 'AI_LOG_20260527091', usable: true }
+        refetch: { season: '夏', confidence: 0.83, reason: '该商品为户外降温配件，使用场景集中在高温天气，建议标记为夏。', logId: 'AI_LOG_20260527091', usable: true },
+        refetches: [
+          { season: '夏', confidence: 0.83, reason: '该商品为户外降温配件，使用场景集中在高温天气，建议标记为夏。', logId: 'AI_LOG_20260527091', usable: true },
+          { season: '', confidence: 0, reason: '', logId: 'AI_LOG_20260527094', usable: false }
+        ]
       },
       'invalid-save': {
         page: 'detail',
@@ -852,7 +958,11 @@
         source: 'manual',
         current: '四季',
         ai: { season: '冬', confidence: 0.86, reason: '该商品为保暖坐垫，核心卖点为加热和防寒，建议标记为冬。', logId: 'AI_LOG_20260527092', usable: true },
-        refetch: { season: '夏', confidence: 0.72, reason: '该商品也可作为夏季户外垫使用，但季节指向不强，建议运营复核。', logId: 'AI_LOG_20260527093', usable: true }
+        refetch: { season: '夏', confidence: 0.72, reason: '该商品也可作为夏季户外垫使用，但季节指向不强，建议运营复核。', logId: 'AI_LOG_20260527093', usable: true },
+        refetches: [
+          { season: '夏', confidence: 0.72, reason: '该商品也可作为夏季户外垫使用，但季节指向不强，建议运营复核。', logId: 'AI_LOG_20260527093', usable: true },
+          { season: '冬', confidence: 0.86, reason: '该商品为保暖坐垫，核心卖点为加热和防寒，建议标记为冬。', logId: 'AI_LOG_20260527095', usable: true }
+        ]
       }
     };
 
@@ -880,7 +990,7 @@
       const data = clone(sceneData[sceneName]);
       const savedSeason = data.current;
       const current = data.source === 'system-default' && data.current === '无' && data.ai.usable ? data.ai.season : savedSeason;
-      return { ...data, current, savedSeason, touched: false, currentAi: data.ai, loading: false };
+      return { ...data, current, savedSeason, touched: false, currentAi: data.ai, loading: false, refreshIndex: 0 };
     }
 
     function allowedValues(item) {
@@ -900,9 +1010,9 @@
 
     function relationText(item) {
       if (!item.currentAi.usable) return 'AI暂无法推荐';
-      if (item.currentAi.season !== item.current) return 'AI推荐与当前选择不一致';
-      if (item.currentAi.confidence < 0.8) return 'AI推荐与当前选择一致但置信度较低';
-      return 'AI推荐与当前选择一致';
+      if (item.currentAi.season !== item.current) return '当前选择与AI推荐不一致';
+      if (item.currentAi.confidence < 0.8) return '当前选择与AI推荐一致，但置信度低';
+      return '当前选择与AI推荐一致';
     }
 
     function titleMarkup(item, text) {
@@ -910,7 +1020,7 @@
     }
 
     function actionMarkup(item) {
-      const refresh = '<a class="popover-action secondary" data-refresh-ai><span class="refresh-mark">↻</span>重新获取推荐</a>';
+      const refresh = '<a class="popover-action secondary" data-refresh-ai><span class="refresh-mark">↻</span>刷新推荐</a>';
       if (item.currentAi.usable && item.currentAi.season !== item.current) {
         return `<div class="popover-actions">${refresh}<a class="popover-action primary" data-apply-ai>应用AI推荐</a></div>`;
       }
@@ -934,7 +1044,7 @@
           <label><span class="req">*</span>季节</label>
           <div class="season-control">
             <select data-season-select="${fieldId}">${seasonOptions(item)}</select>
-            <span class="ai-dot ${aiColor(item)} ${item.loading ? 'loading' : ''}" data-ai-icon="${fieldId}" tabindex="0"></span>
+            <span class="ai-dot ${aiColor(item)} ${item.loading ? 'loading' : ''}" data-ai-icon="${fieldId}" tabindex="0"><span class="ai-spark-small">✧</span><span class="ai-label">AI推荐</span></span>
           </div>
           <div class="status-line">${error}</div>
         </div>
@@ -975,17 +1085,17 @@
       const item = state;
       if (item.loading) {
         pop.innerHTML = `
-          ${titleMarkup(item, 'AI重新判断中，请稍候...')}
+          ${titleMarkup(item, 'AI刷新推荐中，请稍候...')}
           <div class="popover-row">当前生效值：${item.savedSeason}</div>
           <div class="popover-row">当前选择值：${selectedValueText(item)}</div>
-          <div class="popover-actions"><a class="popover-action disabled"><span class="refresh-mark loading"></span>重新获取推荐</a></div>
+          <div class="popover-actions"><a class="popover-action disabled"><span class="refresh-mark loading"></span>刷新推荐</a></div>
         `;
       } else if (!item.currentAi.usable) {
         pop.innerHTML = `
           ${titleMarkup(item, 'AI暂无法推荐')}
           <div class="popover-row">当前生效值：${item.savedSeason}</div>
           <div class="popover-row">当前选择值：${selectedValueText(item)}</div>
-          <div class="popover-row">当前AI暂无法提供推荐，请手动选择或重新获取推荐</div>
+          <div class="popover-row">当前AI暂无法提供推荐，请手动选择或刷新推荐</div>
           ${actionMarkup(item)}
         `;
       } else {
@@ -1009,6 +1119,13 @@
       qs('#aiPopover').classList.remove('show');
     }
 
+    function nextAiResult(item) {
+      const list = item.refetches && item.refetches.length ? item.refetches : [item.refetch];
+      const result = list[item.refreshIndex % list.length];
+      item.refreshIndex += 1;
+      return clone(result);
+    }
+
     function refreshAi() {
       const target = activePopoverTarget || document.querySelector('[data-ai-icon]');
       state.loading = true;
@@ -1017,7 +1134,7 @@
       showPopover(activePopoverTarget);
       window.setTimeout(() => {
         const previousAiSeason = state.currentAi.season;
-        state.currentAi = clone(state.refetch);
+        state.currentAi = nextAiResult(state);
         state.loading = false;
         if (state.source === 'system-default' && !state.touched && state.current === previousAiSeason && state.currentAi.usable) {
           state.current = state.currentAi.season;
