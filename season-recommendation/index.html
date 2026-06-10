@@ -236,6 +236,10 @@
       gap: 14px;
     }
 
+    .sales-layout.full {
+      grid-template-columns: 1fr;
+    }
+
     .dev-panel,
     .ops-panel {
       border: 1px solid var(--line);
@@ -319,6 +323,7 @@
       background: var(--danger-soft);
     }
 
+    .field.readonly input,
     .field.readonly select {
       color: #7b8794;
       background: #f7f8fb;
@@ -330,6 +335,11 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .season-control.no-ai select {
+      flex: none;
+      width: 100%;
     }
 
     .season-control select { flex: 1; min-width: 0; }
@@ -698,13 +708,19 @@
 
     <aside class="left-rail">
       <p class="rail-desc">场景入口为 Demo 辅助导航，不属于系统真实菜单。</p>
-      <div class="nav-group">入口一：产品详情页</div>
-      <button class="nav-card active" data-scene="detail-apparel"><span>服装类</span><small>改值/刷新看黄绿</small></button>
-      <button class="nav-card" data-scene="detail-nonapparel"><span>非服装类</span><small>改值/刷新看黄绿</small></button>
+      <div class="nav-group">入口一：开发创建SPU</div>
+      <button class="nav-card active" data-scene="dev-create"><span>产品详情-new</span><small>服装类举例/无AI</small></button>
 
-      <div class="nav-group">入口二：产品开发-new</div>
-      <button class="nav-card" data-scene="edit-apparel"><span>服装类</span><small>改值/刷新看黄绿</small></button>
-      <button class="nav-card" data-scene="edit-nonapparel"><span>非服装类</span><small>改值/刷新看黄绿</small></button>
+      <div class="nav-group">入口二：开发编辑SPU</div>
+      <button class="nav-card" data-scene="dev-edit"><span>编辑SPU</span><small>服装类举例/有AI</small></button>
+
+      <div class="nav-group">入口三：运营编辑SPU</div>
+      <button class="nav-card" data-scene="edit-apparel"><span>服装类</span><small>产品详情-new</small></button>
+      <button class="nav-card" data-scene="edit-nonapparel"><span>非服装类</span><small>产品详情-new</small></button>
+
+      <div class="nav-group">入口四：运营单独确认销售信息</div>
+      <button class="nav-card" data-scene="detail-apparel"><span>服装类</span><small>产品详情页</small></button>
+      <button class="nav-card" data-scene="detail-nonapparel"><span>非服装类</span><small>产品详情页</small></button>
 
       <div class="nav-group">异常场景</div>
       <button class="nav-card" data-scene="gray"><span>AI无法推荐</span><small>灰色</small></button>
@@ -713,8 +729,9 @@
       <div class="note-box">
         <strong>本次局部改造</strong>
         <ul>
-          <li>运营填写区新增必填【季节】字段。</li>
-          <li>字段右侧展示 AI 图标，悬停查看判断详情。</li>
+          <li>销售信息-基础信息新增必填【季节】字段，位置在【立项运营】之后。</li>
+          <li>开发新建SPU时默认空，不展示 AI 推荐。</li>
+          <li>编辑/确认场景中字段右侧展示 AI 图标，悬停查看判断详情。</li>
           <li>点击浮窗底部【刷新推荐】可手动触发。</li>
           <li>黄/绿状态通过同一入口内修改下拉值或刷新推荐查看。</li>
           <li>异常场景中 AI 无法推荐、非法值保存各举一个例子。</li>
@@ -755,9 +772,9 @@
         </div>
         <div class="sales-body">
           <button class="btn primary" id="detailSave" style="float:right">应用</button>
-          <div class="sales-layout" style="clear:both;padding-top:12px">
+          <div class="sales-layout" id="detailSalesLayout" style="clear:both;padding-top:12px">
             <div class="dev-panel">
-              <h2 class="panel-title">开发填写</h2>
+              <h2 class="panel-title" id="detailDevTitle">开发填写运营确认</h2>
               <div class="section-title">基础信息</div>
               <div class="form-grid" id="detailDevFields"></div>
               <div class="section-title">功能卖点</div>
@@ -777,7 +794,6 @@
                   <label>竞品信息</label>
                   <a class="competitor-field-link"><span class="competitor-ai-mark"></span>AI 已推荐 6 条竞品，去查看 &gt;</a>
                 </div>
-                <div id="detailOpsSeason"></div>
               </div>
             </aside>
           </div>
@@ -785,13 +801,13 @@
       </section>
 
       <section class="page-card" id="editPage" hidden>
-        <div class="product-tag">产品开发-new</div>
+        <div class="product-tag" id="editProductTag">产品开发-new</div>
         <div class="edit-body">
-          <aside class="edit-side">
-            <div class="side-item">基本信息<span class="readonly-tag">只读</span></div>
-            <div class="side-item">产品规格<span class="readonly-tag">只读</span></div>
+          <aside class="edit-side" id="editSideNav">
+            <div class="side-item">基本信息</div>
+            <div class="side-item">产品规格</div>
             <div class="side-item active">销售信息</div>
-            <div class="side-item">产品资料<span class="readonly-tag">只读</span></div>
+            <div class="side-item">产品资料</div>
           </aside>
           <div class="edit-main">
             <div class="toolbar">
@@ -803,9 +819,9 @@
               <span>SKU_APP_MOCK001　黑色</span>
               <span>评分：<span style="color:#e15858">50分</span>　查看详情　⌄</span>
             </div>
-            <div class="sales-layout">
+            <div class="sales-layout" id="editSalesLayout">
               <div class="dev-panel">
-                <h2 class="panel-title">开发填写</h2>
+                <h2 class="panel-title" id="editDevTitle">开发填写运营确认</h2>
                 <div class="tabline">
                   <button class="subtab">竞品信息</button>
                   <button class="subtab">基础信息</button>
@@ -821,7 +837,7 @@
                   <div class="field"><label>功能</label><textarea>遮阳、防晒。</textarea></div>
                 </div>
               </div>
-              <aside class="ops-panel">
+              <aside class="ops-panel" id="editOpsPanel">
                 <h2 class="panel-title">运营填写</h2>
                 <div class="ops-inner">
                   <div class="field">
@@ -832,7 +848,6 @@
                     <label>竞品信息</label>
                     <a class="competitor-field-link"><span class="competitor-ai-mark"></span>AI 已推荐 6 条竞品，去查看 &gt;</a>
                   </div>
-                  <div id="editOpsSeason"></div>
                 </div>
               </aside>
             </div>
@@ -849,14 +864,15 @@
         <ul>
           <li>非服装类下拉：冬 / 夏 / 无；服装类下拉：夏 / 秋 / 冬 / 四季。</li>
           <li>AI 图标绿色表示当前选择值与 AI 推荐一致且 confidence ≥ 0.80；黄色表示不一致或一致但低置信；灰色表示无可用推荐。</li>
-          <li>【刷新推荐】只更新 AI 推荐结果，不直接保存最终季节标签；最终以运营保存时字段值为准。</li>
-          <li>系统默认值场景下，若运营未手动改过季节，刷新推荐后右侧选择值随 AI 推荐值更新；若已手动修改，则只更新浮窗推荐内容。</li>
-          <li>当前选择值为右侧运营填写区下拉框展示值；当前生效值为左侧开发填写区只读字段展示值。</li>
-          <li>运营修改右侧季节后，左侧当前生效值不立即变化；保存成功后左侧才同步更新。</li>
+          <li>【刷新推荐】只更新 AI 推荐结果，不直接保存最终季节标签；最终以运营/开发保存时字段值为准。</li>
+          <li>系统默认值场景下，若运营/开发未手动改过季节，刷新推荐后当前选择值随 AI 推荐值更新；若已手动修改，则只更新浮窗推荐内容。</li>
+          <li>【季节】是产品销售信息-基础信息中的通用属性，位于【立项运营】之后；开发新建SPU时默认空且不展示 AI 推荐。</li>
+          <li>当前选择值为基础信息中【季节】下拉框展示值；当前生效值为当前已保存的产品季节值。</li>
+          <li>运营编辑SPU和运营单独确认销售信息时，【开发填写】文案展示为【开发填写运营确认】。</li>
           <li>AI 图标颜色始终基于“当前选择值”和 AI 推荐值重新计算。</li>
-          <li>AI 判断结果不每次打开页面都重新触发；无历史记录、AI 结果不可用、产品核心信息变化或运营点击【刷新推荐】时才触发。</li>
+          <li>AI 判断结果不每次打开页面都重新触发；无历史记录、AI 结果不可用、产品核心信息变化或运营/开发点击【刷新推荐】时才触发。</li>
           <li>核心信息包含 name / category / image_urls；服装类额外包含厚薄、主面料成分、特殊功能、袖长、裤长、裙长。</li>
-          <li>有 AI 历史记录且核心信息无变化时，直接展示最近一次 AI 推荐结果；每次手动刷新均记录，运营保存时关联当前展示的 ai_log_id。</li>
+          <li>有 AI 历史记录且核心信息无变化时，直接展示最近一次 AI 推荐结果；每次手动刷新均记录，运营/开发保存时关联当前展示的 ai_log_id。</li>
         </ul>
       </section>
     </main>
@@ -882,6 +898,8 @@
       return {
         page,
         productType,
+        role: 'confirm',
+        aiEnabled: true,
         source: 'manual',
         current,
         ai: {
@@ -925,6 +943,22 @@
     }
 
     const sceneData = {
+      'dev-create': {
+        page: 'edit',
+        productType: 'apparel',
+        role: 'dev-create',
+        aiEnabled: false,
+        source: 'manual',
+        current: '',
+        ai: { season: '', confidence: 0, reason: '', logId: '', usable: false },
+        refetch: { season: '', confidence: 0, reason: '', logId: '', usable: false },
+        refetches: []
+      },
+      'dev-edit': {
+        ...makeScenario('edit', 'apparel', 5),
+        role: 'dev-edit',
+        aiEnabled: true
+      },
       'detail-apparel': makeScenario('detail', 'apparel', 1),
       'detail-nonapparel': {
         ...makeScenario('detail', 'nonapparel', 2),
@@ -938,11 +972,13 @@
           { season: '夏', confidence: 0.88, reason: '该商品为便携降温用品，主卖点集中在夏季清凉和户外通勤，建议标记为夏。', logId: 'AI_LOG_20260527072', usable: true }
         ]
       },
-      'edit-apparel': makeScenario('edit', 'apparel', 3),
-      'edit-nonapparel': makeScenario('edit', 'nonapparel', 4),
+      'edit-apparel': { ...makeScenario('edit', 'apparel', 3), role: 'ops-edit', aiEnabled: true },
+      'edit-nonapparel': { ...makeScenario('edit', 'nonapparel', 4), role: 'ops-edit', aiEnabled: true },
       'gray': {
         page: 'detail',
         productType: 'nonapparel',
+        role: 'confirm',
+        aiEnabled: true,
         source: 'manual',
         current: '无',
         ai: { season: '', confidence: 0, reason: '', logId: '', usable: false },
@@ -955,6 +991,8 @@
       'invalid-save': {
         page: 'detail',
         productType: 'nonapparel',
+        role: 'confirm',
+        aiEnabled: true,
         source: 'manual',
         current: '四季',
         ai: { season: '冬', confidence: 0.86, reason: '该商品为保暖坐垫，核心卖点为加热和防寒，建议标记为冬。', logId: 'AI_LOG_20260527092', usable: true },
@@ -968,17 +1006,18 @@
 
     const devFields = {
       apparel: [
+        ['可售区域', '美区'], ['产品标签', '服装'], ['产品状态', '开发中'], ['立项运营', '运营A'], ['季节', '夏'],
         ['图案类型', '水果'], ['面料类型', '编织'], ['面料弹性', '微弹'], ['厚薄', '厚款'],
-        ['元素', '抽象印花'], ['主面料成分', '莱赛尔（天丝）'], ['特殊功能', '防晒'], ['季节', '夏'],
+        ['元素', '抽象印花'], ['主面料成分', '莱赛尔（天丝）'], ['特殊功能', '防晒'],
         ['袖长', '九分袖'], ['裤长', '拖地裤'], ['适用性别', '男'], ['是否需要组装', '无需组装']
       ],
       nonapparel: [
-        ['可售区域', '美区'], ['产品标签', '请选择'], ['产品状态', '开发中'], ['立项运营', '运营A'],
+        ['可售区域', '美区'], ['产品标签', '请选择'], ['产品状态', '开发中'], ['立项运营', '运营A'], ['季节', '冬'],
         ['图案类型', '纯色'], ['材质', 'ABS'], ['功能', '保温'], ['使用场景', '户外']
       ]
     };
 
-    let activeScene = 'detail-apparel';
+    let activeScene = 'dev-create';
     let state = {};
     let activePopoverTarget = null;
 
@@ -998,11 +1037,13 @@
     }
 
     function saveError(item) {
+      if (!item.current) return '请选择季节';
       if (allowedValues(item).includes(item.current)) return '';
       return item.productType === 'nonapparel' ? '非服装类不得为春、秋、四季' : '服装类不得为春、无';
     }
 
     function aiColor(item) {
+      if (!item.aiEnabled) return 'gray';
       if (!item.currentAi.usable) return 'gray';
       if (item.currentAi.season === item.current && item.currentAi.confidence >= 0.8) return 'green';
       return 'yellow';
@@ -1033,18 +1074,22 @@
     }
 
     function seasonOptions(item) {
-      const values = allowedValues(item).includes(item.current) ? allowedValues(item) : [item.current, ...allowedValues(item)];
-      return values.map(value => `<option value="${value}" ${value === item.current ? 'selected' : ''}>${value}</option>`).join('');
+      const values = item.current && !allowedValues(item).includes(item.current) ? [item.current, ...allowedValues(item)] : allowedValues(item);
+      const placeholder = `<option value="" ${item.current ? '' : 'selected'}>请选择</option>`;
+      return placeholder + values.map(value => `<option value="${value}" ${value === item.current ? 'selected' : ''}>${value}</option>`).join('');
     }
 
-    function seasonControl(fieldId, item) {
-      const error = saveError(item);
+    function seasonControl(fieldId, item, showAi = true) {
+      const error = item.current ? saveError(item) : '';
+      const aiMarkup = showAi && item.aiEnabled
+        ? `<span class="ai-dot ${aiColor(item)} ${item.loading ? 'loading' : ''}" data-ai-icon="${fieldId}" tabindex="0"><span class="ai-spark-small">✧</span><span class="ai-label">AI推荐</span></span>`
+        : '';
       return `
-        <div class="field ${error ? 'invalid' : ''}" style="margin-top:12px">
+        <div class="field ${error ? 'invalid' : ''}">
           <label><span class="req">*</span>季节</label>
-          <div class="season-control">
+          <div class="season-control ${aiMarkup ? '' : 'no-ai'}">
             <select data-season-select="${fieldId}">${seasonOptions(item)}</select>
-            <span class="ai-dot ${aiColor(item)} ${item.loading ? 'loading' : ''}" data-ai-icon="${fieldId}" tabindex="0"><span class="ai-spark-small">✧</span><span class="ai-label">AI推荐</span></span>
+            ${aiMarkup}
           </div>
           <div class="status-line">${error}</div>
         </div>
@@ -1052,30 +1097,59 @@
     }
 
     function renderDevFields(container, item, editablePage) {
-      container.innerHTML = devFields[item.productType].map(([label, value]) => {
+      const commonReadonlyFields = ['可售区域', '产品标签', '产品状态', '立项运营'];
+      container.innerHTML = devFields[item.productType].filter(([label]) => {
+        if (item.role === 'dev-create' && label === '产品状态') return false;
+        if (item.page === 'detail' && commonReadonlyFields.includes(label)) return false;
+        return true;
+      }).map(([label, value]) => {
         if (label === '季节') {
-          return `<div class="field readonly"><label><span class="req">*</span>季节</label><select disabled><option>${item.savedSeason}</option></select></div>`;
+          return seasonControl(`${item.page}-basic`, item, item.aiEnabled);
         }
-        return `<div class="field"><label><span class="req">*</span>${label}</label><input value="${value}"></div>`;
+        const readonly = item.role === 'ops-edit' && commonReadonlyFields.includes(label);
+        return `<div class="field ${readonly ? 'readonly' : ''}"><label><span class="req">*</span>${label}</label><input value="${value}" ${readonly ? 'disabled' : ''}></div>`;
       }).join('');
+    }
+
+    function renderEditSideNav(item) {
+      const readonly = item.role === 'ops-edit';
+      const tag = readonly ? '<span class="readonly-tag">只读</span>' : '';
+      qs('#editSideNav').innerHTML = `
+        <div class="side-item">基本信息${tag}</div>
+        <div class="side-item">产品规格${tag}</div>
+        <div class="side-item active">销售信息</div>
+        <div class="side-item">产品资料${tag}</div>
+      `;
     }
 
     function render() {
       const isEdit = state.page === 'edit';
+      const isOpsEdit = state.role === 'ops-edit';
       qs('#detailPage').hidden = isEdit;
       qs('#editPage').hidden = !isEdit;
-      qs('#pageCrumb').textContent = isEdit ? '运营编辑 - 产品开发-new' : '产品详情页 - 销售信息';
+      const crumbMap = {
+        'dev-create': '开发创建SPU - 产品详情-new',
+        'dev-edit': '开发编辑SPU - 编辑SPU',
+        'ops-edit': '运营编辑SPU - 产品详情-new',
+        confirm: '运营单独确认销售信息 - 产品详情页'
+      };
+      qs('#pageCrumb').textContent = crumbMap[state.role] || '产品详情页 - 销售信息';
       qsa('.nav-card').forEach(btn => btn.classList.toggle('active', btn.dataset.scene === activeScene));
 
       if (isEdit) {
+        renderEditSideNav(state);
+        qs('#editProductTag').textContent = state.role === 'dev-edit' ? '编辑SPU' : '产品开发-new';
+        qs('#editDevTitle').textContent = isOpsEdit ? '开发填写运营确认' : '开发填写';
+        qs('#editSalesLayout').classList.toggle('full', !isOpsEdit);
+        qs('#editOpsPanel').hidden = !isOpsEdit;
         renderDevFields(qs('#editDevFields'), state, true);
-        qs('#editOpsSeason').innerHTML = seasonControl('edit-ops', state);
       } else {
+        qs('#detailDevTitle').textContent = '开发填写运营确认';
+        qs('#detailSalesLayout').classList.remove('full');
         qs('#detailSpu').textContent = state.productType === 'apparel' ? 'SPU_APP_MOCK001' : 'SPU_NON_MOCK001';
         qs('#detailPhoto').textContent = state.productType === 'apparel' ? '服装主图' : '非服装主图';
         qs('#detailKeyword').value = state.productType === 'apparel' ? 'summer bucket hat sun protection' : 'cooling neck fan summer outdoor';
         renderDevFields(qs('#detailDevFields'), state, false);
-        qs('#detailOpsSeason').innerHTML = seasonControl('detail-ops', state);
       }
     }
 
@@ -1130,7 +1204,7 @@
       const target = activePopoverTarget || document.querySelector('[data-ai-icon]');
       state.loading = true;
       render();
-      activePopoverTarget = document.querySelector(`[data-ai-icon="${target ? target.dataset.aiIcon : 'detail-ops'}"]`) || target;
+      activePopoverTarget = document.querySelector(`[data-ai-icon="${target ? target.dataset.aiIcon : 'detail-basic'}"]`) || target;
       showPopover(activePopoverTarget);
       window.setTimeout(() => {
         const previousAiSeason = state.currentAi.season;
@@ -1140,7 +1214,7 @@
           state.current = state.currentAi.season;
         }
         render();
-        activePopoverTarget = document.querySelector(`[data-ai-icon="${activePopoverTarget ? activePopoverTarget.dataset.aiIcon : 'detail-ops'}"]`) || document.querySelector('[data-ai-icon]');
+        activePopoverTarget = document.querySelector(`[data-ai-icon="${activePopoverTarget ? activePopoverTarget.dataset.aiIcon : 'detail-basic'}"]`) || document.querySelector('[data-ai-icon]');
         showPopover(activePopoverTarget);
       }, 900);
     }
@@ -1185,7 +1259,7 @@
       }
       if (event.target.closest('[data-apply-ai]')) {
         if (state.currentAi.usable) {
-          const targetKey = activePopoverTarget ? activePopoverTarget.dataset.aiIcon : 'detail-ops';
+          const targetKey = activePopoverTarget ? activePopoverTarget.dataset.aiIcon : 'detail-basic';
           state.current = state.currentAi.season;
           state.touched = true;
           render();
@@ -1226,7 +1300,7 @@
     });
 
     qs('#aiPopover').addEventListener('mouseleave', hidePopover);
-    setScene('detail-apparel');
+    setScene('dev-create');
   </script>
 </body>
 </html>
