@@ -1,0 +1,1919 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>销售属性配置与SKU自定义属性 Demo</title>
+  <style>
+    :root {
+      --teal: #28b7ac;
+      --teal-dark: #14978f;
+      --teal-soft: #e1f8f5;
+      --line: #e6e9ef;
+      --line-dark: #d6dce6;
+      --text: #334155;
+      --muted: #7b8794;
+      --bg: #f5f7fa;
+      --danger: #e15858;
+      --danger-soft: #fff4f4;
+      --warn: #d48a1f;
+      --warn-soft: #fff8e9;
+      --shadow: 0 10px 28px rgba(31, 42, 58, .16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1320px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 46px 1fr;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #657184;
+      white-space: nowrap;
+    }
+
+    .demo-title {
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    .crumb strong {
+      color: #1f2a3a;
+      font-weight: 600;
+    }
+
+    .left-rail {
+      padding: 14px 10px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+      overflow: auto;
+    }
+
+    .rail-desc {
+      margin: 0 6px 12px;
+      color: #7b8794;
+      line-height: 1.55;
+      font-size: 12px;
+    }
+
+    .nav-group {
+      margin: 14px 6px 8px;
+      color: #1f2a3a;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav-card {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: #f7f8fb;
+      color: #536173;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-card.active {
+      border-color: #bfeee9;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      font-weight: 600;
+    }
+
+    .nav-card small {
+      color: #9aa5b3;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .note-box {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      color: #667386;
+      line-height: 1.75;
+    }
+
+    .note-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #1f2a3a;
+    }
+
+    .note-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .demo-note-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--line);
+      color: #536173;
+    }
+
+    .demo-note-row:last-child {
+      border-bottom: 0;
+    }
+
+    .demo-note-row span:last-child {
+      color: #9aa5b3;
+      white-space: nowrap;
+    }
+
+    .canvas {
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .page-card {
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 2px 7px rgba(31, 42, 58, .05);
+    }
+
+    .product-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      color: #fff;
+      background: var(--teal);
+      border-radius: 0 0 2px 0;
+    }
+
+    .page-tabs {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px 0;
+      background: #fff;
+    }
+
+    .page-tab {
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-bottom-color: #fff;
+      border-radius: 3px 3px 0 0;
+      color: #536173;
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .page-tab.active {
+      color: #fff;
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+
+    .module-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 14px 16px 10px;
+    }
+
+    .module-title {
+      margin: 0 0 5px;
+      color: #1f2a3a;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .module-desc {
+      margin: 0;
+      color: #7b8794;
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid var(--line-dark);
+      border-radius: 2px;
+      color: #536173;
+      background: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      color: #fff;
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+
+    .btn.ghost-teal {
+      color: var(--teal-dark);
+      border-color: #9be0da;
+      background: #f2fffd;
+    }
+
+    .btn.danger {
+      color: #fff;
+      border-color: var(--danger);
+      background: var(--danger);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      background: #f1f3f6;
+      color: #b5bdc9;
+      border-color: #e1e5eb;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 4px 4px 0 0;
+      background: #fff;
+    }
+
+    .line-search {
+      width: 280px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0 10px;
+      color: #536173;
+      background: #fff;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #697589;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 5px 8px;
+      color: #475469;
+      background: #fff;
+    }
+
+    .field textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .field.invalid input,
+    .field.invalid select,
+    .field.invalid textarea {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .field.readonly input,
+    .field.readonly select {
+      color: #7b8794;
+      background: #f7f8fb;
+    }
+
+    .req { color: var(--danger); margin-right: 2px; }
+
+    .error {
+      min-height: 18px;
+      margin-top: 4px;
+      color: var(--danger);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 8px;
+      color: #4d5a6d;
+      text-align: left;
+      vertical-align: middle;
+      line-height: 1.45;
+    }
+
+    th {
+      background: #fafbfc;
+      color: #667386;
+      font-weight: 600;
+    }
+
+    td input,
+    td select,
+    td textarea {
+      width: 100%;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 4px 7px;
+      color: #475469;
+      background: #fff;
+    }
+
+    td input:disabled,
+    td select:disabled,
+    td textarea:disabled {
+      color: #98a2b3;
+      background: #f4f6f8;
+    }
+
+    td textarea {
+      min-height: 50px;
+      resize: vertical;
+    }
+
+    .default-multi {
+      position: relative;
+    }
+
+    .default-multi-trigger {
+      width: 100%;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 3px 24px 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: #475469;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .default-multi-trigger::after {
+      content: "⌄";
+      position: absolute;
+      right: 8px;
+      top: 5px;
+      color: #98a2b3;
+    }
+
+    .multi-tag {
+      display: inline-flex;
+      align-items: center;
+      max-width: 92px;
+      min-height: 20px;
+      padding: 0 6px;
+      border-radius: 2px;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .multi-placeholder {
+      color: #98a2b3;
+    }
+
+    .default-multi-menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 2px);
+      max-height: 170px;
+      overflow: auto;
+      padding: 4px 0;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      z-index: 30;
+    }
+
+    .default-multi.open .default-multi-menu {
+      display: block;
+    }
+
+    .default-multi-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+
+    .default-multi-option:hover {
+      background: #f6fffd;
+    }
+
+    .config-table th,
+    .config-table td {
+      vertical-align: top;
+    }
+
+    .config-table .sort-cell {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .table-wrap {
+      padding: 0 14px 18px;
+      overflow: auto;
+    }
+
+    .table-wrap.compact {
+      padding-top: 0;
+    }
+
+    .link {
+      color: var(--teal-dark);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .muted {
+      color: #98a2b3;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 7px;
+      border-radius: 2px;
+      color: #667386;
+      background: #eef2f6;
+      font-size: 12px;
+    }
+
+    .tag.teal {
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      font-size: 12px;
+    }
+
+    .tree-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .tree-icon {
+      color: var(--teal-dark);
+      font-size: 12px;
+    }
+
+    .indent-1 { padding-left: 20px; }
+    .indent-2 { padding-left: 38px; }
+
+    .op-cell {
+      position: relative;
+      text-align: right;
+    }
+
+    .dots {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 2px;
+      color: #667386;
+      cursor: pointer;
+    }
+
+    .op-menu {
+      position: absolute;
+      right: 8px;
+      top: 28px;
+      width: 138px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(31, 42, 58, .14);
+      z-index: 5;
+      text-align: left;
+    }
+
+    .op-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 9px;
+      color: #536173;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .op-menu a:hover {
+      color: var(--teal-dark);
+      background: #f2fffd;
+    }
+
+    .op-menu a.danger {
+      color: var(--danger);
+    }
+
+    .op-divider {
+      height: 1px;
+      margin: 4px 6px;
+      background: var(--line);
+    }
+
+    .tag.warn {
+      color: #9b6415;
+      background: var(--warn-soft);
+    }
+
+    .preview-values {
+      position: relative;
+      margin-top: 4px;
+      color: #7b8794;
+      font-size: 12px;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      white-space: normal;
+      overflow: hidden;
+    }
+
+    .preview-cell {
+      position: relative;
+    }
+
+    .preview-tooltip {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: calc(100% + 4px);
+      width: 360px;
+      max-height: 180px;
+      overflow: auto;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      color: #475469;
+      background: #fff;
+      box-shadow: var(--shadow);
+      line-height: 1.6;
+      z-index: 40;
+    }
+
+    .preview-cell:hover .preview-tooltip {
+      display: block;
+    }
+
+    .sort-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 26px;
+      color: #9aa5b3;
+      cursor: grab;
+    }
+
+    .sort-icon:active {
+      cursor: grabbing;
+    }
+
+    .config-table tr.dragging {
+      opacity: .5;
+      background: #f6fffd;
+    }
+
+    .sort-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .edit-layout {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      min-height: 620px;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-head {
+      display: grid;
+      grid-template-columns: 280px 1fr 1fr;
+      gap: 22px;
+      padding: 18px 20px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .photo-box {
+      height: 220px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      color: #7b8794;
+      background: linear-gradient(135deg, #f9fbfb, #eef8f6);
+      font-size: 18px;
+    }
+
+    .info-panel {
+      min-height: 190px;
+      padding: 22px 20px;
+      background: #fbfbfc;
+    }
+
+    .info-panel h3 {
+      margin: 0 0 14px;
+      color: #1f2a3a;
+      font-size: 16px;
+    }
+
+    .info-line {
+      margin: 10px 0;
+      color: #5c6879;
+      line-height: 1.5;
+    }
+
+    .tabs {
+      display: flex;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #f8f9fb;
+    }
+
+    .tab {
+      min-width: 118px;
+      height: 44px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      color: #6b7688;
+      background: transparent;
+      cursor: default;
+    }
+
+    .tab.active {
+      color: var(--teal-dark);
+      background: #fff;
+      border-bottom: 2px solid var(--teal);
+      font-weight: 700;
+    }
+
+    .sku-detail-head,
+    .sku-detail-tabs {
+      display: none;
+    }
+
+    #skuView.detail-mode .sku-detail-head,
+    #skuView.detail-mode .sku-detail-tabs {
+      display: grid;
+    }
+
+    #skuView.detail-mode .sku-detail-tabs {
+      display: flex;
+    }
+
+    #skuView.detail-mode .edit-layout {
+      display: block;
+      min-height: 0;
+      border-top: 0;
+    }
+
+    #skuView.detail-mode .edit-side,
+    #skuView.detail-mode #skuToolbar,
+    #skuView.detail-mode .sku-bar,
+    #skuView.detail-mode .subtabs {
+      display: none;
+    }
+
+    .edit-side {
+      padding-top: 14px;
+      border-right: 1px solid var(--line);
+      background: #f8f9fb;
+    }
+
+    .side-item {
+      padding: 12px 12px;
+      border-left: 3px solid transparent;
+      color: #6b7688;
+    }
+
+    .side-item.active {
+      color: var(--teal-dark);
+      border-left-color: var(--teal);
+      background: #fff;
+      font-weight: 600;
+    }
+
+    .edit-main {
+      padding: 16px 18px 74px;
+      position: relative;
+    }
+
+    .sku-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 36px;
+      padding: 0 12px;
+      margin-bottom: 10px;
+      background: var(--teal-soft);
+      color: #253244;
+      font-weight: 600;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      color: #1f2a3a;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-title::before {
+      content: "";
+      width: 4px;
+      height: 18px;
+      background: var(--teal);
+    }
+
+    .subtabs {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0 14px;
+    }
+
+    .subtab {
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid #cfece8;
+      color: var(--teal-dark);
+      background: #f6fffd;
+    }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 10px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 13px 18px;
+    }
+
+    .attribute-field {
+      position: relative;
+    }
+
+    .inline-icons {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 20px;
+      height: 20px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid #cfece8;
+      border-radius: 2px;
+      color: var(--teal-dark);
+      background: #f6fffd;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .sticky-actions {
+      position: fixed;
+      right: 18px;
+      bottom: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .rules {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #667386;
+      line-height: 1.75;
+    }
+
+    .rules h2 {
+      margin: 0 0 8px;
+      color: #1f2a3a;
+      font-size: 15px;
+    }
+
+    .rules ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(31, 42, 58, .45);
+      z-index: 50;
+    }
+
+    .modal-mask.show { display: flex; }
+
+    .modal {
+      width: 1120px;
+      max-height: 84vh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal.small { width: 460px; }
+
+    .modal-head {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      color: #1f2a3a;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: #98a2b3;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow: auto;
+    }
+
+    .modal-foot {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 0 18px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .toast {
+      position: fixed;
+      top: 62px;
+      left: 50%;
+      display: none;
+      padding: 10px 18px;
+      border-radius: 3px;
+      color: #fff;
+      background: rgba(27, 38, 55, .9);
+      transform: translateX(-50%);
+      z-index: 80;
+    }
+
+    .toast.show { display: block; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="crumb"><span class="demo-title">销售属性配置与SKU自定义属性demo</span><span>/</span><strong id="pageCrumb">品线管理 - 销售属性配置入口</strong></div>
+    </header>
+
+    <aside class="left-rail">
+      <p class="rail-desc">场景入口为 Demo 辅助导航，不属于系统真实菜单。</p>
+      <div class="nav-group">入口一：品线管理</div>
+      <button class="nav-card active" data-scene="line-list">
+        <span>品线管理</span>
+        <small>销售属性配置</small>
+      </button>
+
+      <div class="nav-group">入口二：SKU 销售信息</div>
+      <button class="nav-card" data-scene="sku-dev-edit">
+        <span>开发编辑SPU</span>
+        <small>基础信息</small>
+      </button>
+      <button class="nav-card" data-scene="sku-ops-edit">
+        <span>运营编辑SPU</span>
+        <small>基础信息</small>
+      </button>
+      <button class="nav-card" data-scene="sku-new">
+        <span>新增SPU</span>
+        <small>基础信息</small>
+      </button>
+      <button class="nav-card" data-scene="sku-detail">
+        <span>详情页查看基础信息</span>
+        <small>只读查看</small>
+      </button>
+
+      <div class="note-box">
+        <strong>本次局部改造</strong>
+        <ul>
+          <li>二级品线增加【销售属性配置】入口。</li>
+          <li>SKU 基础信息按通用、品线配置、自定义属性合并展示。</li>
+          <li>编辑态拆分为开发编辑SPU、运营编辑SPU；运营编辑时除【季节】外通用属性不可编辑。</li>
+          <li>支持当前 SKU 维度新增、编辑、删除自定义属性。</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="canvas">
+      <section class="page-card view" id="lineView">
+        <div class="page-tabs">
+          <span class="page-tab">首页</span>
+          <span class="page-tab active" data-scene="line-list">2.品线配置 ×</span>
+          <span class="page-tab" data-scene="sku-dev-edit">产品开发-new ×</span>
+        </div>
+        <div class="module-head">
+          <div>
+            <h1 class="module-title">品线管理</h1>
+            <p class="module-desc">管理品牌的品线数据、品线负责人及相关配置。</p>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn">导入新增编辑</button>
+            <button class="btn">导出</button>
+            <button class="btn primary">+ 新增品线</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <input class="line-search" value="" placeholder="搜索品线名称 / 编码...">
+          <button class="btn primary">搜索</button>
+          <button class="btn">重置</button>
+        </div>
+        <div class="table-wrap compact">
+          <table>
+            <colgroup>
+              <col style="width:46px"><col style="width:190px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:150px"><col style="width:80px"><col style="width:110px"><col style="width:100px"><col style="width:150px"><col style="width:70px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>品线名称</th>
+                <th>品线编码</th>
+                <th>关联品类</th>
+                <th>品线负责人</th>
+                <th>品类负责人</th>
+                <th>供应链经理</th>
+                <th>是否需要产前审核</th>
+                <th>状态</th>
+                <th>备注</th>
+                <th>修改人</th>
+                <th>修改时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><span class="tree-name"><span>⌄</span><span class="tree-icon">▦</span>服装</span></td>
+                <td>XS-046</td><td>--</td><td>--</td><td>--</td><td>--</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>admin</td><td>2025-12-08 05:49:54</td><td class="op-cell"><span class="dots">...</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td class="indent-1"><span class="tree-name"><span>⌄</span><span class="tree-icon">◇</span>上衣</span></td>
+                <td>XS-046-003</td><td>--</td><td>陈婷婷</td><td>--</td><td>舒坚华</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>吴良</td><td>2026-05-29 09:03:38</td><td class="op-cell"><span class="dots">...</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td class="indent-2"><span class="tree-name"><span class="tree-icon">◇</span>短袖及短款</span></td>
+                <td>XS-046-002</td><td>--</td><td>陈婷婷</td><td>何丽华</td><td>舒坚华</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>尹菲娜</td><td>2026-05-15 11:55:55</td>
+                <td class="op-cell">
+                  <span class="dots">...</span>
+                  <div class="op-menu">
+                    <a><span>＋</span><span>新增子品线</span></a>
+                    <a><span>✎</span><span>编辑</span></a>
+                    <a data-open-config><span>⚙</span><span>销售属性配置</span></a>
+                    <div class="op-divider"></div>
+                    <a class="danger"><span>⌫</span><span>删除</span></a>
+                  </div>
+                </td>
+              </tr>
+              <tr><td>4</td><td class="indent-2"><span class="tree-name"><span class="tree-icon">◇</span>下装</span></td><td>XS-046-004</td><td>--</td><td>陈婷婷</td><td>何丽华</td><td>舒坚华</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>尹菲娜</td><td>2026-05-15 11:55:55</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>5</td><td class="indent-2"><span class="tree-name"><span class="tree-icon">◇</span>半身裙</span></td><td>XS-046-005</td><td>--</td><td>陈婷婷</td><td>何丽华</td><td>舒坚华</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>尹菲娜</td><td>2026-05-15 11:55:55</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>6</td><td class="indent-2"><span class="tree-name"><span class="tree-icon">◇</span>家居服</span></td><td>XS-046-007</td><td>--</td><td>陈婷婷</td><td>何丽华</td><td>舒坚华</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>尹菲娜</td><td>2026-05-15 11:55:55</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>7</td><td class="indent-2"><span class="tree-name"><span class="tree-icon">◇</span>连衣裙</span></td><td>XS-046-008</td><td>--</td><td>陈婷婷</td><td>何丽华</td><td>舒坚华</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>尹菲娜</td><td>2026-05-15 11:55:55</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>8</td><td><span class="tree-name"><span>›</span><span class="tree-icon">▦</span>CCGP服饰</span></td><td>XS-002</td><td>--</td><td>周婷</td><td>--</td><td>--</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>admin</td><td>2025-12-08 05:49:54</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>9</td><td><span class="tree-name"><span>›</span><span class="tree-icon">▦</span>家居装饰</span></td><td>XS-045</td><td>--</td><td>--</td><td>--</td><td>--</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>admin</td><td>2025-12-08 05:51:25</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>10</td><td><span class="tree-name"><span>›</span><span class="tree-icon">▦</span>宠物用品</span></td><td>XS-050</td><td>--</td><td>--</td><td>--</td><td>--</td><td>是</td><td><span class="status-tag">启用</span></td><td>--</td><td>admin</td><td>2026-06-10 14:28:23</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr><td>11</td><td><span class="tree-name"><span>›</span><span class="tree-icon">▦</span>其他</span></td><td>XS-051</td><td>--</td><td>--</td><td>--</td><td>--</td><td>否</td><td><span class="status-tag">启用</span></td><td>--</td><td>admin</td><td>2025-12-08 05:49:54</td><td class="op-cell"><span class="dots">...</span></td></tr>
+              <tr>
+                <td colspan="13" style="color:#7b8794;background:#fafbfc">共 25 条数据</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="page-card view" id="skuView" hidden>
+        <div class="page-tabs">
+          <span class="page-tab" data-scene="line-list">2.品线配置 ×</span>
+          <span class="page-tab active" id="skuPageTab" data-scene="sku-dev-edit">产品开发-new ×</span>
+        </div>
+        <div class="product-tag" id="skuProductTag">产品开发-new</div>
+        <div class="detail-head sku-detail-head">
+          <div class="photo-box">产品主图</div>
+          <div class="info-panel">
+            <h3>基础信息</h3>
+            <div class="info-line">SPU：SPU_SALES_MOCK001</div>
+            <div class="info-line">项目组：QG005</div>
+            <div class="info-line">适用年龄：0-3years old</div>
+            <div class="info-line">立项运营：运营A</div>
+          </div>
+          <div class="info-panel">
+            <h3>价格信息</h3>
+            <div class="info-line">BOM表单：下载 预览</div>
+            <div class="info-line">报价单：下载 预览</div>
+            <div class="info-line">核价单：下载 预览</div>
+            <div class="info-line">价格明细对比表：无</div>
+          </div>
+        </div>
+        <div class="tabs sku-detail-tabs">
+          <button class="tab">采购信息</button>
+          <button class="tab">产品规格</button>
+          <button class="tab active">销售信息</button>
+          <button class="tab">产品描述</button>
+          <button class="tab">产品知识库</button>
+          <button class="tab">AI策划案</button>
+          <button class="tab">竞品信息</button>
+          <button class="tab">库存及成本</button>
+          <button class="tab">关联Listing</button>
+        </div>
+        <div class="edit-layout">
+          <aside class="edit-side">
+            <div class="side-item">基本信息</div>
+            <div class="side-item">产品规格</div>
+            <div class="side-item active">销售信息</div>
+            <div class="side-item">产品资料</div>
+          </aside>
+          <div class="edit-main">
+            <div class="toolbar" id="skuToolbar" style="padding:0 0 10px">
+              <div class="toolbar-left">
+                <button class="btn primary">批量设置</button>
+                <button class="btn primary">批量复制</button>
+                <select class="btn"><option>颜色</option></select>
+              </div>
+            </div>
+            <div class="sku-bar">
+              <span id="skuCode">SKU_DRS_MOCK001　黑色</span>
+              <span>评分：<span style="color:#e15858">50分</span>　查看详情　⌄</span>
+            </div>
+            <h2 class="panel-title" id="skuPanelTitle">开发填写</h2>
+            <div class="subtabs">
+              <button class="subtab">竞品信息</button>
+              <button class="subtab">基础信息</button>
+              <button class="subtab">核心卖点</button>
+              <button class="subtab">自定义卖点</button>
+              <button class="subtab">市场定位</button>
+            </div>
+            <div class="section-row">
+              <h3 class="section-title">基础信息</h3>
+              <button class="btn ghost-teal" id="addCustomBtn">+ 添加自定义属性</button>
+            </div>
+            <div class="form-grid" id="skuFields"></div>
+            <div class="section-row">
+              <h3 class="section-title">核心卖点</h3>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr">
+              <div class="field"><label>人性化设计</label><textarea>轻量透气，日常出行佩戴舒适。</textarea></div>
+              <div class="field"><label>功能</label><textarea>遮阳、防晒、收纳便捷。</textarea></div>
+            </div>
+            <div class="sticky-actions" id="skuActions">
+              <button class="btn">保存为草稿</button>
+              <button class="btn primary" id="saveSku">保存</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rules">
+        <h2>简短规则说明</h2>
+        <ul>
+          <li>仅二级品线展示【销售属性配置】入口，一级品线不支持配置。</li>
+          <li>品线配置弹窗内属性列表打开即为可编辑状态，新增、编辑、删除、排序均需点击【确定】后保存。</li>
+          <li>下拉单选/多选的可选值支持英文逗号、中文逗号、换行分隔，解析结果仅作为预览展示。</li>
+          <li>SKU 基础信息按通用属性、品线配置属性、自定义属性合并展示，但前端不展示分区和来源标识。</li>
+          <li>SKU 基础信息拆分为开发编辑SPU、运营编辑SPU、新增SPU、详情页查看基础信息场景。</li>
+          <li>历史属性与通用/品线属性合并判断仅用于当次页面展示，不落库，不影响 SKU 已保存数据。</li>
+          <li>SKU 自定义属性仅当前 SKU 生效，支持新增、编辑、删除；属性名称不可与当前页面已展示属性重名。</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="configMask">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">品线销售属性配置</div>
+        <button class="close" data-close-config>×</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:12px;color:#5c6879">当前品线：服装 / 短袖及短款</div>
+        <div class="toolbar" style="padding:0 0 10px">
+          <div class="toolbar-left"><strong>本品线销售属性</strong></div>
+          <button class="btn primary" id="addLineAttr">+ 新增品线属性</button>
+        </div>
+        <table class="config-table">
+          <colgroup>
+            <col style="width:46px"><col style="width:110px"><col style="width:140px"><col style="width:90px"><col style="width:130px"><col><col style="width:130px"><col style="width:92px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>排序</th>
+              <th>所属模块</th>
+              <th><span class="req">*</span>属性名称</th>
+              <th><span class="req">*</span>是否必填</th>
+              <th><span class="req">*</span>控件类型</th>
+              <th><span class="req">*</span>可选值</th>
+              <th>默认值</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="configRows"></tbody>
+        </table>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-close-config>取消</button>
+        <button class="btn primary" id="saveConfig">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="customMask">
+    <div class="modal small">
+      <div class="modal-head">
+        <div class="modal-title" id="customTitle">新增自定义属性</div>
+        <button class="close" data-close-custom>×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field" id="customNameField">
+          <label><span class="req">*</span>属性名称</label>
+          <input id="customName" maxlength="50" placeholder="请输入属性名称">
+          <div class="error" id="customNameError"></div>
+        </div>
+        <div class="field" id="customValueField" style="margin-top:12px">
+          <label><span class="req">*</span>属性值</label>
+          <textarea id="customValue" placeholder="请输入属性值"></textarea>
+          <div class="error" id="customValueError"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-close-custom>取消</button>
+        <button class="btn primary" id="saveCustom">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="confirmMask">
+    <div class="modal small">
+      <div class="modal-head">
+        <div class="modal-title">确认删除</div>
+        <button class="close" data-close-confirm>×</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmText" style="margin:0;line-height:1.8;color:#536173">删除后，该 SKU 下该自定义属性及已填写内容将一并删除，确认删除吗？</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-close-confirm>取消</button>
+        <button class="btn danger" id="confirmDelete">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const scenes = {
+      'line-list': ['品线管理 - 销售属性配置入口', 'line'],
+      'sku-dev-edit': ['开发编辑SPU - SKU销售信息基础信息', 'sku'],
+      'sku-ops-edit': ['运营编辑SPU - SKU销售信息基础信息', 'sku'],
+      'sku-new': ['新增SPU - SKU销售信息基础信息', 'sku'],
+      'sku-detail': ['详情页查看基础信息', 'sku']
+    };
+
+    const baseConfigRows = [
+      { name: '适用场景', module: '基础信息', required: '是', type: '下拉多选框', defaultValue: '通勤,旅行', valuesRaw: '通勤,约会,旅行,户外,露营,居家,办公室,派对,节日,拍照,亲子,运动,防晒,保暖,雨天', existing: true },
+      { name: '材质', module: '基础信息', required: '否', type: '下拉单选框', defaultValue: '棉', valuesRaw: '棉,麻,丝', existing: true },
+      { name: '风格', module: '基础信息', required: '否', type: '下拉单选框', defaultValue: '', valuesRaw: '通勤,优雅,休闲', existing: true },
+      { name: '净含量(g)', module: '基础信息', required: '否', type: '数字输入框', defaultValue: '120', valuesRaw: '', existing: false },
+      { name: '版型', module: '基础信息', required: '否', type: '文本输入框', defaultValue: '常规', valuesRaw: '', existing: false }
+    ];
+
+    let activeScene = 'line-list';
+    let configRows = clone(baseConfigRows);
+    let configDirty = false;
+    let draggingConfigIndex = null;
+    let customAttrsByScene = {
+      'sku-dev-edit': [
+        { name: '风格1', value: '复古' },
+        { name: '图案', value: '波点' },
+        { name: '面料', value: '牛仔' }
+      ],
+      'sku-ops-edit': [],
+      'sku-new': [],
+      'sku-detail': [
+        { name: '风格1', value: '复古' },
+        { name: '图案', value: '波点' }
+      ]
+    };
+    customAttrsByScene['sku-ops-edit'] = customAttrsByScene['sku-dev-edit'];
+    let editingCustomIndex = null;
+    let deleteCustomIndex = null;
+
+    function qs(selector) { return document.querySelector(selector); }
+    function qsa(selector) { return Array.from(document.querySelectorAll(selector)); }
+    function clone(value) { return JSON.parse(JSON.stringify(value)); }
+
+    function currentCustomAttrs() {
+      return customAttrsByScene[activeScene] || customAttrsByScene['sku-dev-edit'];
+    }
+
+    function parseValues(raw) {
+      return raw.split(/[,，\\n]/).map(v => v.trim()).filter(Boolean);
+    }
+
+    function parseDefaultValues(raw) {
+      return String(raw || '').split(/[,，\\n]/).map(v => v.trim()).filter(Boolean);
+    }
+
+    function duplicates(values) {
+      const seen = new Set();
+      return values.some(value => {
+        if (seen.has(value)) return true;
+        seen.add(value);
+        return false;
+      });
+    }
+
+    const skuSelectOptions = {
+      可售区域: ['美区', '欧区', '日本', '加拿大'],
+      季节: ['夏', '秋', '冬', '四季'],
+      适用场景: ['通勤', '旅行', '户外', '露营', '居家', '办公室'],
+      材质: ['棉', '麻', '丝', '涤纶', '尼龙'],
+      风格: ['休闲', '通勤', '优雅', '运动', '复古']
+    };
+    const apparelSeasonOptions = ['夏', '秋', '冬', '四季'];
+
+    function skuOptionsFor(name) {
+      return skuSelectOptions[name] || ['请选择'];
+    }
+
+    function showToast(text) {
+      const toast = qs('#toast');
+      toast.textContent = text;
+      toast.classList.add('show');
+      window.setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function setScene(scene) {
+      activeScene = scene;
+      qs('#pageCrumb').textContent = scenes[scene][0];
+      qsa('[data-scene]').forEach(btn => btn.classList.toggle('active', btn.dataset.scene === scene));
+      qs('#lineView').hidden = scenes[scene][1] !== 'line';
+      qs('#skuView').hidden = scenes[scene][1] !== 'sku';
+      qs('#configMask').classList.remove('show');
+
+      if (scenes[scene][1] === 'sku') {
+        renderSkuFields(scene);
+      }
+    }
+
+    function openConfig() {
+      configDirty = false;
+      renderConfigRows();
+      qs('#configMask').classList.add('show');
+    }
+
+    function closeConfig() {
+      if (configDirty && !window.confirm('当前存在未保存内容，确认放弃修改吗？')) return;
+      configDirty = false;
+      qs('#configMask').classList.remove('show');
+    }
+
+    function markConfigDirty() {
+      configDirty = true;
+    }
+
+    function renderDefaultControl(row, values, isSelect) {
+      if (row.type === '数字输入框') {
+        return `<input type="number" data-config-field="defaultValue" value="${escapeHtml(row.defaultValue || '')}" placeholder="请输入数字">`;
+      }
+      if (!isSelect) {
+        return `<input data-config-field="defaultValue" value="${escapeHtml(row.defaultValue || '')}">`;
+      }
+      if (!values.length) {
+        return `<select data-config-field="defaultValue" disabled><option>请先维护可选值</option></select>`;
+      }
+      if (row.type === '下拉多选框') {
+        const selectedValues = parseDefaultValues(row.defaultValue);
+        const selectedTags = selectedValues.length
+          ? selectedValues.map(value => `<span class="multi-tag" title="${escapeHtml(value)}">${escapeHtml(value)}</span>`).join('')
+          : '<span class="multi-placeholder">请选择</span>';
+        const options = values.map(value => `
+          <label class="default-multi-option">
+            <input type="checkbox" data-default-option value="${escapeHtml(value)}" ${selectedValues.includes(value) ? 'checked' : ''}>
+            <span>${escapeHtml(value)}</span>
+          </label>
+        `).join('');
+        return `
+          <div class="default-multi" data-default-multi>
+            <button type="button" class="default-multi-trigger" data-default-multi-toggle>${selectedTags}</button>
+            <div class="default-multi-menu">${options}</div>
+          </div>
+        `;
+      }
+      const options = [''].concat(values).map(value => {
+        const label = value || '请选择';
+        return `<option value="${escapeHtml(value)}" ${row.defaultValue === value ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+      }).join('');
+      return `<select data-config-field="defaultValue">${options}</select>`;
+    }
+
+    function renderConfigRows() {
+      qs('#configRows').innerHTML = configRows.map((row, index) => {
+        const values = parseValues(row.valuesRaw || '');
+        const isSelect = row.type.includes('下拉');
+        const errors = validateConfigRow(row, index);
+        const valuePreview = values.length ? `解析预览：${values.join(' / ')}` : '';
+        return `
+          <tr data-config-index="${index}">
+            <td class="sort-cell"><span class="sort-icon" title="拖拽排序" data-sort-handle draggable="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3v10M3.3 5 5 3.3 6.7 5M11 13V3M9.3 11 11 12.7 12.7 11"/></svg></span></td>
+            <td>
+              <input value="${escapeHtml(row.module || '基础信息')}" disabled>
+            </td>
+            <td>
+              <input data-config-field="name" value="${escapeHtml(row.name)}">
+              <div class="error">${errors.name || ''}</div>
+            </td>
+            <td>
+              <select data-config-field="required"><option ${row.required === '是' ? 'selected' : ''}>是</option><option ${row.required === '否' ? 'selected' : ''}>否</option></select>
+              <div class="error">${errors.required || ''}</div>
+            </td>
+            <td>
+              <select data-config-field="type">
+                ${['文本输入框', '数字输入框', '下拉单选框', '下拉多选框'].map(type => `<option ${row.type === type ? 'selected' : ''}>${type}</option>`).join('')}
+              </select>
+              <div class="error">${errors.type || ''}</div>
+            </td>
+            <td>
+              <textarea data-config-field="valuesRaw" ${isSelect ? '' : 'disabled'}>${escapeHtml(row.valuesRaw || '')}</textarea>
+              <div class="preview-cell">
+                <div class="preview-values">${valuePreview}</div>
+                ${valuePreview ? `<div class="preview-tooltip">${escapeHtml(valuePreview)}</div>` : ''}
+              </div>
+              <div class="error">${errors.valuesRaw || ''}</div>
+            </td>
+            <td>
+              ${renderDefaultControl(row, values, isSelect)}
+              <div class="error">${errors.defaultValue || ''}</div>
+            </td>
+            <td><a class="link" data-delete-config>删除</a></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function validateConfigRow(row, index) {
+      const errors = {};
+      const values = parseValues(row.valuesRaw || '');
+      const isSelect = row.type && row.type.includes('下拉');
+      const names = configRows.map(item => item.name).filter(Boolean);
+      if (!row.name) errors.name = '属性名称不能为空';
+      if (row.name && names.indexOf(row.name) !== index) errors.name = '当前列表内属性名称不可重复';
+      if (['季节', '可售区域', '产品标签', '立项运营'].includes(row.name)) errors.name = '属性名称不可与通用属性名称重复';
+      if (!row.required) errors.required = '是否必填不能为空';
+      if (!row.type) errors.type = '控件类型不能为空';
+      if (row.type === '数字输入框' && row.defaultValue && Number.isNaN(Number(row.defaultValue))) errors.defaultValue = '默认值必须符合控件类型要求';
+      if (isSelect && !values.length) errors.valuesRaw = '下拉单选框、下拉多选框必须维护可选值';
+      if (isSelect && duplicates(values)) errors.valuesRaw = '同一属性下可选值不可重复';
+      if (isSelect && row.defaultValue && !parseDefaultValues(row.defaultValue).every(value => values.includes(value))) errors.defaultValue = '下拉类默认值必须在可选值范围内';
+      if (row.forceError && !errors.valuesRaw) errors.valuesRaw = '同一属性下可选值不可重复';
+      return errors;
+    }
+
+    function saveConfig() {
+      renderConfigRows();
+      const hasError = configRows.some((row, index) => Object.values(validateConfigRow(row, index)).some(Boolean));
+      if (hasError) {
+        showToast('请先处理列表中的校验错误');
+        return;
+      }
+      configDirty = false;
+      qs('#configMask').classList.remove('show');
+      showToast('品线销售属性配置已保存');
+    }
+
+    function skuCommonFields(scene) {
+      const customAttrs = customAttrsByScene[scene] || [];
+      if (scene === 'sku-new') {
+        return [
+          { name: '可售区域', type: 'select', value: '' },
+          { name: '产品标签', type: 'input', value: '服装' },
+          { name: '立项运营', type: 'input', value: '' },
+          { name: '季节', type: 'select', value: '' },
+          { name: '适用场景', type: 'select', value: '' },
+          { name: '材质', type: 'select', value: '' },
+          { name: '风格', type: 'select', value: '' },
+          ...customAttrs.map(attr => ({ ...attr, type: 'input', custom: true }))
+        ];
+      }
+      if (scene === 'sku-detail') {
+        return [
+          { name: '季节', type: 'input', value: '四季', readonly: true },
+          { name: '适用场景', type: 'input', value: '通勤、旅行', readonly: true },
+          { name: '材质', type: 'input', value: '棉', readonly: true },
+          { name: '风格', type: 'input', value: '休闲', readonly: true },
+          ...customAttrs.map(attr => ({ ...attr, type: 'input', custom: true, readonly: true }))
+        ];
+      }
+      if (scene === 'sku-dev-edit' || scene === 'sku-ops-edit') {
+        const commonReadonly = scene === 'sku-ops-edit';
+        return [
+          { name: '可售区域', type: 'select', value: '美区', readonly: commonReadonly },
+          { name: '产品标签', type: 'input', value: '服装', readonly: commonReadonly },
+          { name: '产品状态', type: 'input', value: '开发中', readonly: commonReadonly },
+          { name: '立项运营', type: 'input', value: '运营A', readonly: commonReadonly },
+          {
+            name: '季节',
+            type: 'select',
+            value: scene === 'sku-dev-edit' ? '春' : '四季',
+            error: scene === 'sku-dev-edit' ? '服装类季节仅支持[夏,秋,冬,四季]' : ''
+          },
+          { name: '适用场景', type: 'select', value: '通勤、旅行' },
+          { name: '材质', type: 'select', value: '' },
+          { name: '风格', type: 'select', value: '' },
+          ...customAttrs.map(attr => ({ ...attr, type: 'input', custom: true }))
+        ];
+      }
+      return [
+      ];
+    }
+
+    function renderSkuFields(scene) {
+      const sceneMeta = {
+        'sku-dev-edit': {
+          tag: '编辑SPU',
+          tab: '开发编辑SPU ×',
+          panelTitle: '开发填写',
+          skuCode: 'SKU_DRS_HISTORY001　蓝色',
+          canEditCustom: true,
+          showActions: true
+        },
+        'sku-ops-edit': {
+          tag: '产品开发-new',
+          tab: '运营编辑SPU ×',
+          panelTitle: '开发填写运营确认',
+          skuCode: 'SKU_DRS_HISTORY001　蓝色',
+          canEditCustom: true,
+          showActions: true
+        },
+        'sku-new': {
+          tag: '产品开发-new',
+          tab: '产品开发-new ×',
+          panelTitle: '开发填写',
+          skuCode: 'SKU_DRS_NEW001　黑色',
+          canEditCustom: true,
+          showActions: true
+        },
+        'sku-detail': {
+          tag: '产品详情',
+          tab: '产品详情页 ×',
+          panelTitle: '基础信息',
+          skuCode: 'SKU_DRS_DETAIL001　米色',
+          canEditCustom: false,
+          showActions: false
+        }
+      }[scene];
+      qs('#skuView').classList.toggle('detail-mode', scene === 'sku-detail');
+      qs('#skuProductTag').textContent = sceneMeta.tag;
+      qs('#skuPageTab').textContent = sceneMeta.tab;
+      qs('#skuPageTab').dataset.scene = scene;
+      qs('#skuPageTab').classList.add('active');
+      qs('#skuPanelTitle').textContent = sceneMeta.panelTitle;
+      qs('#skuCode').textContent = sceneMeta.skuCode;
+      qs('#addCustomBtn').hidden = !sceneMeta.canEditCustom;
+      qs('#skuActions').hidden = !sceneMeta.showActions;
+      const fields = skuCommonFields(scene);
+      qs('#skuFields').innerHTML = fields.map((field, index) => {
+        const customAttrs = currentCustomAttrs();
+        const customIndex = field.custom ? customAttrs.findIndex(attr => attr.name === field.name && attr.value === field.value) : -1;
+        const icons = field.custom && sceneMeta.canEditCustom ? `<span class="inline-icons"><button class="icon-btn" data-edit-custom="${customIndex < 0 ? index : customIndex}" title="编辑">✎</button><button class="icon-btn" data-delete-custom="${customIndex < 0 ? index : customIndex}" title="删除">×</button></span>` : '';
+        const optionValues = field.type === 'select' ? skuOptionsFor(field.name) : [];
+        const illegalSelectedOption = field.type === 'select' && field.value && !optionValues.includes(field.value)
+          ? `<option value="${escapeHtml(field.value)}" selected hidden>${escapeHtml(field.value)}</option>`
+          : '';
+        const options = field.type === 'select'
+          ? illegalSelectedOption + [''].concat(optionValues).filter((value, idx, arr) => idx === 0 || value).map(value => {
+            const label = value || '请选择';
+            return `<option value="${escapeHtml(value)}" ${field.value === value ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+          }).join('')
+          : '';
+        const control = field.readonly
+          ? `<input value="${escapeHtml(field.value || '')}" readonly>`
+          : field.type === 'select'
+            ? `<select data-sku-field="${escapeHtml(field.name)}">${options}</select>`
+            : `<input value="${escapeHtml(field.value || '')}">`;
+        return `
+          <div class="field attribute-field ${field.error ? 'invalid' : ''} ${field.readonly ? 'readonly' : ''}" data-sku-field-wrap="${escapeHtml(field.name)}">
+            <label><span class="req">*</span>${field.name}</label>
+            ${icons}
+            ${control}
+            <div class="error">${field.error || ''}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function validateSkuBeforeSave() {
+      let ok = true;
+      qsa('[data-sku-field-wrap]').forEach(wrap => {
+        wrap.classList.remove('invalid');
+        const error = wrap.querySelector('.error');
+        if (error) error.textContent = '';
+        const select = wrap.querySelector('select[data-sku-field]');
+        if (!select) return;
+        const fieldName = select.dataset.skuField;
+        const value = select.value;
+        const options = fieldName === '季节' ? apparelSeasonOptions : skuOptionsFor(fieldName);
+        let message = '';
+        if (!value) {
+          message = `${fieldName}不能为空`;
+        } else if (!options.includes(value)) {
+          message = fieldName === '季节'
+            ? '服装类季节仅支持[夏,秋,冬,四季]'
+            : `${fieldName}不在可选范围内`;
+        }
+        if (message) {
+          ok = false;
+          wrap.classList.add('invalid');
+          if (error) error.textContent = message;
+        }
+      });
+      return ok;
+    }
+
+    function validateSingleSkuSelect(select) {
+      const wrap = select.closest('[data-sku-field-wrap]');
+      const error = wrap.querySelector('.error');
+      const fieldName = select.dataset.skuField;
+      const value = select.value;
+      const options = fieldName === '季节' ? apparelSeasonOptions : skuOptionsFor(fieldName);
+      let message = '';
+      if (!value) message = `${fieldName}不能为空`;
+      else if (!options.includes(value)) message = fieldName === '季节' ? '服装类季节仅支持[夏,秋,冬,四季]' : `${fieldName}不在可选范围内`;
+      wrap.classList.toggle('invalid', Boolean(message));
+      if (error) error.textContent = message;
+    }
+
+    function openCustom(index) {
+      editingCustomIndex = Number.isInteger(index) ? index : null;
+      const customAttrs = currentCustomAttrs();
+      const current = editingCustomIndex === null ? { name: '', value: '' } : customAttrs[editingCustomIndex] || { name: '', value: '' };
+      qs('#customTitle').textContent = editingCustomIndex === null ? '新增自定义属性' : '编辑自定义属性';
+      qs('#customName').value = current.name;
+      qs('#customValue').value = current.value;
+      qs('#customNameField').classList.remove('invalid');
+      qs('#customValueField').classList.remove('invalid');
+      qs('#customNameError').textContent = '';
+      qs('#customValueError').textContent = '';
+      qs('#customMask').classList.add('show');
+    }
+
+    function saveCustom() {
+      const name = qs('#customName').value.trim();
+      const value = qs('#customValue').value.trim();
+      const customAttrs = currentCustomAttrs();
+      const baseNames = skuCommonFields(activeScene).filter(field => !field.custom).map(field => field.name);
+      const customNames = customAttrs.map((attr, index) => index === editingCustomIndex ? '' : attr.name).filter(Boolean);
+      const duplicateCustomName = customNames.includes(name);
+      const duplicatePageName = baseNames.includes(name);
+      let ok = true;
+      qs('#customNameField').classList.toggle('invalid', !name || name.length > 50 || duplicateCustomName || duplicatePageName);
+      qs('#customValueField').classList.toggle('invalid', !value);
+      qs('#customNameError').textContent = !name ? '属性名称不能为空' : name.length > 50 ? '属性名称最多50字' : duplicateCustomName ? '同一 SKU 下自定义属性名称不可重复' : duplicatePageName ? '自定义属性名称不可与当前页面已展示属性重名' : '';
+      qs('#customValueError').textContent = !value ? '属性值不能为空' : '';
+      ok = name && name.length <= 50 && value && !duplicateCustomName && !duplicatePageName;
+      if (!ok) return;
+      if (editingCustomIndex === null) customAttrs.push({ name, value });
+      else customAttrs[editingCustomIndex] = { name, value };
+      qs('#customMask').classList.remove('show');
+      setScene(activeScene);
+      showToast('自定义属性已更新');
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    document.addEventListener('click', event => {
+      const multiToggle = event.target.closest('[data-default-multi-toggle]');
+      if (multiToggle) {
+        const current = multiToggle.closest('[data-default-multi]');
+        qsa('[data-default-multi]').forEach(item => {
+          if (item !== current) item.classList.remove('open');
+        });
+        current.classList.toggle('open');
+        return;
+      }
+      const multiOption = event.target.closest('[data-default-option]');
+      if (multiOption) {
+        const row = multiOption.closest('[data-config-index]');
+        const configRow = configRows[Number(row.dataset.configIndex)];
+        const selectedValues = qsa('[data-default-option]', row).filter(option => option.checked).map(option => option.value);
+        configRow.defaultValue = selectedValues.join(',');
+        markConfigDirty();
+        renderConfigRows();
+        return;
+      }
+      if (!event.target.closest('[data-default-multi]')) {
+        qsa('[data-default-multi]').forEach(item => item.classList.remove('open'));
+      }
+      const sceneBtn = event.target.closest('[data-scene]');
+      if (sceneBtn) {
+        setScene(sceneBtn.dataset.scene);
+        return;
+      }
+      if (event.target.closest('[data-open-config]')) {
+        configRows = clone(baseConfigRows);
+        openConfig();
+        return;
+      }
+      if (event.target.closest('[data-close-config]')) {
+        closeConfig();
+        return;
+      }
+      if (event.target.closest('#addLineAttr')) {
+        configRows.push({ name: '', module: '基础信息', required: '否', type: '文本输入框', defaultValue: '', valuesRaw: '', existing: false });
+        markConfigDirty();
+        renderConfigRows();
+        return;
+      }
+      const deleteConfig = event.target.closest('[data-delete-config]');
+      if (deleteConfig) {
+        const index = Number(deleteConfig.closest('tr').dataset.configIndex);
+        if (window.confirm('删除后，该属性将从当前品线销售属性配置中移除。已使用该属性值的SKU，该属性将移动至【自定义属性】区展示，SKU已保存值不会丢失。确认删除吗？')) {
+          configRows.splice(index, 1);
+          markConfigDirty();
+          renderConfigRows();
+        }
+        return;
+      }
+      if (event.target.closest('#saveConfig')) {
+        saveConfig();
+        return;
+      }
+      if (event.target.closest('#addCustomBtn')) {
+        openCustom();
+        return;
+      }
+      const editCustom = event.target.closest('[data-edit-custom]');
+      if (editCustom) {
+        openCustom(Number(editCustom.dataset.editCustom));
+        return;
+      }
+      const deleteCustom = event.target.closest('[data-delete-custom]');
+      if (deleteCustom) {
+        deleteCustomIndex = Number(deleteCustom.dataset.deleteCustom);
+        qs('#confirmText').textContent = '删除后，该 SKU 下该自定义属性及已填写内容将一并删除，确认删除吗？';
+        qs('#confirmMask').classList.add('show');
+        return;
+      }
+      if (event.target.closest('[data-close-custom]')) {
+        qs('#customMask').classList.remove('show');
+        return;
+      }
+      if (event.target.closest('#saveCustom')) {
+        saveCustom();
+        return;
+      }
+      if (event.target.closest('[data-close-confirm]')) {
+        qs('#confirmMask').classList.remove('show');
+        return;
+      }
+      if (event.target.closest('#confirmDelete')) {
+        const customAttrs = currentCustomAttrs();
+        if (deleteCustomIndex !== null && customAttrs[deleteCustomIndex]) customAttrs.splice(deleteCustomIndex, 1);
+        qs('#confirmMask').classList.remove('show');
+        setScene(activeScene);
+        showToast('自定义属性已删除');
+      }
+      if (event.target.closest('#saveSku')) {
+        if (!validateSkuBeforeSave()) {
+          showToast('请先处理销售信息中的校验错误');
+          return;
+        }
+        showToast('销售信息已保存');
+      }
+    });
+
+    function handleConfigFieldChange(event) {
+      const row = event.target.closest('[data-config-index]');
+      const field = event.target.dataset.configField;
+      if (!row || !field) return;
+      const configRow = configRows[Number(row.dataset.configIndex)];
+      const nextValue = event.target.value;
+      if (!configRow || configRow[field] === nextValue) return;
+      configRow[field] = nextValue;
+      markConfigDirty();
+      if (field === 'type') {
+        if (!event.target.value.includes('下拉')) {
+          configRow.valuesRaw = '';
+        }
+        renderConfigRows();
+      }
+    }
+
+    document.addEventListener('input', handleConfigFieldChange);
+    document.addEventListener('change', handleConfigFieldChange);
+    document.addEventListener('change', event => {
+      const skuSelect = event.target.closest('select[data-sku-field]');
+      if (skuSelect) validateSingleSkuSelect(skuSelect);
+    });
+
+    document.addEventListener('dragstart', event => {
+      const handle = event.target.closest('[data-sort-handle]');
+      if (!handle) return;
+      const row = handle.closest('[data-config-index]');
+      draggingConfigIndex = Number(row.dataset.configIndex);
+      row.classList.add('dragging');
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', String(draggingConfigIndex));
+      }
+    });
+
+    document.addEventListener('dragover', event => {
+      if (draggingConfigIndex === null) return;
+      const row = event.target.closest('[data-config-index]');
+      if (!row) return;
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    });
+
+    document.addEventListener('drop', event => {
+      if (draggingConfigIndex === null) return;
+      const row = event.target.closest('[data-config-index]');
+      if (!row) return;
+      event.preventDefault();
+      const targetIndex = Number(row.dataset.configIndex);
+      if (targetIndex !== draggingConfigIndex) {
+        const [moved] = configRows.splice(draggingConfigIndex, 1);
+        configRows.splice(targetIndex, 0, moved);
+        markConfigDirty();
+        renderConfigRows();
+      }
+      draggingConfigIndex = null;
+    });
+
+    document.addEventListener('dragend', () => {
+      draggingConfigIndex = null;
+      qsa('[data-config-index]').forEach(row => row.classList.remove('dragging'));
+    });
+
+    document.addEventListener('focusin', event => {
+      const row = event.target.closest('[data-config-index]');
+      const field = event.target.dataset.configField;
+      if (!row || !['name', 'valuesRaw'].includes(field)) return;
+      event.target.dataset.beforeValue = event.target.value;
+    });
+
+    document.addEventListener('focusout', event => {
+      const row = event.target.closest('[data-config-index]');
+      const field = event.target.dataset.configField;
+      if (!row || !['name', 'valuesRaw'].includes(field)) return;
+      const index = Number(row.dataset.configIndex);
+      const configRow = configRows[index];
+      if (!configRow) return;
+      const beforeValue = event.target.dataset.beforeValue || '';
+      const hasChanged = beforeValue !== event.target.value;
+
+      if (hasChanged && configRow.existing && !window.confirm('修改该属性的名称或可选值，可能影响历史SKU该属性的展示。确认修改吗？')) {
+        configRow[field] = beforeValue;
+        renderConfigRows();
+        return;
+      }
+
+      if (field === 'valuesRaw') {
+        const values = parseValues(configRow.valuesRaw || '');
+        if (configRow.defaultValue && !parseDefaultValues(configRow.defaultValue).every(value => values.includes(value))) {
+          configRow.defaultValue = '';
+          markConfigDirty();
+        }
+      }
+
+      renderConfigRows();
+    });
+
+    setScene('line-list');
+  </script>
+</body>
+</html>
