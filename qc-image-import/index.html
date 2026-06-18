@@ -726,15 +726,6 @@
       border: 2px solid var(--teal);
     }
 
-    .import-card .caption {
-      margin-top: 5px;
-      color: #667386;
-      font-size: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     .empty {
       min-height: 310px;
       display: grid;
@@ -997,13 +988,13 @@
         inspectedAt: "2026-06-17 16:03:11",
         categories: [
           { name: "产品图片", items: [
-            img("qc-w-01", "产品正面", "photo-hat"),
-            img("qc-w-02", "侧面细节", "photo-detail"),
-            img("qc-w-03", "整体展示", "photo-display")
+            img("qc-w-01", "产品图片", "photo-hat"),
+            img("qc-w-02", "产品图片", "photo-detail"),
+            img("qc-w-03", "产品图片", "photo-display")
           ]},
           { name: "测试图片", items: [
-            img("qc-w-04", "尺寸测试", "photo-test"),
-            img("qc-w-05", "克重测试", "photo-test")
+            img("qc-w-04", "测试图片", "photo-test"),
+            img("qc-w-05", "测试图片", "photo-test")
           ]}
         ]
       },
@@ -1015,11 +1006,11 @@
         inspectedAt: "2026-06-15 12:59:56",
         categories: [
           { name: "产品图片", items: [
-            img("qc-b-01", "产品正面", "photo-hat"),
-            img("qc-b-02", "帽檐细节", "photo-detail")
+            img("qc-b-01", "产品图片", "photo-hat"),
+            img("qc-b-02", "产品图片", "photo-detail")
           ]},
           { name: "测试图片", items: [
-            img("qc-b-03", "拉力测试", "photo-test")
+            img("qc-b-03", "测试图片", "photo-test")
           ]}
         ]
       },
@@ -1031,26 +1022,26 @@
         inspectedAt: "2026-06-12 09:24:30",
         categories: [
           { name: "产品图片", items: [
-            img("qc-g-01", "产品正面", "photo-hat"),
-            img("qc-g-02", "扣具细节", "photo-detail")
+            img("qc-g-01", "产品图片", "photo-hat"),
+            img("qc-g-02", "产品图片", "photo-detail")
           ]},
           { name: "测试图片", items: [
-            img("qc-g-03", "色差测试", "photo-test"),
-            img("qc-g-04", "水洗测试", "photo-test")
+            img("qc-g-03", "测试图片", "photo-test"),
+            img("qc-g-04", "测试图片", "photo-test")
           ]}
         ]
       }
     ];
 
     [
-      ["navy", "SKU-HAT-NVY-04", "藏青色 / 4", "QC20260611003", "2026-06-11 14:20:18", "耐磨测试"],
-      ["khaki", "SKU-HAT-KHK-04", "卡其色 / 4", "QC20260610008", "2026-06-10 10:18:45", "色牢度测试"],
-      ["gray", "SKU-HAT-GRY-04", "灰色 / 4", "QC20260609005", "2026-06-09 17:42:09", "水洗测试"],
-      ["beige", "SKU-HAT-BGE-04", "米色 / 4", "QC20260608002", "2026-06-08 11:06:32", "尺寸测试"],
-      ["red", "SKU-HAT-RED-04", "红色 / 4", "QC20260607009", "2026-06-07 15:33:26", "拉力测试"],
-      ["blue", "SKU-HAT-BLU-04", "蓝色 / 4", "QC20260606004", "2026-06-06 09:50:11", "色差测试"],
-      ["yellow", "SKU-HAT-YLW-04", "黄色 / 4", "QC20260605007", "2026-06-05 13:27:40", "克重测试"]
-    ].forEach(([skuId, skuCode, variant, batchNo, inspectedAt, testName], index) => {
+      ["navy", "SKU-HAT-NVY-04", "藏青色 / 4", "QC20260611003", "2026-06-11 14:20:18"],
+      ["khaki", "SKU-HAT-KHK-04", "卡其色 / 4", "QC20260610008", "2026-06-10 10:18:45"],
+      ["gray", "SKU-HAT-GRY-04", "灰色 / 4", "QC20260609005", "2026-06-09 17:42:09"],
+      ["beige", "SKU-HAT-BGE-04", "米色 / 4", "QC20260608002", "2026-06-08 11:06:32"],
+      ["red", "SKU-HAT-RED-04", "红色 / 4", "QC20260607009", "2026-06-07 15:33:26"],
+      ["blue", "SKU-HAT-BLU-04", "蓝色 / 4", "QC20260606004", "2026-06-06 09:50:11"],
+      ["yellow", "SKU-HAT-YLW-04", "黄色 / 4", "QC20260605007", "2026-06-05 13:27:40"]
+    ].forEach(([skuId, skuCode, variant, batchNo, inspectedAt], index) => {
       qcSkus.push({
         skuId,
         skuCode,
@@ -1059,11 +1050,11 @@
         inspectedAt,
         categories: [
           { name: "产品图片", items: [
-            img(`qc-${skuId}-01`, "产品正面", index % 2 ? "photo-detail" : "photo-hat"),
-            img(`qc-${skuId}-02`, "产品侧面", index % 2 ? "photo-display" : "photo-detail")
+            img(`qc-${skuId}-01`, "产品图片", index % 2 ? "photo-detail" : "photo-hat"),
+            img(`qc-${skuId}-02`, "产品图片", index % 2 ? "photo-display" : "photo-detail")
           ]},
           { name: "测试图片", items: [
-            img(`qc-${skuId}-03`, testName, "photo-test")
+            img(`qc-${skuId}-03`, "测试图片", "photo-test")
           ]}
         ]
       });
@@ -1089,6 +1080,12 @@
 
     function img(id, title, klass) {
       return { id, title, klass };
+    }
+
+    function categoryRemark(categoryName) {
+      if (categoryName === "产品图片") return "含产品组装后照片与装箱配件照片";
+      if (categoryName === "测试图片") return "含功能测试与可靠性测试照片";
+      return "";
     }
 
     function allImportImages() {
@@ -1191,7 +1188,7 @@
           <section class="category">
             <label class="category-title">
               <input type="checkbox" data-category-select="${active.skuId}:${category.name}">
-              <span>${category.name}</span>
+              <span>${category.name}：${categoryRemark(category.name)}</span>
             </label>
             <div class="import-grid">
               ${category.items.map(item => renderImportCard(item, category.name)).join("")}
@@ -1255,7 +1252,6 @@
             <button class="tool-dot" title="预览大图" data-preview-id="${item.id}">⌕</button>
           </div>
           <div class="thumb ${item.klass}" data-title="${category}"></div>
-          <div class="caption">${item.title}</div>
         </div>
       `;
     }
