@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>产品信息支持从大货质检导入图片 Demo</title>
+  <style>
+    :root {
+      --teal: #25b8ad;
+      --teal-dark: #13958d;
+      --teal-soft: #e6fbf8;
+      --line: #dfe5ec;
+      --line-dark: #cad3df;
+      --text: #344054;
+      --muted: #7b8794;
+      --bg: #f4f7fa;
+      --danger: #ef5b5b;
+      --warn: #d69227;
+      --warn-soft: #fff7e8;
+      --shadow: 0 12px 32px rgba(16, 24, 40, .18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1320px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .demo-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 244px 1fr;
+      grid-template-rows: 46px 1fr;
+    }
+
+    .demo-top {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      color: #657184;
+      background: #fff;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 520px;
+    }
+
+    .logo {
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    .demo-name {
+      color: #1f2a3a;
+      font-weight: 600;
+    }
+
+    .left-nav {
+      padding: 14px 10px;
+      border-right: 1px solid var(--line);
+      color: #536173;
+      background: #fff;
+      overflow: auto;
+    }
+
+    .nav-title {
+      padding: 0 6px 8px;
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    .nav-desc {
+      margin: 0 6px 12px;
+      color: #7b8794;
+      line-height: 1.55;
+      font-size: 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      min-height: 36px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: #536173;
+      background: #f7f8fb;
+      text-align: left;
+    }
+
+    .nav-item.active {
+      color: var(--teal-dark);
+      border-color: #bfeee9;
+      background: var(--teal-soft);
+      font-weight: 600;
+    }
+
+    .assist {
+      margin: 14px 6px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #667386;
+      background: #fff;
+      line-height: 1.7;
+    }
+
+    .assist strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #1f2a3a;
+    }
+
+    .assist button {
+      width: 100%;
+      height: 30px;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: #536173;
+      background: #f7f8fb;
+      text-align: left;
+      padding: 0 9px;
+    }
+
+    .assist button.active {
+      color: var(--teal-dark);
+      border-color: #9be0da;
+      background: #f2fffd;
+    }
+
+    .main {
+      padding: 0 8px 24px;
+      overflow: auto;
+    }
+
+    .crumb {
+      display: none;
+      height: 42px;
+      align-items: center;
+      gap: 8px;
+      color: #7b8794;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      margin: 0 -12px 10px;
+      padding: 0 18px;
+    }
+
+    .crumb strong { color: #354052; }
+
+    .workspace {
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(16, 24, 40, .06);
+    }
+
+    .system-page-tab {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      color: #fff;
+      background: var(--teal);
+      border-radius: 0 0 2px 0;
+      font-size: 12px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      min-height: 650px;
+      border-top: 0;
+    }
+
+    .spu-side {
+      border-right: 1px solid var(--line);
+      background: #f7f9fb;
+    }
+
+    .spu-side-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 28px;
+      color: #98a2b3;
+      background: #f7f9fb;
+      font-size: 12px;
+      line-height: 28px;
+    }
+
+    .spu-side-item {
+      width: 100%;
+      min-height: 36px;
+      padding: 0 8px;
+      border: 0;
+      border-left: 2px solid transparent;
+      color: #6b7688;
+      background: transparent;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .spu-side-item.active {
+      color: var(--teal-dark);
+      border-left-color: var(--teal);
+      background: #fff;
+    }
+
+    .edit-area {
+      padding: 16px 20px 18px;
+    }
+
+    .page-tabs {
+      display: flex;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .page-tab {
+      height: 34px;
+      min-width: 72px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      border-radius: 3px 3px 0 0;
+      color: #566274;
+      background: #fff;
+    }
+
+    .page-tab.active {
+      color: var(--teal-dark);
+      font-weight: 600;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 0 8px;
+    }
+
+    .btn {
+      height: 28px;
+      padding: 0 12px;
+      border: 1px solid var(--line-dark);
+      border-radius: 2px;
+      color: #506174;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      color: #fff;
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+
+    .btn.danger {
+      color: #fff;
+      border-color: var(--danger);
+      background: var(--danger);
+    }
+
+    .btn.ghost-teal {
+      color: var(--teal-dark);
+      border-color: #9ce2dc;
+      background: #f4fffd;
+    }
+
+    .btn.warn {
+      color: #965d13;
+      border-color: #f3cb8b;
+      background: #fff8e9;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 28px;
+      color: #39495c;
+    }
+
+    .req { color: var(--danger); }
+
+    .select-mini {
+      width: 104px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 0 8px;
+      color: #8a94a3;
+      background: #fff;
+    }
+
+    .image-zone {
+      min-height: 122px;
+      border: 1px solid var(--line-dark);
+      background: #fff;
+    }
+
+    .spu-zone {
+      padding: 8px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .sku-table {
+      border: 1px solid var(--line-dark);
+      border-top: 0;
+    }
+
+    .sku-row {
+      display: grid;
+      grid-template-columns: 104px 1fr;
+      min-height: 122px;
+      border-top: 1px solid var(--line-dark);
+    }
+
+    .sku-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 8px;
+      border-right: 1px solid var(--line-dark);
+      background: #fff;
+    }
+
+    .sku-images {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      padding: 8px;
+      min-height: 122px;
+      background: #fff;
+    }
+
+    input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--teal);
+    }
+
+    .upload-box,
+    .image-card {
+      width: 92px;
+      flex: 0 0 92px;
+    }
+
+    .upload-box {
+      height: 82px;
+      display: grid;
+      place-items: center;
+      border: 2px dashed #d2d8df;
+      border-radius: 4px;
+      color: #8d98a6;
+      background: #fbfcfd;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .upload-box .plus {
+      display: block;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .image-card {
+      position: relative;
+    }
+
+    .thumb {
+      width: 78px;
+      height: 78px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #eef2f6;
+    }
+
+    .thumb::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--photo, linear-gradient(135deg, #d9c6a4, #856f56));
+    }
+
+    .thumb::after {
+      content: attr(data-title);
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      background: rgba(40, 46, 55, .62);
+    }
+
+    .photo-hat { --photo: radial-gradient(circle at 54% 35%, #d2c1a6 0 25%, transparent 26%), radial-gradient(circle at 44% 46%, #b29f82 0 18%, transparent 19%), linear-gradient(155deg, #eadfce, #b89f7b 56%, #553d2c); }
+    .photo-label { --photo: repeating-linear-gradient(0deg, #f6f7f8 0 9px, #e1e6ea 10px 13px), linear-gradient(90deg, #c2b399, #f5f6f7); }
+    .photo-package { --photo: linear-gradient(135deg, #b88955 0 35%, #e3c096 36% 58%, #8c623c 59%), repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 4px, transparent 5px 18px); }
+    .photo-test { --photo: linear-gradient(135deg, #ecf2f6, #8ca5b8), radial-gradient(circle at 70% 35%, #46b7e8 0 12%, transparent 13%); }
+    .photo-display { --photo: linear-gradient(180deg, #f4eee4 0 42%, #c0a584 43%), radial-gradient(circle at 50% 56%, #c8b083 0 18%, transparent 19%); }
+    .photo-detail { --photo: linear-gradient(145deg, #e7dfd0, #846d54), repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 6px, transparent 7px 24px); }
+
+    .card-check {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      z-index: 2;
+    }
+
+    .quick-tools {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      z-index: 2;
+      display: flex;
+      gap: 5px;
+    }
+
+    .image-card > .quick-tools {
+      left: 62px;
+      right: auto;
+    }
+
+    .import-card > .quick-tools {
+      left: auto;
+      right: 6px;
+    }
+
+    .tool-dot {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #c8e8e5;
+      border-radius: 50%;
+      color: var(--teal-dark);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+
+    .meta-line {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      width: 92px;
+      height: 16px;
+      margin-top: 3px;
+      border: 1px solid var(--teal);
+      border-radius: 3px;
+      color: var(--teal-dark);
+      background: #f7fffe;
+      overflow: hidden;
+    }
+
+    .meta-label {
+      min-width: 28px;
+      padding-left: 4px;
+      color: #667386;
+      background: #fff;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 14px;
+      padding: 0 5px;
+      border-radius: 2px;
+      color: #fff;
+      background: var(--teal);
+      white-space: nowrap;
+      max-width: 58px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 11px;
+    }
+
+    .source-menu {
+      position: absolute;
+      z-index: 25;
+      display: none;
+      width: 180px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .source-menu.open { display: block; }
+
+    .source-menu strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #39495c;
+    }
+
+    .source-menu label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 28px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 54px;
+      z-index: 200;
+      transform: translateX(-50%);
+      width: 660px;
+      min-height: 46px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 24px;
+      border: 1px solid #ffd99f;
+      border-radius: 4px;
+      color: #9a6418;
+      background: var(--warn-soft);
+      box-shadow: 0 8px 22px rgba(16, 24, 40, .12);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .toast::before {
+      content: "!";
+      width: 20px;
+      height: 20px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: #f4aa37;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .toast.show { display: flex; }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, .42);
+      padding: 28px;
+    }
+
+    .modal-mask.open { display: flex; }
+
+    .modal {
+      width: 1060px;
+      max-height: calc(100vh - 68px);
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-head {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      color: #253244;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .close {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      color: #8a95a3;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      overflow: auto;
+      padding: 14px 18px 0;
+    }
+
+    .sku-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      max-width: 100%;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .sku-tab {
+      height: 42px;
+      flex: 0 0 auto;
+      min-width: 148px;
+      padding: 0 12px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      color: #566274;
+      background: #fff;
+      text-align: left;
+      line-height: 1.35;
+    }
+
+    .sku-tab-code {
+      display: block;
+      color: #253244;
+      font-weight: 700;
+    }
+
+    .sku-tab-variant {
+      display: block;
+      color: #7b8794;
+      font-size: 12px;
+    }
+
+    .sku-tab.active {
+      color: var(--teal-dark);
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      font-weight: 600;
+    }
+
+    .batch-info {
+      display: flex;
+      gap: 26px;
+      margin: 12px 0 10px;
+      padding: 10px 12px;
+      border: 1px solid #d9f1ef;
+      border-radius: 3px;
+      color: #536173;
+      background: #fbfffe;
+    }
+
+    .batch-info span { color: #1f2a3a; }
+
+    .category {
+      margin-bottom: 16px;
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 30px;
+      color: #2f3c4e;
+      border-bottom: 1px dashed #91d8d2;
+    }
+
+    .category-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      background: var(--teal);
+    }
+
+    .category-title input {
+      flex: 0 0 auto;
+    }
+
+    .import-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 10px;
+    }
+
+    .import-card {
+      width: 112px;
+      position: relative;
+    }
+
+    .import-card .thumb {
+      width: 112px;
+      height: 112px;
+      border-color: var(--line-dark);
+    }
+
+    .import-card.selected .thumb {
+      border: 2px solid var(--teal);
+    }
+
+    .import-card .caption {
+      margin-top: 5px;
+      color: #667386;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .empty {
+      min-height: 310px;
+      display: grid;
+      place-items: center;
+      color: #98a2b3;
+      text-align: center;
+    }
+
+    .empty strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #667386;
+      font-weight: 600;
+    }
+
+    .modal-foot {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 18px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .selected-count {
+      color: #667386;
+    }
+
+    .selected-count strong {
+      color: var(--teal-dark);
+      font-size: 16px;
+    }
+
+    .preview-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 160;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, .65);
+      padding: 30px;
+    }
+
+    .preview-mask.open { display: flex; }
+
+    .preview-panel {
+      width: 540px;
+      padding: 18px;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .preview-image {
+      width: 100%;
+      height: 360px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .preview-image .thumb {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .preview-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      color: #3d4a5c;
+    }
+
+    .rule-panel {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .rule-panel summary {
+      padding: 13px 16px;
+      color: #253244;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .rule-content {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      padding: 0 16px 16px;
+      color: #667386;
+      line-height: 1.75;
+    }
+
+    .rule-content h3 {
+      margin: 0 0 6px;
+      color: #344054;
+      font-size: 13px;
+    }
+
+    .rule-content ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="demo-shell">
+    <header class="demo-top">
+      <div class="brand">
+        <span class="logo">产品信息支持从大货质检导入图片demo</span>
+        <span>/</span>
+        <span class="demo-name">编辑SPU - 产品资料图片页</span>
+      </div>
+    </header>
+
+    <aside class="left-nav">
+      <div class="nav-title">演示入口</div>
+      <p class="nav-desc">场景入口为 Demo 辅助导航，不属于系统真实菜单。</p>
+      <div class="assist">
+        <button class="scenario active" data-mode="normal">正常导入</button>
+        <button class="scenario" data-mode="empty">无可导入图片</button>
+      </div>
+      <div class="assist">
+        <strong>本次关注</strong>
+        <div>新增入口位于“批量复制到选中SKU”后。</div>
+        <div>弹窗按 SKU 展示最新一条有图质检批次。</div>
+        <div>添加时按目标区域去重，来源默认为“大货质检”。</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="workspace">
+        <span class="system-page-tab">编辑SPU ×</span>
+        <div class="content-grid">
+          <aside class="spu-side" aria-label="编辑SPU页内导航">
+            <div class="spu-side-toggle">⌃</div>
+            <button class="spu-side-item">基本信息</button>
+            <button class="spu-side-item">产品规格</button>
+            <button class="spu-side-item">销售信息</button>
+            <button class="spu-side-item active">产品资料</button>
+            <button class="spu-side-item">采购信息</button>
+            <div class="spu-side-toggle">⌄</div>
+          </aside>
+          <div class="edit-area">
+            <div class="page-tabs">
+              <button class="page-tab active"><span class="req">*</span> 图片</button>
+              <button class="page-tab">工厂说明书</button>
+            </div>
+            <div class="toolbar">
+              <button class="btn primary">批量打标签</button>
+              <button class="btn primary">批量打来源</button>
+              <button class="btn danger">批量删除</button>
+              <button class="btn ghost-teal" id="copyToSku">批量复制到选中SKU</button>
+              <button class="btn warn" id="openImport">从大货质检导入图片</button>
+            </div>
+
+            <div class="section-head">
+              <label><input type="checkbox" id="spuSelect"> <span class="req">*</span> SPU图片</label>
+            </div>
+            <section class="image-zone spu-zone" id="spuZone"></section>
+
+            <div class="section-head" style="margin-top:14px;">
+              <label><input type="checkbox"> <span class="req">*</span> SKU图片</label>
+              <select class="select-mini"><option>颜色</option></select>
+              <select class="select-mini"><option>尺寸</option></select>
+            </div>
+            <section class="sku-table" id="skuTable"></section>
+          </div>
+        </div>
+      </section>
+
+      <details class="rule-panel" open>
+        <summary>交互规则说明</summary>
+        <div class="rule-content">
+          <div>
+            <h3>入口与展示</h3>
+            <ul>
+              <li>图片页操作区新增“从大货质检导入图片”。</li>
+              <li>弹窗仅展示存在可导入图片的 SKU。</li>
+              <li>SKU Tab 展示 SKU 编码与变体值，数量较多时横向滚动。</li>
+            </ul>
+          </div>
+          <div>
+            <h3>选择与导入</h3>
+            <ul>
+              <li>弹窗仅展示产品图片、测试图片。</li>
+              <li>分类标题支持全选，图片支持多选、取消和预览。</li>
+              <li>确认添加后关闭弹窗，可添加到 SPU 或当前页面已勾选 SKU。</li>
+            </ul>
+          </div>
+          <div>
+            <h3>去重与来源</h3>
+            <ul>
+              <li>添加到 SPU 时按图片 ID 去重。</li>
+              <li>添加到 SKU 时按图片 ID + SKU 维度去重。</li>
+              <li>导入图片来源默认选中“大货质检”，可继续修改。</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-mask" id="importModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <header class="modal-head">
+        <div class="modal-title" id="modalTitle">从大货质检导入图片</div>
+        <button class="close" id="closeImport" aria-label="关闭">×</button>
+      </header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer class="modal-foot">
+        <div class="selected-count">已选 <strong id="selectedCount">0</strong> 张</div>
+        <div>
+          <button class="btn ghost-teal" id="addToSpu">添加到SPU图片</button>
+          <button class="btn primary" id="addToSku">添加到选中SKU图</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="preview-mask" id="previewMask">
+    <div class="preview-panel">
+      <div class="preview-image" id="previewImage"></div>
+      <div class="preview-title">
+        <span id="previewTitle">图片预览</span>
+        <button class="btn" id="closePreview">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-menu" id="sourceMenu">
+    <strong>图片来源</strong>
+    <label><input type="checkbox" value="供应商图"> 供应商图</label>
+    <label><input type="checkbox" value="竞品图"> 竞品图</label>
+    <label><input type="checkbox" value="开发套图"> 开发套图</label>
+    <label><input type="checkbox" value="大货质检"> 大货质检</label>
+  </div>
+
+  <script>
+    const sourceOptions = ["供应商图", "竞品图", "开发套图", "大货质检"];
+
+    const qcSkus = [
+      {
+        skuId: "white",
+        skuCode: "SKU-HAT-WHT-04",
+        variant: "白色 / 4",
+        batchNo: "QC20260617001",
+        inspectedAt: "2026-06-17 16:03:11",
+        categories: [
+          { name: "产品图片", items: [
+            img("qc-w-01", "产品正面", "photo-hat"),
+            img("qc-w-02", "侧面细节", "photo-detail"),
+            img("qc-w-03", "整体展示", "photo-display")
+          ]},
+          { name: "测试图片", items: [
+            img("qc-w-04", "尺寸测试", "photo-test"),
+            img("qc-w-05", "克重测试", "photo-test")
+          ]}
+        ]
+      },
+      {
+        skuId: "black",
+        skuCode: "SKU-HAT-BLK-04",
+        variant: "黑色 / 4",
+        batchNo: "QC20260615002",
+        inspectedAt: "2026-06-15 12:59:56",
+        categories: [
+          { name: "产品图片", items: [
+            img("qc-b-01", "产品正面", "photo-hat"),
+            img("qc-b-02", "帽檐细节", "photo-detail")
+          ]},
+          { name: "测试图片", items: [
+            img("qc-b-03", "拉力测试", "photo-test")
+          ]}
+        ]
+      },
+      {
+        skuId: "green",
+        skuCode: "SKU-HAT-GRN-04",
+        variant: "绿色 / 4",
+        batchNo: "QC20260612006",
+        inspectedAt: "2026-06-12 09:24:30",
+        categories: [
+          { name: "产品图片", items: [
+            img("qc-g-01", "产品正面", "photo-hat"),
+            img("qc-g-02", "扣具细节", "photo-detail")
+          ]},
+          { name: "测试图片", items: [
+            img("qc-g-03", "色差测试", "photo-test"),
+            img("qc-g-04", "水洗测试", "photo-test")
+          ]}
+        ]
+      }
+    ];
+
+    [
+      ["navy", "SKU-HAT-NVY-04", "藏青色 / 4", "QC20260611003", "2026-06-11 14:20:18", "耐磨测试"],
+      ["khaki", "SKU-HAT-KHK-04", "卡其色 / 4", "QC20260610008", "2026-06-10 10:18:45", "色牢度测试"],
+      ["gray", "SKU-HAT-GRY-04", "灰色 / 4", "QC20260609005", "2026-06-09 17:42:09", "水洗测试"],
+      ["beige", "SKU-HAT-BGE-04", "米色 / 4", "QC20260608002", "2026-06-08 11:06:32", "尺寸测试"],
+      ["red", "SKU-HAT-RED-04", "红色 / 4", "QC20260607009", "2026-06-07 15:33:26", "拉力测试"],
+      ["blue", "SKU-HAT-BLU-04", "蓝色 / 4", "QC20260606004", "2026-06-06 09:50:11", "色差测试"],
+      ["yellow", "SKU-HAT-YLW-04", "黄色 / 4", "QC20260605007", "2026-06-05 13:27:40", "克重测试"]
+    ].forEach(([skuId, skuCode, variant, batchNo, inspectedAt, testName], index) => {
+      qcSkus.push({
+        skuId,
+        skuCode,
+        variant,
+        batchNo,
+        inspectedAt,
+        categories: [
+          { name: "产品图片", items: [
+            img(`qc-${skuId}-01`, "产品正面", index % 2 ? "photo-detail" : "photo-hat"),
+            img(`qc-${skuId}-02`, "产品侧面", index % 2 ? "photo-display" : "photo-detail")
+          ]},
+          { name: "测试图片", items: [
+            img(`qc-${skuId}-03`, testName, "photo-test")
+          ]}
+        ]
+      });
+    });
+
+    const state = {
+      mode: "normal",
+      activeSku: "white",
+      selected: new Set(),
+      spuImages: [
+        { ...img("spu-hat-main", "220*220", "photo-hat"), tags: ["场景图"], sources: ["供应商图"] }
+      ],
+      skus: [
+        { id: "black", name: "黑色 4", checked: false, images: [
+          { ...img("sku-black-main", "220*220", "photo-hat"), tags: ["白底图"], sources: ["供应商图"] }
+        ]},
+        { id: "white", name: "白色 4", checked: false, images: [] },
+        { id: "green", name: "绿色 4", checked: false, images: [
+          { ...img("sku-green-main", "220*220", "photo-hat"), tags: ["场景图"], sources: ["供应商图"] }
+        ]}
+      ]
+    };
+
+    function img(id, title, klass) {
+      return { id, title, klass };
+    }
+
+    function allImportImages() {
+      return qcSkus.flatMap(sku => sku.categories.flatMap(cat => cat.items.map(item => ({
+        ...item,
+        skuId: sku.skuId,
+        skuCode: sku.skuCode,
+        variant: sku.variant,
+        category: cat.name
+      }))));
+    }
+
+    function selectedImages() {
+      const selectedIds = state.selected;
+      return allImportImages().filter(item => selectedIds.has(item.id));
+    }
+
+    function renderMainImages() {
+      const spuZone = document.getElementById("spuZone");
+      spuZone.innerHTML = '<div class="upload-box"><span><span class="plus">＋</span>上传图片</span></div>' +
+        state.spuImages.map((item, index) => renderImageCard(item, "spu", index)).join("");
+
+      const skuTable = document.getElementById("skuTable");
+      skuTable.innerHTML = state.skus.map(sku => `
+        <div class="sku-row">
+          <div class="sku-name">
+            <input type="checkbox" ${sku.checked ? "checked" : ""} data-sku-check="${sku.id}">
+            <span>${sku.name}</span>
+          </div>
+          <div class="sku-images">
+            <div class="upload-box"><span><span class="plus">＋</span>上传图片</span></div>
+            ${sku.images.map((item, index) => renderImageCard(item, sku.id, index)).join("")}
+          </div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll("[data-sku-check]").forEach(input => {
+        input.addEventListener("change", () => {
+          const sku = state.skus.find(row => row.id === input.dataset.skuCheck);
+          sku.checked = input.checked;
+        });
+      });
+
+      document.querySelectorAll("[data-source-target]").forEach(btn => {
+        btn.addEventListener("click", event => openSourceMenu(event.currentTarget));
+      });
+    }
+
+    function renderImageCard(item, owner, index) {
+      const sources = item.sources || ["大货质检"];
+      const tag = (item.tags && item.tags[0]) || "";
+      return `
+        <div class="image-card">
+          <input class="card-check" type="checkbox">
+          <div class="quick-tools">
+            <button class="tool-dot" title="预览" data-preview="${item.id}">⌕</button>
+          </div>
+          <div class="thumb ${item.klass}" data-title="${item.title}"></div>
+          <div class="meta-line">
+            <span class="meta-label">标签</span>
+            <span class="pill">${tag || "未设置"}</span>
+          </div>
+          <button class="meta-line" data-source-target="${owner}:${index}" style="text-align:left;">
+            <span class="meta-label">来源</span>
+            <span class="pill">${sources[0]}</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function renderImportModal() {
+      const body = document.getElementById("modalBody");
+      const foot = document.querySelector(".modal-foot");
+      if (state.mode === "empty") {
+        body.innerHTML = '<div class="empty"><div><strong>当前SPU暂无可导入的大货质检图片</strong></div></div>';
+        foot.style.display = "flex";
+        updateSelectedCount();
+        return;
+      }
+
+      const available = qcSkus.filter(sku => sku.categories.some(cat => cat.items.length));
+      if (!available.some(sku => sku.skuId === state.activeSku)) {
+        state.activeSku = available[0]?.skuId || "";
+      }
+      const active = available.find(sku => sku.skuId === state.activeSku);
+      body.innerHTML = `
+        <div class="sku-tabs">
+          ${available.map(sku => `
+            <button class="sku-tab ${sku.skuId === state.activeSku ? "active" : ""}" data-tab="${sku.skuId}">
+              <span class="sku-tab-code">${sku.skuCode}</span>
+              <span class="sku-tab-variant">${sku.variant}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div class="batch-info">
+          <div>质检批次号：<span>${active.batchNo}</span></div>
+          <div>实际质检时间：<span>${active.inspectedAt}</span></div>
+        </div>
+        ${active.categories.map(category => `
+          <section class="category">
+            <label class="category-title">
+              <input type="checkbox" data-category-select="${active.skuId}:${category.name}">
+              <span>${category.name}</span>
+            </label>
+            <div class="import-grid">
+              ${category.items.map(item => renderImportCard(item, category.name)).join("")}
+            </div>
+          </section>
+        `).join("")}
+      `;
+
+      document.querySelectorAll("[data-tab]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.activeSku = btn.dataset.tab;
+          renderImportModal();
+        });
+      });
+
+      document.querySelectorAll("[data-import-id]").forEach(card => {
+        card.addEventListener("click", event => {
+          if (event.target.closest("[data-preview-id]")) return;
+          const id = card.dataset.importId;
+          if (state.selected.has(id)) state.selected.delete(id);
+          else state.selected.add(id);
+          renderImportModal();
+          updateSelectedCount();
+        });
+      });
+
+      document.querySelectorAll("[data-preview-id]").forEach(btn => {
+        btn.addEventListener("click", event => {
+          event.stopPropagation();
+          const item = allImportImages().find(row => row.id === btn.dataset.previewId);
+          openPreview(item);
+        });
+      });
+
+      document.querySelectorAll("[data-category-select]").forEach(input => {
+        const [, categoryName] = input.dataset.categorySelect.split(":");
+        const items = active.categories.find(category => category.name === categoryName)?.items || [];
+        const selectedCount = items.filter(item => state.selected.has(item.id)).length;
+        input.checked = items.length > 0 && selectedCount === items.length;
+        input.indeterminate = selectedCount > 0 && selectedCount < items.length;
+        input.addEventListener("click", event => event.stopPropagation());
+        input.addEventListener("change", () => {
+          items.forEach(item => {
+            if (input.checked) state.selected.add(item.id);
+            else state.selected.delete(item.id);
+          });
+          renderImportModal();
+          updateSelectedCount();
+        });
+      });
+
+      updateSelectedCount();
+    }
+
+    function renderImportCard(item, category) {
+      const checked = state.selected.has(item.id);
+      return `
+        <div class="import-card ${checked ? "selected" : ""}" data-import-id="${item.id}">
+          <input class="card-check" type="checkbox" ${checked ? "checked" : ""}>
+          <div class="quick-tools">
+            <button class="tool-dot" title="预览大图" data-preview-id="${item.id}">⌕</button>
+          </div>
+          <div class="thumb ${item.klass}" data-title="${category}"></div>
+          <div class="caption">${item.title}</div>
+        </div>
+      `;
+    }
+
+    function openImportModal() {
+      if (state.mode === "fail") {
+        showToast("大货质检图片获取失败，请稍后重试。");
+        return;
+      }
+      document.getElementById("importModal").classList.add("open");
+      renderImportModal();
+    }
+
+    function closeImportModal() {
+      document.getElementById("importModal").classList.remove("open");
+    }
+
+    function addImagesToSpu() {
+      const images = selectedImages();
+      if (!images.length) {
+        showToast("请先选择要导入的图片。");
+        return;
+      }
+      let added = 0;
+      let skipped = 0;
+      images.forEach(item => {
+        if (state.spuImages.some(image => image.id === item.id)) {
+          skipped += 1;
+          return;
+        }
+        state.spuImages.push({ ...item, tags: [], sources: ["大货质检"] });
+        added += 1;
+      });
+      renderMainImages();
+      showResultToast(added, skipped);
+      state.selected.clear();
+      closeImportModal();
+    }
+
+    function addImagesToSelectedSku() {
+      const images = selectedImages();
+      if (!images.length) {
+        showToast("请先选择要导入的图片。");
+        return;
+      }
+      const targetSkus = state.skus.filter(sku => sku.checked);
+      if (!targetSkus.length) {
+        showToast("请选择SKU");
+        return;
+      }
+      let added = 0;
+      let skipped = 0;
+      targetSkus.forEach(sku => {
+        images.forEach(item => {
+          if (sku.images.some(image => image.id === item.id)) {
+            skipped += 1;
+            return;
+          }
+          sku.images.push({ ...item, tags: [], sources: ["大货质检"] });
+          added += 1;
+        });
+      });
+      renderMainImages();
+      showResultToast(added, skipped);
+      state.selected.clear();
+      closeImportModal();
+    }
+
+    function showResultToast(added, skipped) {
+      if (added > 0 && skipped === 0) showToast(`已添加${added}条图片记录。`);
+      else if (added > 0 && skipped > 0) showToast(`已添加${added}条图片记录，${skipped}条已存在，已自动跳过。`);
+      else showToast("所选图片已存在，无需重复添加。");
+    }
+
+    function updateSelectedCount() {
+      document.getElementById("selectedCount").textContent = state.selected.size;
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function openPreview(item) {
+      if (!item) return;
+      document.getElementById("previewImage").innerHTML = `<div class="thumb ${item.klass}" data-title="${item.category || item.title}"></div>`;
+      document.getElementById("previewTitle").textContent = `${item.variant ? item.variant + " - " : ""}${item.title}`;
+      document.getElementById("previewMask").classList.add("open");
+    }
+
+    function openSourceMenu(target) {
+      const menu = document.getElementById("sourceMenu");
+      const [owner, index] = target.dataset.sourceTarget.split(":");
+      const item = owner === "spu"
+        ? state.spuImages[Number(index)]
+        : state.skus.find(sku => sku.id === owner)?.images[Number(index)];
+      if (!item) return;
+      menu.dataset.owner = owner;
+      menu.dataset.index = index;
+      menu.querySelectorAll("input").forEach(input => {
+        input.checked = (item.sources || []).includes(input.value);
+      });
+      const rect = target.getBoundingClientRect();
+      menu.style.left = `${rect.left}px`;
+      menu.style.top = `${rect.bottom + 4}px`;
+      menu.classList.add("open");
+    }
+
+    function applySourceChange() {
+      const menu = document.getElementById("sourceMenu");
+      const owner = menu.dataset.owner;
+      const index = Number(menu.dataset.index);
+      if (!owner) return;
+      const item = owner === "spu"
+        ? state.spuImages[index]
+        : state.skus.find(sku => sku.id === owner)?.images[index];
+      if (!item) return;
+      const checked = [...menu.querySelectorAll("input:checked")].map(input => input.value);
+      item.sources = checked.length ? checked : ["大货质检"];
+      renderMainImages();
+      menu.classList.remove("open");
+    }
+
+    document.getElementById("openImport").addEventListener("click", openImportModal);
+    document.getElementById("closeImport").addEventListener("click", closeImportModal);
+    document.getElementById("addToSpu").addEventListener("click", addImagesToSpu);
+    document.getElementById("addToSku").addEventListener("click", addImagesToSelectedSku);
+    document.getElementById("closePreview").addEventListener("click", () => document.getElementById("previewMask").classList.remove("open"));
+    document.getElementById("previewMask").addEventListener("click", event => {
+      if (event.target.id === "previewMask") event.currentTarget.classList.remove("open");
+    });
+    document.getElementById("importModal").addEventListener("click", event => {
+      if (event.target.id === "importModal") closeImportModal();
+    });
+    document.getElementById("sourceMenu").addEventListener("change", applySourceChange);
+    document.addEventListener("click", event => {
+      const menu = document.getElementById("sourceMenu");
+      if (!event.target.closest("#sourceMenu") && !event.target.closest("[data-source-target]")) {
+        menu.classList.remove("open");
+      }
+    });
+
+    document.querySelectorAll(".scenario").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".scenario").forEach(item => item.classList.remove("active"));
+        btn.classList.add("active");
+        state.mode = btn.dataset.mode;
+        if (state.mode === "empty") state.selected.clear();
+        showToast(state.mode === "normal" ? "已切换为正常导入场景。" : state.mode === "empty" ? "已切换为无可导入图片场景。" : "已切换为获取失败场景。");
+      });
+    });
+
+    document.getElementById("copyToSku").addEventListener("click", () => {
+      if (!state.skus.some(sku => sku.checked)) showToast("请选择SKU");
+      else showToast("已沿用原有批量复制到选中SKU能力。");
+    });
+
+    renderMainImages();
+  </script>
+</body>
+</html>

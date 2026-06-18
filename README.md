@@ -8,6 +8,8 @@
 - `accessory-log/`：配件产品尺寸重量日志
 - `accessory-optimization/`：配件产品添加与关联优化
 - `season-recommendation/`：AI 推荐季节标签
+- `sales-attribute-config/`：销售属性配置与 SKU 自定义属性
+- `qc-image-import/`：产品信息支持从大货质检导入图片
 
 ## 新增一个需求原型
 
@@ -38,6 +40,10 @@ product-prototypes/
 ├── accessory-optimization/
 │   └── index.html
 ├── season-recommendation/
+│   └── index.html
+├── sales-attribute-config/
+│   └── index.html
+├── qc-image-import/
 │   └── index.html
 └── README.md
 ```
