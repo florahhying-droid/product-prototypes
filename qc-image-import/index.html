@@ -587,13 +587,18 @@
     .modal-mask.open { display: flex; }
 
     .modal {
-      width: 1060px;
-      max-height: calc(100vh - 68px);
+      width: min(1180px, calc(100vw - 56px));
+      height: calc(100vh - 56px);
       display: flex;
       flex-direction: column;
       border-radius: 4px;
       background: #fff;
       box-shadow: var(--shadow);
+    }
+
+    .modal.empty-modal {
+      width: 720px;
+      height: 360px;
     }
 
     .modal-head {
@@ -622,8 +627,9 @@
     }
 
     .modal-body {
-      overflow: auto;
+      overflow: visible;
       padding: 14px 18px 0;
+      flex: 1;
     }
 
     .sku-tabs {
@@ -679,6 +685,108 @@
     }
 
     .batch-info span { color: #1f2a3a; }
+
+    .batch-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 12px 0 12px;
+      padding: 10px 12px;
+      border: 1px solid #d9f1ef;
+      border-radius: 3px;
+      background: #fbfffe;
+    }
+
+    .batch-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .batch-label {
+      color: #536173;
+      white-space: nowrap;
+    }
+
+    .batch-picker {
+      position: relative;
+      width: 360px;
+      flex: 0 0 360px;
+    }
+
+    .batch-picker input {
+      width: 100%;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      color: #253244;
+      background: #fff;
+    }
+
+    .batch-menu {
+      position: absolute;
+      left: 0;
+      right: auto;
+      top: calc(100% + 4px);
+      z-index: 30;
+      display: none;
+      width: 430px;
+      max-height: none;
+      overflow: visible;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .batch-picker.open .batch-menu {
+      display: block;
+    }
+
+    .batch-option {
+      width: 100%;
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 0;
+      border-bottom: 1px solid #f0f2f5;
+      color: #4d5a6d;
+      background: #fff;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .batch-option:hover,
+    .batch-option.active {
+      color: var(--teal-dark);
+      background: #f3fffd;
+    }
+
+    .batch-tip {
+      padding: 8px 10px;
+      color: #98a2b3;
+      font-size: 12px;
+      background: #fafbfc;
+    }
+
+    .batch-empty {
+      padding: 10px;
+      color: #98a2b3;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .batch-current {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      min-height: 32px;
+      color: #536173;
+    }
+
+    .batch-current span {
+      color: #1f2a3a;
+    }
 
     .category {
       margin-bottom: 16px;
@@ -860,7 +968,8 @@
       <div class="assist">
         <strong>本次关注</strong>
         <div>新增入口位于“批量复制到选中SKU”后。</div>
-        <div>弹窗按 SKU 展示最新一条有图质检批次。</div>
+        <div>弹窗按 SKU 展示存在产品图片的大货质检批次。</div>
+        <div>支持切换最近批次，也可输入 QC20260609003 精确匹配。</div>
         <div>添加时按目标区域去重，来源默认为“大货质检”。</div>
       </div>
     </aside>
@@ -913,16 +1022,16 @@
             <h3>入口与展示</h3>
             <ul>
               <li>图片页操作区新增“从大货质检导入图片”。</li>
-              <li>弹窗仅展示存在可导入图片的 SKU。</li>
+              <li>弹窗仅展示存在大货质检产品图片的 SKU。</li>
               <li>SKU Tab 展示 SKU 编码与变体值，数量较多时横向滚动。</li>
             </ul>
           </div>
           <div>
             <h3>选择与导入</h3>
             <ul>
-              <li>弹窗仅展示产品图片、测试图片。</li>
-              <li>分类标题支持全选，图片支持多选、取消和预览。</li>
-              <li>确认添加后关闭弹窗，可添加到 SPU 或当前页面已勾选 SKU。</li>
+              <li>批次选择器默认展示当前 SKU 最近一个有产品图片的批次。</li>
+              <li>下拉默认展示最近 3 个批次，支持输入完整批次号精确查询。</li>
+              <li>图片区域仅展示当前批次下的产品图片，确认添加后关闭弹窗。</li>
             </ul>
           </div>
           <div>
@@ -952,7 +1061,7 @@
         <div class="selected-count">已选 <strong id="selectedCount">0</strong> 张</div>
         <div>
           <button class="btn ghost-teal" id="addToSpu">添加到SPU图片</button>
-          <button class="btn primary" id="addToSku">添加到选中SKU图</button>
+          <button class="btn primary" id="addToSku">添加到选中SKU</button>
         </div>
       </footer>
     </div>
@@ -980,89 +1089,45 @@
     const sourceOptions = ["供应商图", "竞品图", "开发套图", "大货质检"];
 
     const qcSkus = [
-      {
-        skuId: "white",
-        skuCode: "SKU-HAT-WHT-04",
-        variant: "白色 / 4",
-        batchNo: "QC20260617001",
-        inspectedAt: "2026-06-17 16:03:11",
-        categories: [
-          { name: "产品图片", items: [
-            img("qc-w-01", "产品图片", "photo-hat"),
-            img("qc-w-02", "产品图片", "photo-detail"),
-            img("qc-w-03", "产品图片", "photo-display")
-          ]},
-          { name: "测试图片", items: [
-            img("qc-w-04", "测试图片", "photo-test"),
-            img("qc-w-05", "测试图片", "photo-test")
-          ]}
-        ]
-      },
-      {
-        skuId: "black",
-        skuCode: "SKU-HAT-BLK-04",
-        variant: "黑色 / 4",
-        batchNo: "QC20260615002",
-        inspectedAt: "2026-06-15 12:59:56",
-        categories: [
-          { name: "产品图片", items: [
-            img("qc-b-01", "产品图片", "photo-hat"),
-            img("qc-b-02", "产品图片", "photo-detail")
-          ]},
-          { name: "测试图片", items: [
-            img("qc-b-03", "测试图片", "photo-test")
-          ]}
-        ]
-      },
-      {
-        skuId: "green",
-        skuCode: "SKU-HAT-GRN-04",
-        variant: "绿色 / 4",
-        batchNo: "QC20260612006",
-        inspectedAt: "2026-06-12 09:24:30",
-        categories: [
-          { name: "产品图片", items: [
-            img("qc-g-01", "产品图片", "photo-hat"),
-            img("qc-g-02", "产品图片", "photo-detail")
-          ]},
-          { name: "测试图片", items: [
-            img("qc-g-03", "测试图片", "photo-test"),
-            img("qc-g-04", "测试图片", "photo-test")
-          ]}
-        ]
-      }
+      createQcSku("white", "SKU-HAT-WHT-04", "白色 / 4", [
+        ["QC20260618001", "2026-06-18 14:30", ["photo-hat", "photo-detail", "photo-display", "photo-package", "photo-hat", "photo-detail", "photo-display", "photo-package", "photo-hat", "photo-detail", "photo-display", "photo-package"]],
+        ["QC20260617001", "2026-06-17 16:03", ["photo-hat", "photo-detail", "photo-package"]],
+        ["QC20260613005", "2026-06-13 09:45", ["photo-display", "photo-detail"]],
+        ["QC20260609003", "2026-06-09 18:20", ["photo-hat"]]
+      ]),
+      createQcSku("black", "SKU-HAT-BLK-04", "黑色 / 4", [
+        ["QC20260615002", "2026-06-15 12:59", ["photo-hat", "photo-detail", "photo-display"]],
+        ["QC20260611009", "2026-06-11 10:16", ["photo-package", "photo-detail"]],
+        ["QC20260606004", "2026-06-06 15:42", ["photo-hat"]]
+      ]),
+      createQcSku("green", "SKU-HAT-GRN-04", "绿色 / 4", [
+        ["QC20260612006", "2026-06-12 09:24", ["photo-hat", "photo-detail", "photo-display"]],
+        ["QC20260608011", "2026-06-08 13:11", ["photo-package", "photo-detail"]],
+        ["QC20260603002", "2026-06-03 17:36", ["photo-hat"]]
+      ])
     ];
 
     [
-      ["navy", "SKU-HAT-NVY-04", "藏青色 / 4", "QC20260611003", "2026-06-11 14:20:18"],
-      ["khaki", "SKU-HAT-KHK-04", "卡其色 / 4", "QC20260610008", "2026-06-10 10:18:45"],
-      ["gray", "SKU-HAT-GRY-04", "灰色 / 4", "QC20260609005", "2026-06-09 17:42:09"],
-      ["beige", "SKU-HAT-BGE-04", "米色 / 4", "QC20260608002", "2026-06-08 11:06:32"],
-      ["red", "SKU-HAT-RED-04", "红色 / 4", "QC20260607009", "2026-06-07 15:33:26"],
-      ["blue", "SKU-HAT-BLU-04", "蓝色 / 4", "QC20260606004", "2026-06-06 09:50:11"],
-      ["yellow", "SKU-HAT-YLW-04", "黄色 / 4", "QC20260605007", "2026-06-05 13:27:40"]
+      ["navy", "SKU-HAT-NVY-04", "藏青色 / 4", "QC20260611003", "2026-06-11 14:20"],
+      ["khaki", "SKU-HAT-KHK-04", "卡其色 / 4", "QC20260610008", "2026-06-10 10:18"],
+      ["gray", "SKU-HAT-GRY-04", "灰色 / 4", "QC20260609005", "2026-06-09 17:42"],
+      ["beige", "SKU-HAT-BGE-04", "米色 / 4", "QC20260608002", "2026-06-08 11:06"],
+      ["red", "SKU-HAT-RED-04", "红色 / 4", "QC20260607009", "2026-06-07 15:33"],
+      ["blue", "SKU-HAT-BLU-04", "蓝色 / 4", "QC20260606004", "2026-06-06 09:50"],
+      ["yellow", "SKU-HAT-YLW-04", "黄色 / 4", "QC20260605007", "2026-06-05 13:27"]
     ].forEach(([skuId, skuCode, variant, batchNo, inspectedAt], index) => {
-      qcSkus.push({
-        skuId,
-        skuCode,
-        variant,
-        batchNo,
-        inspectedAt,
-        categories: [
-          { name: "产品图片", items: [
-            img(`qc-${skuId}-01`, "产品图片", index % 2 ? "photo-detail" : "photo-hat"),
-            img(`qc-${skuId}-02`, "产品图片", index % 2 ? "photo-display" : "photo-detail")
-          ]},
-          { name: "测试图片", items: [
-            img(`qc-${skuId}-03`, "测试图片", "photo-test")
-          ]}
-        ]
-      });
+      qcSkus.push(createQcSku(skuId, skuCode, variant, [
+        [batchNo, inspectedAt, [index % 2 ? "photo-detail" : "photo-hat", index % 2 ? "photo-display" : "photo-package"]],
+        [`QC202605${String(28 - index).padStart(2, "0")}001`, `2026-05-${String(28 - index).padStart(2, "0")} 10:30`, ["photo-detail"]]
+      ]));
     });
 
     const state = {
       mode: "normal",
       activeSku: "white",
+      activeBatchBySku: {},
+      batchInputBySku: {},
+      openBatchSku: "",
       selected: new Set(),
       spuImages: [
         { ...img("spu-hat-main", "220*220", "photo-hat"), tags: ["场景图"], sources: ["供应商图"] }
@@ -1082,25 +1147,80 @@
       return { id, title, klass };
     }
 
-    function categoryRemark(categoryName) {
-      if (categoryName === "产品图片") return "含产品组装后照片与装箱配件照片";
-      if (categoryName === "测试图片") return "含功能测试与可靠性测试照片";
-      return "";
+    function createQcSku(skuId, skuCode, variant, batchRows) {
+      return {
+        skuId,
+        skuCode,
+        variant,
+        batches: batchRows.map(([batchNo, inspectedAt, classes]) => ({
+          batchNo,
+          inspectedAt,
+          productImages: classes.map((klass, index) => img(`qc-${skuId}-${batchNo}-${index + 1}`, "产品图片", klass))
+        }))
+      };
+    }
+
+    function productRemark() {
+      return "含产品组装后照片与装箱配件照片";
+    }
+
+    function productBatches(sku) {
+      return sku.batches.filter(batch => batch.productImages.length > 0);
+    }
+
+    function activeBatchForSku(sku) {
+      const batches = productBatches(sku);
+      const activeNo = state.activeBatchBySku[sku.skuId];
+      const active = batches.find(batch => batch.batchNo === activeNo) || batches[0];
+      if (active) state.activeBatchBySku[sku.skuId] = active.batchNo;
+      return active;
     }
 
     function allImportImages() {
-      return qcSkus.flatMap(sku => sku.categories.flatMap(cat => cat.items.map(item => ({
+      return qcSkus.flatMap(sku => sku.batches.flatMap(batch => batch.productImages.map(item => ({
         ...item,
         skuId: sku.skuId,
         skuCode: sku.skuCode,
         variant: sku.variant,
-        category: cat.name
+        batchNo: batch.batchNo,
+        category: "产品图片"
       }))));
     }
 
     function selectedImages() {
       const selectedIds = state.selected;
       return allImportImages().filter(item => selectedIds.has(item.id));
+    }
+
+    function batchMenuHtml(sku, activeBatch, query) {
+      const batches = productBatches(sku);
+      const trimmed = query.trim();
+      const hasQuery = Boolean(trimmed && trimmed !== activeBatch.batchNo);
+      const visibleBatches = hasQuery
+        ? batches.filter(batch => batch.batchNo === trimmed)
+        : batches.slice(0, 3);
+      const showMoreTip = batches.length > 3 && !hasQuery;
+      return `
+        ${visibleBatches.map(batch => `
+          <button class="batch-option ${batch.batchNo === activeBatch.batchNo ? "active" : ""}" data-batch-option="${sku.skuId}:${batch.batchNo}">
+            ${batch.batchNo}｜${batch.inspectedAt}｜产品图片${batch.productImages.length}张
+          </button>
+        `).join("")}
+        ${hasQuery && !visibleBatches.length ? '<div class="batch-empty">暂未找到可导入产品图片的质检批次</div>' : ""}
+        ${showMoreTip ? '<div class="batch-tip">更多批次请输入质检批次号查询</div>' : ""}
+      `;
+    }
+
+    function bindBatchOptionClicks(scope = document) {
+      scope.querySelectorAll("[data-batch-option]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const [skuId, batchNo] = btn.dataset.batchOption.split(":");
+          state.activeBatchBySku[skuId] = batchNo;
+          state.batchInputBySku[skuId] = batchNo;
+          state.openBatchSku = "";
+          renderImportModal();
+        });
+      });
     }
 
     function renderMainImages() {
@@ -1159,18 +1279,30 @@
     function renderImportModal() {
       const body = document.getElementById("modalBody");
       const foot = document.querySelector(".modal-foot");
+      const modal = document.querySelector("#importModal .modal");
       if (state.mode === "empty") {
-        body.innerHTML = '<div class="empty"><div><strong>当前SPU暂无可导入的大货质检图片</strong></div></div>';
+        modal.classList.add("empty-modal");
+        body.innerHTML = '<div class="empty"><div><strong>当前SPU暂无可导入的大货质检产品图片</strong></div></div>';
         foot.style.display = "flex";
         updateSelectedCount();
         return;
       }
 
-      const available = qcSkus.filter(sku => sku.categories.some(cat => cat.items.length));
+      const available = qcSkus.filter(sku => productBatches(sku).length);
+      if (!available.length) {
+        modal.classList.add("empty-modal");
+        body.innerHTML = '<div class="empty"><div><strong>当前SPU暂无可导入的大货质检产品图片</strong></div></div>';
+        foot.style.display = "flex";
+        updateSelectedCount();
+        return;
+      }
+      modal.classList.remove("empty-modal");
       if (!available.some(sku => sku.skuId === state.activeSku)) {
         state.activeSku = available[0]?.skuId || "";
       }
       const active = available.find(sku => sku.skuId === state.activeSku);
+      const activeBatch = activeBatchForSku(active);
+      const inputValue = state.batchInputBySku[active.skuId] ?? activeBatch.batchNo;
       body.innerHTML = `
         <div class="sku-tabs">
           ${available.map(sku => `
@@ -1180,29 +1312,71 @@
             </button>
           `).join("")}
         </div>
-        <div class="batch-info">
-          <div>质检批次号：<span>${active.batchNo}</span></div>
-          <div>实际质检时间：<span>${active.inspectedAt}</span></div>
-        </div>
-        ${active.categories.map(category => `
-          <section class="category">
-            <label class="category-title">
-              <input type="checkbox" data-category-select="${active.skuId}:${category.name}">
-              <span>${category.name}：${categoryRemark(category.name)}</span>
-            </label>
-            <div class="import-grid">
-              ${category.items.map(item => renderImportCard(item, category.name)).join("")}
+        <div class="batch-row">
+          <div class="batch-field">
+            <span class="batch-label">质检批次</span>
+            <div class="batch-picker ${state.openBatchSku === active.skuId ? "open" : ""}">
+              <input data-batch-input="${active.skuId}" value="${inputValue}" placeholder="请输入质检批次号">
+              <div class="batch-menu">
+                ${batchMenuHtml(active, activeBatch, inputValue)}
+              </div>
             </div>
-          </section>
-        `).join("")}
+          </div>
+          <div class="batch-current">
+            <div>实际质检时间：<span>${activeBatch.inspectedAt}</span></div>
+            <div>产品图片数量：<span>${activeBatch.productImages.length}张</span></div>
+          </div>
+        </div>
+        <section class="category">
+          <label class="category-title">
+            <input type="checkbox" data-product-select="${active.skuId}:${activeBatch.batchNo}">
+            <span>产品图片：${productRemark()}</span>
+          </label>
+          <div class="import-grid">
+            ${activeBatch.productImages.map(item => renderImportCard(item, "产品图片")).join("")}
+          </div>
+        </section>
       `;
 
       document.querySelectorAll("[data-tab]").forEach(btn => {
         btn.addEventListener("click", () => {
           state.activeSku = btn.dataset.tab;
+          state.openBatchSku = "";
+          const sku = qcSkus.find(item => item.skuId === state.activeSku);
+          const batch = activeBatchForSku(sku);
+          state.batchInputBySku[state.activeSku] = batch.batchNo;
           renderImportModal();
         });
       });
+
+      document.querySelectorAll("[data-batch-input]").forEach(input => {
+        input.addEventListener("focus", () => {
+          const skuId = input.dataset.batchInput;
+          const sku = qcSkus.find(item => item.skuId === skuId);
+          const activeBatch = activeBatchForSku(sku);
+          const picker = input.closest(".batch-picker");
+          const menu = picker.querySelector(".batch-menu");
+          state.openBatchSku = skuId;
+          menu.innerHTML = batchMenuHtml(sku, activeBatch, input.value.trim());
+          picker.classList.add("open");
+          bindBatchOptionClicks(picker);
+        });
+        input.addEventListener("input", () => {
+          const skuId = input.dataset.batchInput;
+          const value = input.value.trim();
+          const sku = qcSkus.find(item => item.skuId === skuId);
+          state.batchInputBySku[skuId] = value;
+          state.openBatchSku = skuId;
+          const activeBatch = activeBatchForSku(sku);
+          const picker = input.closest(".batch-picker");
+          const menu = picker.querySelector(".batch-menu");
+          menu.innerHTML = batchMenuHtml(sku, activeBatch, value);
+          picker.classList.add("open");
+          bindBatchOptionClicks(picker);
+        });
+      });
+
+      bindBatchOptionClicks();
 
       document.querySelectorAll("[data-import-id]").forEach(card => {
         card.addEventListener("click", event => {
@@ -1223,9 +1397,8 @@
         });
       });
 
-      document.querySelectorAll("[data-category-select]").forEach(input => {
-        const [, categoryName] = input.dataset.categorySelect.split(":");
-        const items = active.categories.find(category => category.name === categoryName)?.items || [];
+      document.querySelectorAll("[data-product-select]").forEach(input => {
+        const items = activeBatch.productImages;
         const selectedCount = items.filter(item => state.selected.has(item.id)).length;
         input.checked = items.length > 0 && selectedCount === items.length;
         input.indeterminate = selectedCount > 0 && selectedCount < items.length;
@@ -1258,7 +1431,7 @@
 
     function openImportModal() {
       if (state.mode === "fail") {
-        showToast("大货质检图片获取失败，请稍后重试。");
+        showToast("大货质检图片获取失败，请稍后重试");
         return;
       }
       document.getElementById("importModal").classList.add("open");
@@ -1272,7 +1445,7 @@
     function addImagesToSpu() {
       const images = selectedImages();
       if (!images.length) {
-        showToast("请先选择要导入的图片。");
+        showToast("请先选择要导入的图片");
         return;
       }
       let added = 0;
@@ -1294,7 +1467,7 @@
     function addImagesToSelectedSku() {
       const images = selectedImages();
       if (!images.length) {
-        showToast("请先选择要导入的图片。");
+        showToast("请先选择要导入的图片");
         return;
       }
       const targetSkus = state.skus.filter(sku => sku.checked);
@@ -1321,9 +1494,9 @@
     }
 
     function showResultToast(added, skipped) {
-      if (added > 0 && skipped === 0) showToast(`已添加${added}条图片记录。`);
-      else if (added > 0 && skipped > 0) showToast(`已添加${added}条图片记录，${skipped}条已存在，已自动跳过。`);
-      else showToast("所选图片已存在，无需重复添加。");
+      if (added > 0 && skipped === 0) showToast(`已添加${added}条图片记录`);
+      else if (added > 0 && skipped > 0) showToast(`已添加${added}条图片记录，${skipped}条已存在，已自动跳过`);
+      else showToast("所选图片已存在，无需重复添加");
     }
 
     function updateSelectedCount() {
@@ -1404,13 +1577,13 @@
         btn.classList.add("active");
         state.mode = btn.dataset.mode;
         if (state.mode === "empty") state.selected.clear();
-        showToast(state.mode === "normal" ? "已切换为正常导入场景。" : state.mode === "empty" ? "已切换为无可导入图片场景。" : "已切换为获取失败场景。");
+        showToast(state.mode === "normal" ? "已切换为正常导入场景" : "已切换为无可导入图片场景");
       });
     });
 
     document.getElementById("copyToSku").addEventListener("click", () => {
       if (!state.skus.some(sku => sku.checked)) showToast("请选择SKU");
-      else showToast("已沿用原有批量复制到选中SKU能力。");
+      else showToast("已沿用原有批量复制到选中SKU能力");
     });
 
     renderMainImages();

@@ -330,6 +330,14 @@
       background: var(--danger-soft);
     }
 
+    .field input:disabled,
+    .field select:disabled,
+    .field textarea:disabled {
+      color: #98a2b3;
+      background: #f4f6f8;
+      cursor: not-allowed;
+    }
+
     .field.readonly input,
     .field.readonly select {
       color: #7b8794;
@@ -458,12 +466,85 @@
       display: block;
     }
 
+    .sku-multi {
+      position: relative;
+    }
+
+    .sku-multi-trigger {
+      width: 100%;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 4px 26px 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: #475469;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .sku-multi-trigger::after {
+      content: "⌄";
+      position: absolute;
+      right: 9px;
+      top: 6px;
+      color: #98a2b3;
+    }
+
+    .field.invalid .sku-multi-trigger {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .sku-multi-menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 2px);
+      max-height: 170px;
+      overflow: auto;
+      padding: 4px 0;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      z-index: 30;
+    }
+
+    .sku-multi.open .sku-multi-menu {
+      display: block;
+    }
+
     .default-multi-option {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 8px;
+      min-height: 30px;
+      padding: 5px 8px;
+      color: #475469;
       cursor: pointer;
+    }
+
+    .default-multi-option input[type="checkbox"] {
+      width: 14px;
+      min-width: 14px;
+      height: 14px;
+      min-height: 14px;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .default-multi-option span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .default-multi-option:hover {
@@ -771,6 +852,10 @@
     }
 
     .side-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       padding: 12px 12px;
       border-left: 3px solid transparent;
       color: #6b7688;
@@ -781,6 +866,21 @@
       border-left-color: var(--teal);
       background: #fff;
       font-weight: 600;
+    }
+
+    .side-item .readonly-badge {
+      display: none;
+      padding: 1px 5px;
+      border-radius: 2px;
+      color: #fff;
+      background: #98a2b3;
+      font-size: 11px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .edit-side.ops-readonly .side-item:not(.active) .readonly-badge {
+      display: inline-flex;
     }
 
     .edit-main {
@@ -1001,11 +1101,11 @@
       <div class="nav-group">入口二：SKU 销售信息</div>
       <button class="nav-card" data-scene="sku-dev-edit">
         <span>开发编辑SPU</span>
-        <small>基础信息</small>
+        <small>异常场景：非法值</small>
       </button>
       <button class="nav-card" data-scene="sku-ops-edit">
         <span>运营编辑SPU</span>
-        <small>基础信息</small>
+        <small>异常场景：失效值</small>
       </button>
       <button class="nav-card" data-scene="sku-new">
         <span>新增SPU</span>
@@ -1021,7 +1121,7 @@
         <ul>
           <li>二级品线增加【销售属性配置】入口。</li>
           <li>SKU 基础信息按通用、品线配置、自定义属性合并展示。</li>
-          <li>编辑态拆分为开发编辑SPU、运营编辑SPU；运营编辑时除【季节】外通用属性不可编辑。</li>
+          <li>编辑态拆分为开发编辑SPU、运营编辑SPU；运营编辑时仅销售信息可编辑，其他模块只读。</li>
           <li>支持当前 SKU 维度新增、编辑、删除自定义属性。</li>
         </ul>
       </div>
@@ -1150,10 +1250,10 @@
         </div>
         <div class="edit-layout">
           <aside class="edit-side">
-            <div class="side-item">基本信息</div>
-            <div class="side-item">产品规格</div>
-            <div class="side-item active">销售信息</div>
-            <div class="side-item">产品资料</div>
+            <div class="side-item"><span>基本信息</span><span class="readonly-badge">只读</span></div>
+            <div class="side-item"><span>产品规格</span><span class="readonly-badge">只读</span></div>
+            <div class="side-item active"><span>销售信息</span></div>
+            <div class="side-item"><span>产品资料</span><span class="readonly-badge">只读</span></div>
           </aside>
           <div class="edit-main">
             <div class="toolbar" id="skuToolbar" style="padding:0 0 10px">
@@ -1203,6 +1303,10 @@
           <li>下拉单选/多选的可选值支持英文逗号、中文逗号、换行分隔，解析结果仅作为预览展示。</li>
           <li>SKU 基础信息按通用属性、品线配置属性、自定义属性合并展示，但前端不展示分区和来源标识。</li>
           <li>SKU 基础信息拆分为开发编辑SPU、运营编辑SPU、新增SPU、详情页查看基础信息场景。</li>
+          <li>已保存的品线属性控件类型不可修改；新增品线属性的控件类型可编辑。</li>
+          <li>修改属性名称仅更新展示名称，不影响 SKU 已保存属性值；修改是否必填仅影响后续 SKU 保存校验。</li>
+          <li>新增可选值生成新枚举值；删除已有可选值后，历史 SKU 仍展示原值，并在编辑时提示当前值已失效。</li>
+          <li>可选值名称变化按删除旧枚举值、新增新枚举值处理，不支持通过文本框直接改名。</li>
           <li>历史属性与通用/品线属性合并判断仅用于当次页面展示，不落库，不影响 SKU 已保存数据。</li>
           <li>SKU 自定义属性仅当前 SKU 生效，支持新增、编辑、删除；属性名称不可与当前页面已展示属性重名。</li>
         </ul>
@@ -1260,6 +1364,10 @@
           <input id="customName" maxlength="50" placeholder="请输入属性名称">
           <div class="error" id="customNameError"></div>
         </div>
+        <div class="field" style="margin-top:12px">
+          <label>属性类型</label>
+          <input value="文本输入框" disabled>
+        </div>
         <div class="field" id="customValueField" style="margin-top:12px">
           <label><span class="req">*</span>属性值</label>
           <textarea id="customValue" placeholder="请输入属性值"></textarea>
@@ -1304,8 +1412,8 @@
       { name: '适用场景', module: '基础信息', required: '是', type: '下拉多选框', defaultValue: '通勤,旅行', valuesRaw: '通勤,约会,旅行,户外,露营,居家,办公室,派对,节日,拍照,亲子,运动,防晒,保暖,雨天', existing: true },
       { name: '材质', module: '基础信息', required: '否', type: '下拉单选框', defaultValue: '棉', valuesRaw: '棉,麻,丝', existing: true },
       { name: '风格', module: '基础信息', required: '否', type: '下拉单选框', defaultValue: '', valuesRaw: '通勤,优雅,休闲', existing: true },
-      { name: '净含量(g)', module: '基础信息', required: '否', type: '数字输入框', defaultValue: '120', valuesRaw: '', existing: false },
-      { name: '版型', module: '基础信息', required: '否', type: '文本输入框', defaultValue: '常规', valuesRaw: '', existing: false }
+      { name: '净含量(g)', module: '基础信息', required: '否', type: '数字输入框', defaultValue: '120', valuesRaw: '', existing: true },
+      { name: '版型', module: '基础信息', required: '否', type: '文本输入框', defaultValue: '常规', valuesRaw: '', existing: true }
     ];
 
     let activeScene = 'line-list';
@@ -1330,7 +1438,7 @@
     let deleteCustomIndex = null;
 
     function qs(selector) { return document.querySelector(selector); }
-    function qsa(selector) { return Array.from(document.querySelectorAll(selector)); }
+    function qsa(selector, root = document) { return Array.from(root.querySelectorAll(selector)); }
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
 
     function currentCustomAttrs() {
@@ -1459,7 +1567,7 @@
               <div class="error">${errors.required || ''}</div>
             </td>
             <td>
-              <select data-config-field="type">
+              <select data-config-field="type" ${row.existing ? 'disabled' : ''}>
                 ${['文本输入框', '数字输入框', '下拉单选框', '下拉多选框'].map(type => `<option ${row.type === type ? 'selected' : ''}>${type}</option>`).join('')}
               </select>
               <div class="error">${errors.type || ''}</div>
@@ -1548,8 +1656,18 @@
             value: scene === 'sku-dev-edit' ? '春' : '四季',
             error: scene === 'sku-dev-edit' ? '服装类季节仅支持[夏,秋,冬,四季]' : ''
           },
-          { name: '适用场景', type: 'select', value: '通勤、旅行' },
-          { name: '材质', type: 'select', value: '' },
+          {
+            name: '适用场景',
+            type: 'multi-select',
+            value: scene === 'sku-ops-edit' ? ['通勤', '旧场景'] : ['通勤', '旅行'],
+            error: scene === 'sku-ops-edit' ? '部分已选值已失效，请重新选择后保存' : ''
+          },
+          {
+            name: '材质',
+            type: 'select',
+            value: scene === 'sku-ops-edit' ? '羊毛' : '',
+            error: scene === 'sku-ops-edit' ? '当前值已失效，请重新选择后保存' : ''
+          },
           { name: '风格', type: 'select', value: '' },
           ...customAttrs.map(attr => ({ ...attr, type: 'input', custom: true }))
         ];
@@ -1602,12 +1720,13 @@
       qs('#skuCode').textContent = sceneMeta.skuCode;
       qs('#addCustomBtn').hidden = !sceneMeta.canEditCustom;
       qs('#skuActions').hidden = !sceneMeta.showActions;
+      qs('.edit-side').classList.toggle('ops-readonly', scene === 'sku-ops-edit');
       const fields = skuCommonFields(scene);
       qs('#skuFields').innerHTML = fields.map((field, index) => {
         const customAttrs = currentCustomAttrs();
         const customIndex = field.custom ? customAttrs.findIndex(attr => attr.name === field.name && attr.value === field.value) : -1;
         const icons = field.custom && sceneMeta.canEditCustom ? `<span class="inline-icons"><button class="icon-btn" data-edit-custom="${customIndex < 0 ? index : customIndex}" title="编辑">✎</button><button class="icon-btn" data-delete-custom="${customIndex < 0 ? index : customIndex}" title="删除">×</button></span>` : '';
-        const optionValues = field.type === 'select' ? skuOptionsFor(field.name) : [];
+        const optionValues = ['select', 'multi-select'].includes(field.type) ? skuOptionsFor(field.name) : [];
         const illegalSelectedOption = field.type === 'select' && field.value && !optionValues.includes(field.value)
           ? `<option value="${escapeHtml(field.value)}" selected hidden>${escapeHtml(field.value)}</option>`
           : '';
@@ -1617,11 +1736,30 @@
             return `<option value="${escapeHtml(value)}" ${field.value === value ? 'selected' : ''}>${escapeHtml(label)}</option>`;
           }).join('')
           : '';
+        const multiValues = field.type === 'multi-select' ? (Array.isArray(field.value) ? field.value : parseDefaultValues(field.value)) : [];
+        const multiTags = multiValues.length
+          ? multiValues.map(value => `<span class="multi-tag" title="${escapeHtml(value)}">${escapeHtml(value)}</span>`).join('')
+          : '<span class="multi-placeholder">请选择</span>';
+        const multiOptions = field.type === 'multi-select'
+          ? optionValues.map(value => `
+            <label class="default-multi-option">
+              <input type="checkbox" data-sku-multi-option value="${escapeHtml(value)}" ${multiValues.includes(value) ? 'checked' : ''}>
+              <span>${escapeHtml(value)}</span>
+            </label>
+          `).join('')
+          : '';
         const control = field.readonly
-          ? `<input value="${escapeHtml(field.value || '')}" readonly>`
+          ? `<input value="${escapeHtml(Array.isArray(field.value) ? field.value.join('、') : field.value || '')}" readonly>`
           : field.type === 'select'
             ? `<select data-sku-field="${escapeHtml(field.name)}">${options}</select>`
-            : `<input value="${escapeHtml(field.value || '')}">`;
+            : field.type === 'multi-select'
+              ? `
+                <div class="sku-multi" data-sku-multi-field="${escapeHtml(field.name)}" data-sku-multi-values="${escapeHtml(multiValues.join('|'))}">
+                  <button type="button" class="sku-multi-trigger" data-sku-multi-toggle>${multiTags}</button>
+                  <div class="sku-multi-menu">${multiOptions}</div>
+                </div>
+              `
+              : `<input value="${escapeHtml(field.value || '')}">`;
         return `
           <div class="field attribute-field ${field.error ? 'invalid' : ''} ${field.readonly ? 'readonly' : ''}" data-sku-field-wrap="${escapeHtml(field.name)}">
             <label><span class="req">*</span>${field.name}</label>
@@ -1640,17 +1778,21 @@
         const error = wrap.querySelector('.error');
         if (error) error.textContent = '';
         const select = wrap.querySelector('select[data-sku-field]');
-        if (!select) return;
-        const fieldName = select.dataset.skuField;
-        const value = select.value;
+        const multi = wrap.querySelector('[data-sku-multi-field]');
+        if (!select && !multi) return;
+        const fieldName = select ? select.dataset.skuField : multi.dataset.skuMultiField;
+        const value = select ? select.value : String(multi.dataset.skuMultiValues || '').split('|').filter(Boolean);
         const options = fieldName === '季节' ? apparelSeasonOptions : skuOptionsFor(fieldName);
         let message = '';
-        if (!value) {
+        if (Array.isArray(value)) {
+          if (!value.length) message = `${fieldName}不能为空`;
+          else if (!value.every(item => options.includes(item))) message = '部分已选值已失效，请重新选择后保存';
+        } else if (!value) {
           message = `${fieldName}不能为空`;
         } else if (!options.includes(value)) {
           message = fieldName === '季节'
             ? '服装类季节仅支持[夏,秋,冬,四季]'
-            : `${fieldName}不在可选范围内`;
+            : '当前值已失效，请重新选择后保存';
         }
         if (message) {
           ok = false;
@@ -1661,6 +1803,19 @@
       return ok;
     }
 
+    function validateSkuMulti(multi) {
+      const wrap = multi.closest('[data-sku-field-wrap]');
+      const error = wrap.querySelector('.error');
+      const fieldName = multi.dataset.skuMultiField;
+      const values = String(multi.dataset.skuMultiValues || '').split('|').filter(Boolean);
+      const options = skuOptionsFor(fieldName);
+      let message = '';
+      if (!values.length) message = `${fieldName}不能为空`;
+      else if (!values.every(value => options.includes(value))) message = '部分已选值已失效，请重新选择后保存';
+      wrap.classList.toggle('invalid', Boolean(message));
+      if (error) error.textContent = message;
+    }
+
     function validateSingleSkuSelect(select) {
       const wrap = select.closest('[data-sku-field-wrap]');
       const error = wrap.querySelector('.error');
@@ -1669,7 +1824,7 @@
       const options = fieldName === '季节' ? apparelSeasonOptions : skuOptionsFor(fieldName);
       let message = '';
       if (!value) message = `${fieldName}不能为空`;
-      else if (!options.includes(value)) message = fieldName === '季节' ? '服装类季节仅支持[夏,秋,冬,四季]' : `${fieldName}不在可选范围内`;
+      else if (!options.includes(value)) message = fieldName === '季节' ? '服装类季节仅支持[夏,秋,冬,四季]' : '当前值已失效，请重新选择后保存';
       wrap.classList.toggle('invalid', Boolean(message));
       if (error) error.textContent = message;
     }
@@ -1734,8 +1889,32 @@
         renderConfigRows();
         return;
       }
+      const skuMultiToggle = event.target.closest('[data-sku-multi-toggle]');
+      if (skuMultiToggle) {
+        const current = skuMultiToggle.closest('[data-sku-multi-field]');
+        qsa('[data-sku-multi-field]').forEach(item => {
+          if (item !== current) item.classList.remove('open');
+        });
+        current.classList.toggle('open');
+        return;
+      }
+      const skuMultiOption = event.target.closest('[data-sku-multi-option]');
+      if (skuMultiOption) {
+        const multi = skuMultiOption.closest('[data-sku-multi-field]');
+        const selectedValues = qsa('[data-sku-multi-option]:checked', multi).map(option => option.value);
+        multi.dataset.skuMultiValues = selectedValues.join('|');
+        const trigger = multi.querySelector('[data-sku-multi-toggle]');
+        trigger.innerHTML = selectedValues.length
+          ? selectedValues.map(value => `<span class="multi-tag" title="${escapeHtml(value)}">${escapeHtml(value)}</span>`).join('')
+          : '<span class="multi-placeholder">请选择</span>';
+        validateSkuMulti(multi);
+        return;
+      }
       if (!event.target.closest('[data-default-multi]')) {
         qsa('[data-default-multi]').forEach(item => item.classList.remove('open'));
+      }
+      if (!event.target.closest('[data-sku-multi-field]')) {
+        qsa('[data-sku-multi-field]').forEach(item => item.classList.remove('open'));
       }
       const sceneBtn = event.target.closest('[data-scene]');
       if (sceneBtn) {
@@ -1760,7 +1939,7 @@
       const deleteConfig = event.target.closest('[data-delete-config]');
       if (deleteConfig) {
         const index = Number(deleteConfig.closest('tr').dataset.configIndex);
-        if (window.confirm('删除后，该属性将从当前品线销售属性配置中移除。已使用该属性值的SKU，该属性将移动至【自定义属性】区展示，SKU已保存值不会丢失。确认删除吗？')) {
+        if (window.confirm('删除后，该属性将从当前品线销售属性配置中移除。已使用该属性值的 SKU，该属性将移动至【自定义属性】区展示。确认删除吗？')) {
           configRows.splice(index, 1);
           markConfigDirty();
           renderConfigRows();
@@ -1896,7 +2075,7 @@
       const beforeValue = event.target.dataset.beforeValue || '';
       const hasChanged = beforeValue !== event.target.value;
 
-      if (hasChanged && configRow.existing && !window.confirm('修改该属性的名称或可选值，可能影响历史SKU该属性的展示。确认修改吗？')) {
+      if (hasChanged && configRow.existing && !window.confirm('修改后将影响历史 SKU 中该属性的展示，确认修改吗？')) {
         configRow[field] = beforeValue;
         renderConfigRows();
         return;
@@ -1904,8 +2083,10 @@
 
       if (field === 'valuesRaw') {
         const values = parseValues(configRow.valuesRaw || '');
-        if (configRow.defaultValue && !parseDefaultValues(configRow.defaultValue).every(value => values.includes(value))) {
-          configRow.defaultValue = '';
+        const defaults = parseDefaultValues(configRow.defaultValue);
+        if (defaults.length && !defaults.every(value => values.includes(value))) {
+          const validDefaults = defaults.filter(value => values.includes(value));
+          configRow.defaultValue = configRow.type === '下拉多选框' ? validDefaults.join(',') : '';
           markConfigDirty();
         }
       }
