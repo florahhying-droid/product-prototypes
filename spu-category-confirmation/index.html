@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPU品类确认 - 运营编辑页原型</title>
+  <style>
+    :root {
+      --teal: #20b8ad;
+      --teal-dark: #0f9b92;
+      --teal-soft: #dff7f5;
+      --line: #e5eaf0;
+      --line-dark: #cfd8e3;
+      --text: #2f3b4a;
+      --muted: #7a8798;
+      --bg: #f4f6f8;
+      --danger: #e15858;
+      --danger-soft: #fff5f5;
+      --warn: #c47c18;
+      --shadow: 0 10px 28px rgba(31, 42, 58, .14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1720px;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .topbar {
+      grid-column: 1 / -1;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #657184;
+      white-space: nowrap;
+    }
+
+    .demo-title,
+    .crumb strong {
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    .prototype-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 46px 1fr;
+      min-height: 100vh;
+    }
+
+    .scene-rail {
+      padding: 14px 10px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+      overflow: auto;
+    }
+
+    .rail-desc {
+      margin: 0 6px 12px;
+      color: #7b8794;
+      line-height: 1.55;
+      font-size: 12px;
+    }
+
+    .nav-group {
+      margin: 14px 6px 8px;
+      color: #1f2a3a;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav-card {
+      width: 100%;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: #536173;
+      background: #f7f8fb;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-card.active {
+      border-color: #bfeee9;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      font-weight: 700;
+    }
+
+    .nav-card small {
+      color: #9aa5b3;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .note-box {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #667386;
+      background: #fff;
+      line-height: 1.75;
+    }
+
+    .note-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #1f2a3a;
+    }
+
+    .note-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .page-tab {
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      margin: 7px 0 8px 8px;
+      padding: 0 10px;
+      border-radius: 2px;
+      color: #fff;
+      background: var(--teal);
+      font-size: 12px;
+    }
+
+    .workbench {
+      margin: 0 8px 70px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(31, 42, 58, .06);
+    }
+
+    .content-shell {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      min-height: 620px;
+    }
+
+    .left-menu {
+      padding-top: 12px;
+      border-right: 1px solid var(--line);
+      background: #fafbfc;
+    }
+
+    .collapse-mark {
+      height: 24px;
+      display: grid;
+      place-items: center;
+      color: #b0bac7;
+    }
+
+    .side-item {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border-left: 3px solid transparent;
+      color: #6b7688;
+      font-size: 12px;
+    }
+
+    .side-item.active {
+      border-left-color: var(--teal);
+      color: var(--teal-dark);
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .badge {
+      height: 16px;
+      min-width: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      border-radius: 2px;
+      color: #fff;
+      background: #8d98a8;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .badge.danger { background: var(--danger); }
+
+    .main-area {
+      padding: 18px 18px 22px;
+      overflow: auto;
+    }
+
+    .category-confirm {
+      margin-bottom: 12px;
+      border: 1px solid #bdebe7;
+      background: #fbfffe;
+    }
+
+    .confirm-title {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border-bottom: 1px solid #d9f3f0;
+      color: #1f2a3a;
+      background: #f2fffd;
+      font-weight: 700;
+    }
+
+    .confirm-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: var(--teal);
+    }
+
+    .confirm-grid {
+      display: grid;
+      grid-template-columns: 128px minmax(560px, 1fr);
+      gap: 9px 12px;
+      align-items: start;
+      padding: 12px;
+    }
+
+    .label {
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      color: #6b7688;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .value {
+      min-width: 0;
+      color: #344052;
+    }
+
+    .path,
+    .suggestion-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      color: #344052;
+      font-weight: 600;
+    }
+
+    .suggestion-status.empty { color: #98a2b3; }
+    .suggestion-status.warn { color: var(--warn); }
+
+    .tip {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 17px;
+      height: 17px;
+      margin-left: 6px;
+      border: 1px solid #9be0da;
+      border-radius: 50%;
+      color: var(--teal-dark);
+      background: #f2fffd;
+      cursor: help;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tip-pop {
+      display: none;
+      position: absolute;
+      left: calc(100% + 8px);
+      top: auto;
+      bottom: 0;
+      width: 330px;
+      padding: 10px 12px;
+      border: 1px solid var(--line-dark);
+      border-radius: 3px;
+      color: #4d5a6d;
+      background: #fff;
+      box-shadow: var(--shadow);
+      line-height: 1.65;
+      z-index: 20;
+      font-weight: 400;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+
+    .tip-pop span {
+      display: block;
+    }
+
+    .tip:hover .tip-pop { display: block; }
+
+    .same-hint {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      margin-left: 8px;
+      padding: 0 7px;
+      border: 1px solid #cfece8;
+      border-radius: 2px;
+      color: var(--teal-dark);
+      background: #f6fffd;
+      font-size: 12px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .confirm-control {
+      display: grid;
+      grid-template-columns: 340px max-content max-content;
+      align-items: start;
+      gap: 8px;
+    }
+
+    .category-select {
+      position: relative;
+      width: 340px;
+      flex: 0 0 340px;
+    }
+
+    .select-trigger {
+      width: 100%;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 8px;
+      border: 1px solid var(--line-dark);
+      border-radius: 2px;
+      color: #475469;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .category-select.invalid .select-trigger {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .select-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      width: 520px;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      z-index: 15;
+    }
+
+    .category-select.open .select-menu { display: grid; }
+
+    .menu-col {
+      min-height: 180px;
+      padding: 5px 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .menu-col:last-child { border-right: 0; }
+
+    .menu-item {
+      width: 100%;
+      min-height: 30px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 0;
+      color: #536173;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      color: var(--teal-dark);
+      background: #f2fffd;
+      font-weight: 600;
+    }
+
+    .btn {
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid var(--line-dark);
+      border-radius: 2px;
+      color: #536173;
+      background: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      color: #fff;
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+
+    .btn.teal-outline {
+      color: var(--teal-dark);
+      border-color: #9be0da;
+      background: #f2fffd;
+    }
+
+    .error {
+      grid-column: 1 / -1;
+      min-height: 18px;
+      margin-left: 0;
+      color: var(--danger);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .color-select {
+      width: 86px;
+      color: #98a2b3;
+    }
+
+    .sku-head {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      color: #1f2a3a;
+      background: var(--teal-soft);
+      font-weight: 700;
+    }
+
+    .dev-title {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      color: #1f2a3a;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 285px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .left-edit {
+      min-height: 430px;
+      padding: 10px 12px 18px;
+      border-right: 1px solid var(--line);
+    }
+
+    .right-edit {
+      padding: 0 8px;
+    }
+
+    .right-box {
+      border: 1px solid #68aef3;
+      background: #fff;
+    }
+
+    .right-box h3 {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0 10px;
+      color: #1684d9;
+      background: #f2f8ff;
+      font-size: 13px;
+    }
+
+    .right-body {
+      padding: 10px 12px 14px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .subtab {
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid #cfece8;
+      color: var(--teal-dark);
+      background: #f6fffd;
+    }
+
+    .section-title {
+      margin: 13px 0 10px;
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 7px 8px;
+      color: #536173;
+      text-align: left;
+      vertical-align: middle;
+      line-height: 1.45;
+    }
+
+    th {
+      color: #6b7688;
+      background: #fbfcfd;
+      font-weight: 500;
+    }
+
+    .req { color: var(--danger); margin-right: 2px; }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 4px 7px;
+      color: #475469;
+      background: #fff;
+    }
+
+    input[disabled],
+    select[disabled] {
+      color: #98a2b3;
+      background: #f5f7fa;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px 78px;
+      margin-top: 8px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row label {
+      color: #6b7688;
+      text-align: right;
+    }
+
+    .sellpoint-row {
+      display: grid;
+      grid-template-columns: 92px 560px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sample {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6b7688;
+      font-size: 12px;
+    }
+
+    .sample-mark {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--teal);
+      border-radius: 2px;
+    }
+
+    .sku-collapsed {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding: 0 12px;
+      color: #1f2a3a;
+      background: var(--teal-soft);
+      font-weight: 700;
+    }
+
+    .footer-actions {
+      position: fixed;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .toast {
+      position: fixed;
+      top: 62px;
+      left: 50%;
+      display: none;
+      padding: 10px 18px;
+      border-radius: 3px;
+      color: #fff;
+      background: rgba(27, 38, 55, .92);
+      transform: translateX(-50%);
+      z-index: 60;
+    }
+
+    .toast.show { display: block; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="prototype-shell">
+    <header class="topbar">
+      <div class="crumb"><span class="demo-title">SPU品类确认demo</span><span>/</span><strong>运营编辑 - 产品开发-new页 - 销售信息</strong></div>
+    </header>
+
+    <aside class="scene-rail">
+      <p class="rail-desc">场景入口为原型辅助导航，不属于系统真实菜单。业务页面只在右侧展示运营编辑进入后的销售信息页。</p>
+      <div class="nav-group">SPU品类确认状态</div>
+      <button class="nav-card active" data-scene="matched"><span>当前=建议</span><small>外显提示</small></button>
+      <button class="nav-card" data-scene="change"><span>建议不同</span><small>更新品类</small></button>
+      <button class="nav-card" data-scene="empty"><span>暂无可用建议</span><small>无建议按钮</small></button>
+      <button class="nav-card" data-scene="unmatched"><span>未匹配系统品类</span><small>需维护映射</small></button>
+      <button class="nav-card" data-scene="invalid"><span>未填写保存</span><small>必填校验</small></button>
+
+      <div class="note-box">
+        <strong>规则说明</strong>
+        <ul>
+          <li>入口路径：运营编辑 - 产品开发-new页 - 销售信息。</li>
+          <li>【SPU品类确认】位于批量设置按钮之上，作为销售信息页顶部第一块内容。</li>
+          <li>竞品建议品类基于当前 SPU 下已保存的 Amazon 竞品链接或 ASIN 生成。</li>
+          <li>有建议时，说明图标展示两行悬浮提示；当前品类与建议品类一致时，品类后展示【与当前品类一致】状态标签。</li>
+          <li>一致场景仅保留【使用当前品类】；建议不同场景展示【使用当前品类】和【使用建议品类】。</li>
+          <li>暂无建议或未匹配系统品类时，不展示【使用建议品类】。</li>
+          <li>保存时校验【本次确认品类】，为空提示：请确认 SPU 产品品类。</li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="prototype-main">
+      <div class="page-tab">产品开发-new ×</div>
+
+      <main class="workbench">
+        <div class="content-shell">
+          <aside class="left-menu">
+            <div class="collapse-mark">⌃</div>
+            <div class="side-item">基本信息 <span class="badge">只读</span></div>
+            <div class="side-item">产品规格 <span class="badge">只读</span></div>
+            <div class="side-item active">销售信息 <span class="badge danger">12</span></div>
+            <div class="side-item">产品资料 <span class="badge">只读</span></div>
+            <div class="collapse-mark">⌄</div>
+          </aside>
+
+          <section class="main-area">
+        <section class="category-confirm" aria-label="SPU品类确认">
+          <div class="confirm-title">SPU品类确认</div>
+          <div class="confirm-grid">
+            <div class="label">当前产品品类：</div>
+            <div class="value"><span class="path" id="currentCategory">服装 / 女装 / 上衣 / 毛衣</span></div>
+
+            <div class="label">竞品建议品类：</div>
+            <div class="value">
+              <span class="suggestion-status" id="suggestionText">服装 / 女装 / 上衣 / 毛衣</span>
+              <span class="same-hint" id="sameHint">与当前品类一致</span>
+              <span class="tip">i<span class="tip-pop" id="suggestionTip"><span>根据已保存的 Amazon 竞品链接或 ASIN 生成。</span><span>优先参考同款竞品，其次参考匹配数量较高的品类。</span></span></span>
+            </div>
+
+            <div class="label"><span class="req">*</span>本次确认品类：</div>
+            <div class="value confirm-control">
+              <div class="category-select" id="categorySelect">
+                <button class="select-trigger" id="selectTrigger" type="button"><span id="selectedCategory">请选择产品品类</span><span>⌄</span></button>
+                <div class="select-menu">
+                  <div class="menu-col">
+                    <button class="menu-item active" type="button">服装 <span>›</span></button>
+                    <button class="menu-item" type="button">鞋靴 <span>›</span></button>
+                    <button class="menu-item" type="button">家居 <span>›</span></button>
+                  </div>
+                  <div class="menu-col">
+                    <button class="menu-item active" type="button">女装 <span>›</span></button>
+                    <button class="menu-item" type="button">男装 <span>›</span></button>
+                    <button class="menu-item" type="button">童装 <span>›</span></button>
+                  </div>
+                  <div class="menu-col">
+                    <button class="menu-item active" type="button">上衣 <span>›</span></button>
+                    <button class="menu-item" type="button">裙装 <span>›</span></button>
+                    <button class="menu-item" type="button">裤装 <span>›</span></button>
+                  </div>
+                  <div class="menu-col">
+                    <button class="menu-item active" data-category="服装 / 女装 / 上衣 / 毛衣" type="button">毛衣</button>
+                    <button class="menu-item" data-category="服装 / 女装 / 上衣 / 开衫" type="button">开衫</button>
+                    <button class="menu-item" data-category="服装 / 女装 / 上衣 / T恤" type="button">T恤</button>
+                  </div>
+                </div>
+              </div>
+              <button class="btn primary" id="useCurrent" type="button">使用当前品类</button>
+              <button class="btn primary" id="useSuggest" type="button">使用建议品类</button>
+              <div class="error" id="confirmError"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="toolbar">
+          <button class="btn primary">批量设置 ⓘ</button>
+          <button class="btn primary">批量复制 ⓘ</button>
+          <select class="btn color-select"><option>颜色</option></select>
+        </div>
+
+        <div class="sku-head">
+          <span>PLS_33TDJ869　　黑色</span>
+          <span>⌄</span>
+        </div>
+        <div class="dev-title">开发填写</div>
+
+        <div class="edit-grid">
+          <section class="left-edit">
+            <div class="tabs">
+              <button class="subtab">竞品信息</button>
+              <button class="subtab">基础信息</button>
+              <button class="subtab">核心卖点</button>
+              <button class="subtab">自定义卖点</button>
+              <button class="subtab">市场定位</button>
+            </div>
+
+            <h2 class="section-title">竞品信息</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:72px;"><span class="req">*</span>竞品信息</th>
+                  <th style="width:64px;">序号</th>
+                  <th>竞品链接</th>
+                  <th style="width:170px;">ASIN</th>
+                  <th style="width:170px;">竞品类型</th>
+                  <th style="width:180px;">相似原因(AI)</th>
+                  <th style="width:110px;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2"></td>
+                  <td>竞品1</td>
+                  <td><input value="http://"></td>
+                  <td><input value=""></td>
+                  <td><select><option>同款</option></select></td>
+                  <td><input disabled value="-"></td>
+                  <td style="color:#b6bec9">删除</td>
+                </tr>
+                <tr>
+                  <td>竞品2</td>
+                  <td><input value="https://www.amazon.com/dp/B0DY"></td>
+                  <td><input value="B0DYNZ87PL"></td>
+                  <td><select><option>同款</option></select></td>
+                  <td><input disabled value="-"></td>
+                  <td style="color:var(--teal-dark)">删除</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display:flex;gap:8px;margin:8px 0 18px 92px">
+              <button class="btn teal-outline">+ 人工添加</button>
+              <button class="btn teal-outline">+ AI推荐竞品</button>
+            </div>
+
+            <h2 class="section-title">基础信息</h2>
+            <div class="form-grid">
+              <div class="form-row"><label><span class="req">*</span>可售区域</label><select disabled><option>美区</option></select></div>
+              <div class="form-row"><label>产品标签</label><select disabled><option>请选择</option></select></div>
+              <div class="form-row"><label><span class="req">*</span>产品状态</label><select disabled><option>开发中</option></select></div>
+              <div class="form-row"><label><span class="req">*</span>立项运营</label><select disabled><option>钟诗菁</option></select></div>
+            </div>
+
+            <h2 class="section-title">核心卖点</h2>
+            <div class="sellpoint-row">
+              <label style="color:#6b7688;text-align:right"><span class="req">*</span>人性化设计</label>
+              <textarea style="height:58px;resize:none">11</textarea>
+              <div class="sample">
+                <span class="sample-mark">×</span>
+                <span>示例：（确保描述完整）<br>内置加固袋子，方便搬运与移动；开放式结构确保通风效果。</span>
+              </div>
+            </div>
+          </section>
+
+          <aside class="right-edit">
+            <div class="right-box">
+              <h3>运营填写</h3>
+              <div class="right-body">
+                <div class="form-row" style="grid-template-columns:70px 1fr;align-items:start">
+                  <label><span class="req">*</span>关键词（英文）</label>
+                  <textarea style="height:112px;resize:none">1111</textarea>
+                </div>
+                <div style="height:1px;background:var(--line);margin:12px 0"></div>
+                <strong style="display:block;margin-bottom:8px;color:#1f2a3a">竞品信息</strong>
+                <a style="color:var(--teal-dark);text-decoration:none">去查看 &gt;</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="sku-collapsed"><span>PLS_33TDMHFV　　白色</span><span>›</span></div>
+        <div class="sku-collapsed"><span>PLS_33TDPK3T　　绿色</span><span>›</span></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="footer-actions">
+    <button class="btn">保存为草稿</button>
+    <button class="btn primary">下一步</button>
+    <button class="btn primary" id="saveBtn">保存</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const scenes = {
+      matched: {
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "服装 / 女装 / 上衣 / 毛衣",
+        suggestionType: "matched",
+        selected: "",
+        tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
+      },
+      change: {
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "服装 / 女装 / 上衣 / 开衫",
+        suggestionType: "matched",
+        selected: "",
+        tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
+      },
+      empty: {
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "暂无可用建议",
+        suggestionType: "empty",
+        selected: "",
+        tipLines: ["请先维护并保存Amazon竞品信息，或稍后再试。"]
+      },
+      unmatched: {
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "未匹配到系统品类",
+        suggestionType: "unmatched",
+        selected: "",
+        tipLines: ["已获取到Amazon品类，但未匹配到系统品类。请联系技术人员新增品类映射后再处理。", "本次用于匹配的Amazon品类路径：Clothing > Women > Clothing > Sweaters"]
+      },
+      invalid: {
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "服装 / 女装 / 上衣 / 毛衣",
+        suggestionType: "matched",
+        selected: "",
+        tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
+      }
+    };
+
+    let currentScene = "matched";
+    let confirmedCategory = "";
+
+    const navCards = document.querySelectorAll(".nav-card");
+    const currentCategory = document.getElementById("currentCategory");
+    const suggestionText = document.getElementById("suggestionText");
+    const suggestionTip = document.getElementById("suggestionTip");
+    const sameHint = document.getElementById("sameHint");
+    const selectedCategory = document.getElementById("selectedCategory");
+    const categorySelect = document.getElementById("categorySelect");
+    const selectTrigger = document.getElementById("selectTrigger");
+    const confirmError = document.getElementById("confirmError");
+    const useSuggest = document.getElementById("useSuggest");
+    const toast = document.getElementById("toast");
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function setConfirmed(value) {
+      confirmedCategory = value;
+      selectedCategory.textContent = value || "请选择产品品类";
+      categorySelect.classList.remove("invalid");
+      confirmError.textContent = "";
+    }
+
+    function applyScene(name) {
+      currentScene = name;
+      const scene = scenes[name];
+      navCards.forEach(card => card.classList.toggle("active", card.dataset.scene === name));
+      currentCategory.textContent = scene.current;
+      suggestionText.textContent = scene.suggestion;
+      suggestionText.className = `suggestion-status ${scene.suggestionType === "empty" ? "empty" : scene.suggestionType === "unmatched" ? "warn" : ""}`;
+      suggestionTip.innerHTML = scene.tipLines.map(line => `<span>${line}</span>`).join("");
+      const sameAsCurrent = scene.suggestionType === "matched" && scene.current === scene.suggestion;
+      useSuggest.hidden = scene.suggestionType !== "matched" || sameAsCurrent;
+      sameHint.hidden = !sameAsCurrent;
+      setConfirmed(scene.selected);
+    }
+
+    navCards.forEach(card => {
+      card.addEventListener("click", () => applyScene(card.dataset.scene));
+    });
+
+    document.getElementById("useCurrent").addEventListener("click", () => {
+      setConfirmed(scenes[currentScene].current);
+    });
+
+    useSuggest.addEventListener("click", () => {
+      setConfirmed(scenes[currentScene].suggestion);
+    });
+
+    selectTrigger.addEventListener("click", () => {
+      categorySelect.classList.toggle("open");
+    });
+
+    document.querySelectorAll("[data-category]").forEach(item => {
+      item.addEventListener("click", () => {
+        setConfirmed(item.dataset.category);
+        categorySelect.classList.remove("open");
+      });
+    });
+
+    document.addEventListener("click", event => {
+      if (!categorySelect.contains(event.target)) categorySelect.classList.remove("open");
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      if (!confirmedCategory) {
+        categorySelect.classList.add("invalid");
+        confirmError.textContent = "请确认 SPU 产品品类";
+        showToast("请确认 SPU 产品品类");
+        return;
+      }
+      showToast(confirmedCategory === scenes[currentScene].current ? "保存成功，已记录品类确认日志" : "保存成功，已更新 SPU 产品品类");
+    });
+
+    applyScene("matched");
+  </script>
+</body>
+</html>
