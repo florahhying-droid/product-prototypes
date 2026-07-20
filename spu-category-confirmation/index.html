@@ -169,6 +169,10 @@
       display: block;
     }
 
+    .detail-role .footer-actions {
+      display: none;
+    }
+
     .detail-summary {
       display: grid;
       grid-template-columns: 230px 1fr 1fr;
@@ -1093,7 +1097,7 @@
             <span class="detail-tab">库存及成本</span>
             <span class="detail-tab">关联Listing</span>
             <span class="detail-tab">侵权侵销</span>
-            <div class="detail-apply"><button class="btn primary">应用</button></div>
+            <div class="detail-apply"><button class="btn primary" id="applyDetailBtn">应用</button></div>
           </div>
 
           <div class="detail-content">
@@ -1239,6 +1243,8 @@
     const selectTrigger = document.getElementById("selectTrigger");
     const confirmError = document.getElementById("confirmError");
     const useSuggest = document.getElementById("useSuggest");
+    const saveBtn = document.getElementById("saveBtn");
+    const applyDetailBtn = document.getElementById("applyDetailBtn");
     const toast = document.getElementById("toast");
 
     function showToast(text) {
@@ -1261,6 +1267,7 @@
       navCards.forEach(card => card.classList.toggle("active", card.dataset.scene === name));
       titlePath.textContent = scene.titlePath;
       pageTab.textContent = scene.tab;
+      document.body.classList.toggle("detail-role", scene.entry === "detail");
       prototypeMain.classList.toggle("detail-role", scene.entry === "detail");
       if (scene.entry === "detail") detailConfirmMount.appendChild(categoryConfirm);
       else editConfirmMount.appendChild(categoryConfirm);
@@ -1313,7 +1320,7 @@
       if (!categorySelect.contains(event.target)) categorySelect.classList.remove("open");
     });
 
-    document.getElementById("saveBtn").addEventListener("click", () => {
+    function submitSalesInfo() {
       if (scenes[currentScene].role === "dev") {
         showToast("开发角色仅支持查看 SPU 品类确认信息");
         return;
@@ -1330,7 +1337,10 @@
         return;
       }
       showToast(confirmedCategory === scene.current ? "保存成功，已完成品类确认并记录【确认】日志" : "保存成功，已更新 SPU 产品品类并记录【确认】日志");
-    });
+    }
+
+    saveBtn.addEventListener("click", submitSalesInfo);
+    applyDetailBtn.addEventListener("click", submitSalesInfo);
 
     applyScene("matched");
   </script>

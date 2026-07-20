@@ -9,6 +9,7 @@
 - `accessory-optimization/`：配件产品添加与关联优化
 - `season-recommendation/`：AI 推荐季节标签
 - `sales-attribute-config/`：销售属性配置与 SKU 自定义属性
+- `spu-category-confirmation/`：运营编辑销售信息页 SPU 品类确认
 - `qc-image-import/`：产品信息支持从大货质检导入图片
 
 ## 新增一个需求原型
@@ -42,6 +43,8 @@ product-prototypes/
 ├── season-recommendation/
 │   └── index.html
 ├── sales-attribute-config/
+│   └── index.html
+├── spu-category-confirmation/
 │   └── index.html
 ├── qc-image-import/
 │   └── index.html
