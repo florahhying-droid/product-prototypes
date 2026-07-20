@@ -157,6 +157,146 @@
       box-shadow: 0 1px 4px rgba(31, 42, 58, .06);
     }
 
+    .detail-page {
+      display: none;
+    }
+
+    .detail-role .content-shell {
+      display: none;
+    }
+
+    .detail-role .detail-page {
+      display: block;
+    }
+
+    .detail-summary {
+      display: grid;
+      grid-template-columns: 230px 1fr 1fr;
+      gap: 18px;
+      min-height: 86px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .detail-photo {
+      height: 70px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .detail-info-card {
+      border: 1px solid #f0f2f5;
+      background: #fafbfc;
+    }
+
+    .detail-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      background: #f8f9fb;
+    }
+
+    .detail-tab {
+      min-width: 88px;
+      height: 32px;
+      border-right: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7688;
+      font-size: 12px;
+    }
+
+    .detail-tab.active {
+      color: var(--teal-dark);
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .detail-apply {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      padding-right: 12px;
+    }
+
+    .detail-content {
+      display: grid;
+      grid-template-columns: 1fr 520px;
+      gap: 12px;
+      padding: 14px;
+      min-height: 560px;
+      background: #fff;
+    }
+
+    .detail-left-panel,
+    .detail-right-panel {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .detail-left-panel {
+      padding: 14px 14px 22px;
+    }
+
+    .detail-right-panel h3 {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      color: #1f6fb7;
+      font-size: 13px;
+    }
+
+    .detail-right-body {
+      padding: 12px;
+    }
+
+    .detail-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      color: #1f2a3a;
+      font-weight: 700;
+    }
+
+    .detail-section-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: var(--teal);
+    }
+
+    .detail-text-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 18px;
+      margin-bottom: 18px;
+    }
+
+    .detail-text-field label,
+    .detail-long-field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #647186;
+      font-size: 12px;
+    }
+
+    .detail-text-field textarea,
+    .detail-long-field textarea {
+      min-height: 64px;
+      resize: none;
+    }
+
+    .detail-long-field {
+      margin-bottom: 14px;
+      max-width: 980px;
+    }
+
     .content-shell {
       display: grid;
       grid-template-columns: 118px 1fr;
@@ -219,6 +359,25 @@
       margin-bottom: 12px;
       border: 1px solid #bdebe7;
       background: #fbfffe;
+    }
+
+    .category-confirm.readonly {
+      border-color: #d8dee8;
+      background: #f8fafc;
+    }
+
+    .category-confirm.readonly .select-trigger,
+    .category-confirm.readonly .btn.primary {
+      color: #98a2b3;
+      border-color: #d8dee8;
+      background: #eef2f6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .category-confirm.readonly .confirm-title {
+      color: #667386;
+      background: #f5f7fa;
     }
 
     .confirm-title {
@@ -426,6 +585,13 @@
       background: var(--teal);
     }
 
+    .btn:disabled {
+      color: #98a2b3;
+      border-color: #d8dee8;
+      background: #eef2f6;
+      cursor: not-allowed;
+    }
+
     .btn.teal-outline {
       color: var(--teal-dark);
       border-color: #9be0da;
@@ -488,6 +654,60 @@
 
     .right-edit {
       padding: 0 8px;
+    }
+
+    .detail-role .detail-right-body .category-confirm {
+      margin: 14px 0 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .detail-role .detail-right-body .confirm-title {
+      height: auto;
+      margin: 0 0 8px;
+      padding: 0;
+      border: 0;
+      color: #1f2a3a;
+      background: transparent;
+      font-size: 13px;
+    }
+
+    .detail-role .detail-right-body .confirm-title::before {
+      display: none;
+    }
+
+    .detail-role .detail-right-body .confirm-grid {
+      grid-template-columns: 1fr;
+      gap: 4px;
+      padding: 10px;
+      border: 1px solid #bdebe7;
+      background: #fbfffe;
+    }
+
+    .detail-role .detail-right-body .label {
+      min-height: 22px;
+    }
+
+    .detail-role .detail-right-body .confirm-control {
+      grid-template-columns: minmax(260px, 1fr) max-content max-content;
+      align-items: start;
+    }
+
+    .detail-role .detail-right-body .category-select {
+      width: 100%;
+      flex-basis: auto;
+    }
+
+    .detail-role .detail-right-body .btn.primary {
+      height: 28px;
+      padding: 0 7px;
+      font-size: 12px;
+    }
+
+    .detail-role .detail-right-body .select-menu {
+      width: 390px;
+      left: auto;
+      right: 0;
     }
 
     .right-box {
@@ -567,7 +787,8 @@
     }
 
     input[disabled],
-    select[disabled] {
+    select[disabled],
+    textarea[disabled] {
       color: #98a2b3;
       background: #f5f7fa;
     }
@@ -661,30 +882,38 @@
     </header>
 
     <aside class="scene-rail">
-      <p class="rail-desc">场景入口为原型辅助导航，不属于系统真实菜单。业务页面只在右侧展示运营编辑进入后的销售信息页。</p>
-      <div class="nav-group">SPU品类确认状态</div>
+      <p class="rail-desc">场景入口为原型辅助导航，不属于系统真实菜单。右侧用于对比不同入口、角色和确认状态下的展示。</p>
+      <div class="nav-group">运营编辑页</div>
       <button class="nav-card active" data-scene="matched"><span>当前=建议</span><small>外显提示</small></button>
       <button class="nav-card" data-scene="change"><span>建议不同</span><small>更新品类</small></button>
       <button class="nav-card" data-scene="empty"><span>暂无可用建议</span><small>无建议按钮</small></button>
       <button class="nav-card" data-scene="unmatched"><span>未匹配系统品类</span><small>需维护映射</small></button>
       <button class="nav-card" data-scene="invalid"><span>未填写保存</span><small>必填校验</small></button>
 
+      <div class="nav-group">产品详情页 - 销售信息Tab</div>
+      <button class="nav-card" data-scene="detail-ops-confirmed"><span>运营角色</span><small>已确认/可修改</small></button>
+      <button class="nav-card" data-scene="detail-dev-confirmed"><span>开发角色</span><small>已确认/只读</small></button>
+
       <div class="note-box">
         <strong>规则说明</strong>
         <ul>
-          <li>入口路径：运营编辑 - 产品开发-new页 - 销售信息。</li>
-          <li>【SPU品类确认】位于批量设置按钮之上，作为销售信息页顶部第一块内容。</li>
+          <li>入口一：运营编辑 - 产品开发-new页 - 销售信息。</li>
+          <li>入口二：产品详情页 - 销售信息 Tab - 运营填写。</li>
+          <li>运营编辑页中【SPU品类确认】位于批量设置按钮之上。</li>
+          <li>产品详情页中复用完整【SPU品类确认】组件，运营可首次确认及后续修改确认，开发仅查看且置灰。</li>
           <li>竞品建议品类基于当前 SPU 下已保存的 Amazon 竞品链接或 ASIN 生成。</li>
           <li>有建议时，说明图标展示两行悬浮提示；当前品类与建议品类一致时，品类后展示【与当前品类一致】状态标签。</li>
           <li>一致场景仅保留【使用当前品类】；建议不同场景展示【使用当前品类】和【使用建议品类】。</li>
-          <li>暂无建议或未匹配系统品类时，不展示【使用建议品类】。</li>
-          <li>保存时校验【本次确认品类】，为空提示：请确认 SPU 产品品类。</li>
+          <li>后端确认状态为待确认时，【本次确认品类】初始为空；后端确认状态为已确认时，前端仅自动带出最近一次已确认品类，不展示确认状态。</li>
+          <li>运营保存时为空提示【请确认 SPU 产品品类】；修改确认品类时记录【确认】日志，仅保存其他信息不记录品类日志。</li>
+          <li>开发新建品类记录【新建】，开发修改当前产品品类记录【修改】，后端确认状态更新为【待确认】。</li>
+          <li>品类操作日志仅在发生【新建】【修改】【确认】时记录；竞品建议品类按正常匹配、暂无建议、未匹配系统品类记录。</li>
         </ul>
       </div>
     </aside>
 
     <div class="prototype-main">
-      <div class="page-tab">产品开发-new ×</div>
+      <div class="page-tab" id="pageTab">产品开发-new ×</div>
 
       <main class="workbench">
         <div class="content-shell">
@@ -698,7 +927,8 @@
           </aside>
 
           <section class="main-area">
-        <section class="category-confirm" aria-label="SPU品类确认">
+        <div id="editConfirmMount"></div>
+        <section class="category-confirm" id="categoryConfirm" aria-label="SPU品类确认">
           <div class="confirm-title">SPU品类确认</div>
           <div class="confirm-grid">
             <div class="label">当前产品品类：</div>
@@ -827,7 +1057,7 @@
           <aside class="right-edit">
             <div class="right-box">
               <h3>运营填写</h3>
-              <div class="right-body">
+              <div class="right-body" id="rightBody">
                 <div class="form-row" style="grid-template-columns:70px 1fr;align-items:start">
                   <label><span class="req">*</span>关键词（英文）</label>
                   <textarea style="height:112px;resize:none">1111</textarea>
@@ -844,6 +1074,58 @@
         <div class="sku-collapsed"><span>PLS_33TDPK3T　　绿色</span><span>›</span></div>
           </section>
         </div>
+
+        <section class="detail-page" id="detailPage">
+          <div class="detail-summary">
+            <div class="detail-photo"></div>
+            <div class="detail-info-card"></div>
+            <div class="detail-info-card"></div>
+          </div>
+
+          <div class="detail-tabs">
+            <span class="detail-tab">采购信息</span>
+            <span class="detail-tab">产品规格</span>
+            <span class="detail-tab active">销售信息</span>
+            <span class="detail-tab">产品描述</span>
+            <span class="detail-tab">产品知识库</span>
+            <span class="detail-tab">AI策划案</span>
+            <span class="detail-tab">竞品信息</span>
+            <span class="detail-tab">库存及成本</span>
+            <span class="detail-tab">关联Listing</span>
+            <span class="detail-tab">侵权侵销</span>
+            <div class="detail-apply"><button class="btn primary">应用</button></div>
+          </div>
+
+          <div class="detail-content">
+            <section class="detail-left-panel">
+              <h2 class="detail-section-title">开发填写</h2>
+              <h3 class="section-title">基础信息</h3>
+              <h3 class="section-title">功能卖点</h3>
+              <div class="detail-text-grid">
+                <div class="detail-text-field"><label>人性化设计</label><textarea>11</textarea></div>
+                <div class="detail-text-field"><label>功能</label><textarea>1</textarea></div>
+                <div class="detail-text-field"><label>接触/用料</label><textarea>1</textarea></div>
+                <div class="detail-text-field"><label>风格/外观</label><textarea>1</textarea></div>
+              </div>
+
+              <h3 class="section-title">市场定位</h3>
+              <div class="detail-long-field"><label>目标用户</label><textarea>1</textarea></div>
+              <div class="detail-long-field"><label>用户痛点</label><textarea>1</textarea></div>
+              <div class="detail-long-field"><label>使用场景</label><textarea>1</textarea></div>
+            </section>
+
+            <aside class="detail-right-panel">
+              <h3>运营填写</h3>
+              <div class="detail-right-body">
+                <div class="detail-text-field"><label>关键词（英文）</label><textarea id="detailKeyword">1111</textarea></div>
+                <div style="height:1px;background:var(--line);margin:12px 0"></div>
+                <strong style="display:block;margin-bottom:8px;color:#1f2a3a">竞品信息</strong>
+                <a style="color:var(--teal-dark);text-decoration:none">去查看 &gt;</a>
+                <div id="detailConfirmMount"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
       </main>
     </div>
   </div>
@@ -858,6 +1140,10 @@
   <script>
     const scenes = {
       matched: {
+        entry: "edit",
+        role: "ops",
+        titlePath: "运营编辑 - 产品开发-new页 - 销售信息",
+        tab: "产品开发-new ×",
         current: "服装 / 女装 / 上衣 / 毛衣",
         suggestion: "服装 / 女装 / 上衣 / 毛衣",
         suggestionType: "matched",
@@ -865,6 +1151,10 @@
         tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
       },
       change: {
+        entry: "edit",
+        role: "ops",
+        titlePath: "运营编辑 - 产品开发-new页 - 销售信息",
+        tab: "产品开发-new ×",
         current: "服装 / 女装 / 上衣 / 毛衣",
         suggestion: "服装 / 女装 / 上衣 / 开衫",
         suggestionType: "matched",
@@ -872,6 +1162,10 @@
         tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
       },
       empty: {
+        entry: "edit",
+        role: "ops",
+        titlePath: "运营编辑 - 产品开发-new页 - 销售信息",
+        tab: "产品开发-new ×",
         current: "服装 / 女装 / 上衣 / 毛衣",
         suggestion: "暂无可用建议",
         suggestionType: "empty",
@@ -879,6 +1173,10 @@
         tipLines: ["请先维护并保存Amazon竞品信息，或稍后再试。"]
       },
       unmatched: {
+        entry: "edit",
+        role: "ops",
+        titlePath: "运营编辑 - 产品开发-new页 - 销售信息",
+        tab: "产品开发-new ×",
         current: "服装 / 女装 / 上衣 / 毛衣",
         suggestion: "未匹配到系统品类",
         suggestionType: "unmatched",
@@ -886,18 +1184,52 @@
         tipLines: ["已获取到Amazon品类，但未匹配到系统品类。请联系技术人员新增品类映射后再处理。", "本次用于匹配的Amazon品类路径：Clothing > Women > Clothing > Sweaters"]
       },
       invalid: {
+        entry: "edit",
+        role: "ops",
+        titlePath: "运营编辑 - 产品开发-new页 - 销售信息",
+        tab: "产品开发-new ×",
         current: "服装 / 女装 / 上衣 / 毛衣",
         suggestion: "服装 / 女装 / 上衣 / 毛衣",
         suggestionType: "matched",
         selected: "",
+        tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
+      },
+      "detail-ops-confirmed": {
+        entry: "detail",
+        role: "ops",
+        titlePath: "产品详情页 - 销售信息 Tab - 运营填写",
+        tab: "产品详情 ×",
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "服装 / 女装 / 上衣 / 开衫",
+        suggestionType: "matched",
+        selected: "服装 / 女装 / 上衣 / 毛衣",
+        tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
+      },
+      "detail-dev-confirmed": {
+        entry: "detail",
+        role: "dev",
+        titlePath: "产品详情页 - 销售信息 Tab - 开发查看",
+        tab: "产品详情 ×",
+        current: "服装 / 女装 / 上衣 / 毛衣",
+        suggestion: "服装 / 女装 / 上衣 / 毛衣",
+        suggestionType: "matched",
+        selected: "服装 / 女装 / 上衣 / 毛衣",
         tipLines: ["根据已保存的 Amazon 竞品链接或 ASIN 生成。", "优先参考同款竞品，其次参考匹配数量较高的品类。"]
       }
     };
 
     let currentScene = "matched";
     let confirmedCategory = "";
+    let initialConfirmedCategory = "";
 
     const navCards = document.querySelectorAll(".nav-card");
+    const prototypeMain = document.querySelector(".prototype-main");
+    const titlePath = document.querySelector(".crumb strong");
+    const pageTab = document.getElementById("pageTab");
+    const categoryConfirm = document.getElementById("categoryConfirm");
+    const editConfirmMount = document.getElementById("editConfirmMount");
+    const detailConfirmMount = document.getElementById("detailConfirmMount");
+    const detailKeyword = document.getElementById("detailKeyword");
     const currentCategory = document.getElementById("currentCategory");
     const suggestionText = document.getElementById("suggestionText");
     const suggestionTip = document.getElementById("suggestionTip");
@@ -927,13 +1259,29 @@
       currentScene = name;
       const scene = scenes[name];
       navCards.forEach(card => card.classList.toggle("active", card.dataset.scene === name));
+      titlePath.textContent = scene.titlePath;
+      pageTab.textContent = scene.tab;
+      prototypeMain.classList.toggle("detail-role", scene.entry === "detail");
+      if (scene.entry === "detail") detailConfirmMount.appendChild(categoryConfirm);
+      else editConfirmMount.appendChild(categoryConfirm);
+      const readonly = scene.role === "dev";
+      categoryConfirm.classList.toggle("readonly", readonly);
+      if (detailKeyword) {
+        detailKeyword.disabled = readonly;
+        detailKeyword.value = readonly ? "[object Object]" : "1111";
+      }
+      selectTrigger.disabled = readonly;
+      document.getElementById("useCurrent").disabled = readonly;
+      useSuggest.disabled = readonly;
       currentCategory.textContent = scene.current;
       suggestionText.textContent = scene.suggestion;
       suggestionText.className = `suggestion-status ${scene.suggestionType === "empty" ? "empty" : scene.suggestionType === "unmatched" ? "warn" : ""}`;
       suggestionTip.innerHTML = scene.tipLines.map(line => `<span>${line}</span>`).join("");
       const sameAsCurrent = scene.suggestionType === "matched" && scene.current === scene.suggestion;
-      useSuggest.hidden = scene.suggestionType !== "matched" || sameAsCurrent;
+      useSuggest.hidden = readonly || scene.suggestionType !== "matched" || sameAsCurrent;
+      document.getElementById("useCurrent").hidden = readonly;
       sameHint.hidden = !sameAsCurrent;
+      initialConfirmedCategory = scene.selected || "";
       setConfirmed(scene.selected);
     }
 
@@ -950,6 +1298,7 @@
     });
 
     selectTrigger.addEventListener("click", () => {
+      if (scenes[currentScene].role === "dev") return;
       categorySelect.classList.toggle("open");
     });
 
@@ -965,13 +1314,22 @@
     });
 
     document.getElementById("saveBtn").addEventListener("click", () => {
+      if (scenes[currentScene].role === "dev") {
+        showToast("开发角色仅支持查看 SPU 品类确认信息");
+        return;
+      }
       if (!confirmedCategory) {
         categorySelect.classList.add("invalid");
         confirmError.textContent = "请确认 SPU 产品品类";
         showToast("请确认 SPU 产品品类");
         return;
       }
-      showToast(confirmedCategory === scenes[currentScene].current ? "保存成功，已记录品类确认日志" : "保存成功，已更新 SPU 产品品类");
+      const scene = scenes[currentScene];
+      if (initialConfirmedCategory && confirmedCategory === initialConfirmedCategory) {
+        showToast("保存成功，本次确认品类未变化，不记录品类操作日志");
+        return;
+      }
+      showToast(confirmedCategory === scene.current ? "保存成功，已完成品类确认并记录【确认】日志" : "保存成功，已更新 SPU 产品品类并记录【确认】日志");
     });
 
     applyScene("matched");
