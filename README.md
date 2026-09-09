@@ -11,6 +11,7 @@
 - `sales-attribute-config/`：销售属性配置与 SKU 自定义属性
 - `spu-category-confirmation/`：运营编辑销售信息页 SPU 品类确认
 - `qc-image-import/`：产品信息支持从大货质检导入图片
+- `product-data-permission/`：选品数据权限配置
 
 ## 新增一个需求原型
 
@@ -47,6 +48,8 @@ product-prototypes/
 ├── spu-category-confirmation/
 │   └── index.html
 ├── qc-image-import/
+│   └── index.html
+├── product-data-permission/
 │   └── index.html
 └── README.md
 ```

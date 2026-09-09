@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>选品数据权限配置 Demo</title>
+  <style>
+    :root {
+      --teal: #28b7ac;
+      --teal-dark: #15988f;
+      --teal-soft: #e6f8f6;
+      --line: #e4e8ee;
+      --line-dark: #d5dbe4;
+      --text: #344054;
+      --muted: #7b8794;
+      --bg: #f5f7fa;
+      --danger: #e45b5b;
+      --shadow: 0 12px 32px rgba(31, 42, 58, .18);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 1280px;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app-shell { display: grid; grid-template-columns: 226px 1fr; grid-template-rows: 48px 36px 1fr; min-height: 100vh; }
+    .topbar {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    .crumb { color: #7b8794; }
+    .crumb strong { color: #263142; font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 14px; color: #7b8794; }
+    .avatar { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--teal); }
+
+    .left-rail { grid-column: 1; grid-row: 2 / -1; padding: 14px 10px; overflow: auto; border-right: 1px solid var(--line); background: #fff; }
+    .rail-title { margin: 2px 8px 4px; color: #263142; font-size: 14px; font-weight: 700; }
+    .rail-desc { margin: 0 8px 14px; color: #8b96a5; font-size: 12px; }
+    .rail-desc .relation { display: block; margin-top: 5px; color: #566579; line-height: 1.65; }
+    .scene-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; min-height: 37px; margin-bottom: 6px; padding: 0 10px; border: 1px solid transparent; border-radius: 3px; color: #5d697b; background: #f7f8fa; text-align: left; }
+    .scene-btn:hover, .scene-btn.active { color: var(--teal-dark); border-color: #bcece7; background: var(--teal-soft); }
+    .scene-btn span:last-child { color: #a4adba; }
+    .rule-panel { margin: 16px 4px 0; border: 1px solid var(--line); border-radius: 3px; color: #667386; background: #fff; font-size: 12px; line-height: 1.65; }
+    .rule-panel details { border-top: 1px solid #edf0f3; }
+    .rule-panel details:first-child { border-top: 0; }
+    .rule-panel summary { padding: 8px 9px; color: #405064; cursor: pointer; font-weight: 600; }
+    .rule-panel .rule-root > summary { color: #263142; font-size: 13px; }
+    .rule-panel .rule-section { margin: 0 8px 8px; border: 1px solid #edf0f3; border-radius: 2px; }
+    .rule-panel .rule-sub { margin: 0 7px 6px; border-top: 1px dashed #e5e8ed; }
+    .rule-panel ul { margin: 0; padding: 0 10px 8px 25px; }
+    .rule-panel li { margin: 3px 0; }
+    .work-tabs { grid-column: 2; grid-row: 2; display: flex; align-items: flex-end; padding-left: 10px; border-bottom: 1px solid var(--line); background: #fff; }
+    .work-tab { height: 35px; padding: 0 10px; border: 0; border-bottom: 2px solid transparent; color: #354052; background: transparent; }
+    .work-tab.active { color: var(--teal-dark); border-bottom-color: var(--teal); }
+    .work-tab .x { margin-left: 8px; color: var(--teal-dark); }
+    .canvas { grid-column: 2; grid-row: 3; padding: 0; overflow: auto; }
+    .page-card { min-height: calc(100vh - 84px); margin: 0 3px 3px; border: 1px solid var(--line); background: #fff; }
+    .module-tag, .module-head { display: none; }
+    .module-title { margin: 0; color: #253044; font-size: 16px; }
+    .module-subtitle { margin: 3px 0 0; color: #8b96a5; font-size: 12px; }
+
+    .tabs { display: flex; padding: 0 8px; border-bottom: 1px solid var(--line); }
+    .tab { height: 50px; padding: 0 22px 0 0; margin-right: 20px; border: 0; border-bottom: 2px solid transparent; color: #202b3b; background: transparent; }
+    .tab.active { color: var(--teal-dark); border-bottom-color: var(--teal); font-weight: 600; }
+
+    .filter-panel { margin: 0; border: 0; background: #fff; }
+    .filter-row { display: flex; align-items: center; gap: 12px; padding: 14px 8px 8px; }
+    .filter-label { color: #5e6b7e; }
+    input, select {
+      height: 30px;
+      padding: 0 9px;
+      border: 1px solid var(--line-dark);
+      border-radius: 2px;
+      color: #4e5c6f;
+      background: #fff;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(40,183,172,.09); }
+    input.invalid, .tree-box.invalid { border-color: var(--danger); }
+    input.invalid:focus { box-shadow: 0 0 0 2px rgba(228,91,91,.09); }
+    input:disabled, select:disabled { color: #a4adba; background: #f2f4f7; cursor: not-allowed; }
+    input[type="checkbox"] { accent-color: var(--teal); }
+    .search-select-wrap { position: relative; display: inline-flex; align-items: center; }
+    .search-select-wrap .select-arrow { position: absolute; right: 10px; color: #9ca7b5; pointer-events: none; font-size: 13px; }
+    .search-select-wrap input { padding-right: 30px; }
+    .search-select-wrap input::-webkit-calendar-picker-indicator { opacity: 0; }
+    .filter-input, .filter-select { width: 200px; height: 32px; border-color: var(--line-dark); }
+    .search-select-wrap input:not(:placeholder-shown) { color: #4e5c6f; }
+
+    .btn { height: 32px; padding: 0 15px; border: 1px solid var(--line-dark); border-radius: 3px; color: #536173; background: #fff; }
+    .btn:hover { border-color: #aab4c2; }
+    .btn.primary { color: #fff; border-color: var(--teal); background: var(--teal); }
+    .btn.primary:hover { background: var(--teal-dark); }
+    .btn.danger { color: #fff; border-color: var(--danger); background: var(--danger); }
+    .btn.ghost { color: var(--teal-dark); border-color: #9fe1dc; background: #f5fffe; }
+
+    .table-toolbar { display: flex; align-items: center; justify-content: flex-end; margin: -40px 4px 8px; }
+    .result-count { color: #8a95a4; }
+    .table-wrap { margin: 0 8px; overflow: auto; border: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { height: 42px; padding: 8px 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th:last-child, td:last-child { border-right: 0; }
+    tbody tr:last-child td { border-bottom: 0; }
+    th { color: #667386; background: #f8f9fb; font-weight: 600; }
+    td { color: #536173; }
+    tbody tr:hover { background: #fbfefd; }
+    .link { padding: 0; border: 0; color: var(--teal-dark); background: transparent; }
+    .link.danger-link { color: var(--danger); }
+    .op-cell { display: flex; gap: 12px; white-space: nowrap; }
+    .category-count { color: var(--teal-dark); }
+    .all-company { color: #6d7787; }
+    .empty { padding: 56px 20px; color: #9aa4b2; text-align: center; }
+    .pager { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 10px 10px 12px; color: #657184; }
+    .pager-arrow { border: 0; color: #a5afbc; background: transparent; font-size: 17px; }
+    .page-number { width: 28px; height: 28px; border: 0; color: var(--teal-dark); background: transparent; font-weight: 600; }
+    .page-size { width: 126px; height: 34px; }
+    .jump-input { width: 54px; height: 34px; text-align: center; }
+
+    .mask { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(20,29,42,.45); }
+    .mask.open { display: flex; }
+    .modal { width: 820px; max-height: calc(100vh - 48px); display: flex; flex-direction: column; border-radius: 3px; background: #fff; box-shadow: var(--shadow); }
+    .modal.small { width: 430px; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; min-height: 54px; padding: 0 20px; border-bottom: 1px solid var(--line); }
+    .modal-title { color: #263142; font-size: 17px; font-weight: 600; }
+    .close { width: 30px; height: 30px; border: 0; color: #909aa8; background: transparent; font-size: 22px; }
+    .modal-body { padding: 18px 22px; overflow: auto; }
+    .modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 56px; padding: 0 20px; border-top: 1px solid var(--line); background: #fafbfc; }
+
+    .form-row { display: grid; grid-template-columns: 96px 1fr; gap: 12px; margin-bottom: 15px; }
+    .form-label { padding-top: 6px; color: #5c687a; text-align: right; }
+    .req { margin-right: 3px; color: var(--danger); }
+    .control { width: 300px; }
+    .form-error { min-height: 18px; margin-top: 4px; color: var(--danger); font-size: 12px; }
+    .all-company-check { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0; }
+    .all-company-check input { width: 14px; height: 14px; }
+    .company-line { display: flex; align-items: center; gap: 12px; }
+    .tree-box { border: 1px solid var(--line); }
+    .tree-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 10px; border-bottom: 1px solid var(--line); background: #fbfcfd; }
+    .tree-search-wrap { position: relative; width: 260px; }
+    .tree-search-icon { position: absolute; left: 10px; top: 6px; color: #a2acb9; pointer-events: none; }
+    .tree-search { width: 100%; padding-left: 29px; padding-right: 28px; border-color: var(--teal); }
+    .tree-search-clear { position: absolute; right: 6px; top: 4px; width: 22px; height: 22px; display: none; border: 0; color: #a5afbb; background: transparent; }
+    .tree-search-wrap.has-query .tree-search-clear { display: block; }
+    .selected-count { color: var(--teal-dark); font-weight: 600; }
+    .tree-scroll { height: 330px; overflow: auto; padding: 7px 0; }
+    .tree-row { display: flex; align-items: center; min-height: 30px; padding: 3px 10px; }
+    .tree-row:hover { background: #f7fbfa; }
+    .tree-row.selected { color: #147f79; background: #eefaf8; }
+    .tree-row.partial { color: #3f5866; background: #f7fbfa; }
+    .tree-row.out-of-scope { color: #a0a8b3; background: #f5f6f8; }
+    .tree-row.out-of-scope.selected { color: #8b96a3; background: #f1f3f5; }
+    .tree-row.out-of-scope .category-tags { opacity: .72; }
+    .tree-row.out-of-scope input { cursor: not-allowed; }
+    .tree-row.l2 { padding-left: 34px; }
+    .tree-row.l3 { padding-left: 62px; }
+    .tree-check { width: 14px; height: 14px; margin: 0 8px 0 0; accent-color: var(--teal); }
+    .tree-toggle { width: 18px; margin-right: 3px; border: 0; color: #8e99a8; background: transparent; }
+    .leaf-space { width: 21px; }
+    .tree-name { flex: 0 1 auto; }
+    .category-tags { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; }
+    .category-tag { display: inline-flex; align-items: center; height: 19px; padding: 0 6px; border: 1px solid; border-radius: 3px; font-size: 11px; line-height: 1; }
+    .category-tag.level { color: #24a99f; border-color: #bcebe7; background: #ecfaf8; }
+    .category-tag.level.parent { color: #8993a0; border-color: #dfe3e8; background: #f5f6f8; }
+    .category-tag.generic { color: #ef5d5d; border-color: #ffc4c4; background: #fff1f1; }
+    .category-tag.users { color: #d18a18; border-color: #f1d39b; background: #fff8e9; }
+    .category-tag.bg { color: #788391; border-color: #d9dee5; background: #f5f6f8; }
+    .tree-row.hidden, .tree-group.search-hidden, .tree-group.collapsed > .children { display: none; }
+    .readonly-tree input { pointer-events: none; }
+    .readonly-tree .tree-toggle { pointer-events: auto; }
+    .readonly-tree .tree-search { color: #9aa4b2; background: #f2f4f7; border-color: #dfe3e8; }
+    .readonly-value { min-height: 30px; padding: 5px 9px; color: #536173; background: #f7f8fa; border: 1px solid var(--line); }
+    .scope-note { display: none; margin: 8px 0 0; color: #8c96a5; font-size: 12px; }
+    .scope-note.show { display: block; }
+
+    .warning-box { padding: 10px 12px; border: 1px solid #f3c6c6; color: #b44646; background: #fff6f6; line-height: 1.6; }
+    .delete-copy { display: flex; align-items: flex-start; gap: 10px; color: #5d697b; line-height: 1.8; }
+    .warning-icon { flex: 0 0 auto; width: 22px; height: 22px; display: grid; place-items: center; margin-top: 1px; border-radius: 50%; color: #fff; background: var(--danger); font-weight: 700; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 40; display: none; min-width: 240px; padding: 12px 16px; border-radius: 3px; color: #fff; background: #273244; box-shadow: var(--shadow); }
+    .toast.show { display: block; }
+    .toast.success::before { content: "✓"; margin-right: 8px; color: #55d8a5; }
+    .toast.error::before { content: "!"; margin-right: 8px; color: #ff9b9b; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="crumb"><strong>配置</strong>&nbsp;&nbsp;/&nbsp;&nbsp;权限配置</div>
+      <div class="top-actions"><span>⌕</span><span>⇩</span><span>⛶</span><span>♧</span><span>Flora</span></div>
+    </header>
+
+    <aside class="left-rail">
+      <div class="rail-title">重点交互场景</div>
+      <p class="rail-desc" id="sceneDesc">普通员工仅能查看自己的权限记录</p>
+      <button class="scene-btn" data-scene="employee"><span>1. 无下级员工</span><span>›</span></button>
+      <button class="scene-btn" data-scene="leader"><span>2. 有下级负责人</span><span>›</span></button>
+      <button class="scene-btn" data-scene="admin"><span>3. 管理员全量权限</span><span>›</span></button>
+      <button class="scene-btn" data-scene="add-company"><span>4. 新增具体公司</span><span>›</span></button>
+      <button class="scene-btn" data-scene="linkage"><span>5. 公司品类联动</span><span>›</span></button>
+      <button class="scene-btn" data-scene="outscope"><span>6. 超范围权限</span><span>›</span></button>
+      <button class="scene-btn" data-scene="partial"><span>7. 父级批量与半选</span><span>›</span></button>
+      <button class="scene-btn" data-scene="all"><span>8. 全部公司</span><span>›</span></button>
+      <button class="scene-btn" data-scene="duplicate"><span>9. 重复校验</span><span>›</span></button>
+      <button class="scene-btn" data-scene="edit"><span>10. 编辑权限</span><span>›</span></button>
+      <div class="rule-panel">
+        <details class="rule-root" open>
+          <summary>规则说明</summary>
+          <details class="rule-section"><summary>一、选品数据权限规则</summary>
+            <details class="rule-sub"><summary>权限颗粒度</summary><ul><li>一条权限 = 1个用户 + 1个公司/全部公司 + 多个三级品类。</li><li>同一用户可配置多条，不同记录最终取并集。</li><li>具体公司权限仅包含该公司对应品类产品，不包含无公司产品。</li><li>【全部公司】权限包含对应品类下全部公司及无公司产品。</li></ul></details>
+            <details class="rule-sub"><summary>管理员</summary><ul><li>管理员默认拥有全部选品数据权限。</li><li>如管理员单独配置了选品数据权限，则配置范围优先。</li></ul></details>
+            <details class="rule-sub"><summary>取消原品线系列权限</summary><ul><li>删除【品线系列权限】Tab。</li><li>原品线系列权限停止生效，历史配置不再参与数据权限判断。</li><li>后续统一按照【公司 + 品类】控制到具体产品/ASIN。</li></ul></details>
+          </details>
+          <details class="rule-section"><summary>二、权限配置与向下授权</summary>
+            <details class="rule-sub"><summary>谁可以维护</summary><ul><li>普通用户：仅查看本人权限，本人不可自行编辑。</li><li>有下级用户：可查看本人及下级权限；本人只读，下级可新增、编辑、删除。</li><li>管理员：可查看、维护所有人员权限。</li></ul></details>
+            <details class="rule-sub"><summary>非管理员授权范围</summary><ul><li>只能在本人已有的“公司 + 品类”权限范围内给下级授权。</li><li>管理员不受公司、品类范围限制。</li></ul></details>
+            <details class="rule-sub"><summary>公司与品类联动</summary><ul><li>新增/编辑顺序：用户 → 公司 → 品类。</li><li>非管理员选择具体公司后，可配置品类 = 本人【全部公司】下的品类 + 本人在该具体公司下的品类。</li><li>选择【全部公司】时，只能配置本人【全部公司】权限下的品类。</li><li>管理员始终可选择任意公司及完整品类树。</li></ul></details>
+            <details class="rule-sub"><summary>下属已有超范围权限</summary><ul><li>不隐藏。</li><li>下属持有当前上级未持有的公司权限时，该条记录仅可查看。</li><li>公司在可授权范围内时，超范围既有品类置灰只读并正常计入已选数量。</li><li>保存时超范围既有品类保持不变。</li></ul></details>
+          </details>
+          <details class="rule-section"><summary>三、权限配置页面交互</summary>
+            <details class="rule-sub"><summary>重复配置</summary><ul><li>同一用户 + 同一公司最多一条。</li><li>用户、公司选择完成后立即校验。</li><li>重复时提示“该用户已配置此公司，请编辑原权限”。</li><li>校验未通过不可保存。</li><li>【全部公司】与具体公司权限允许同时存在。</li></ul></details>
+            <details class="rule-sub"><summary>品类选择</summary><ul><li>最终仍按三级品类 L3 保存。</li><li>L1/L2 支持整体勾选/取消。</li><li>部分子级选中时父级显示半选状态。</li><li>取消原30个品类上限，显示【已选 X 个】。</li></ul></details>
+            <details class="rule-sub"><summary>列表</summary><ul><li>同一用户可出现多行，不同公司分别展示。</li><li>字段：用户名｜公司｜品类｜创建人｜创建时间｜更新人｜更新时间｜操作。</li><li>品类展示数量摘要，如【12个三级品类】，点击进入查看弹窗。</li><li>操作保留【查看｜编辑｜删除】。</li></ul></details>
+          </details>
+          <details class="rule-section"><summary>四、各业务页面的数据权限</summary>
+            <details class="rule-sub"><summary>产品系列</summary><ul><li>系列本身不参与权限判断，最终判断系列内具体产品/ASIN。</li><li>部分产品有权限：系列展示，仅展示有权限产品。</li><li>无任何有权限产品：整个系列不展示。</li><li>产品数、销量、销售额等聚合数据，按当前用户实际可见产品重新计算。</li><li>数据权限不代表系列/系列产品编辑权限；系列及系列产品管理仅管理员可操作。</li></ul></details>
+            <details class="rule-sub"><summary>精选产品池</summary><ul><li>复用同一套【公司 + 品类】权限。</li><li>筛选结果及卡片宫格只展示当前用户有权限的产品。</li><li>具体公司权限不包含其他公司及无公司产品；【全部公司】可包含无公司产品。</li><li>当前产品池仅有筛选和卡片宫格，无额外统计处理。</li></ul></details>
+            <details class="rule-sub"><summary>后续 ASIN 选品页</summary><ul><li>直接复用本次选品数据权限，ASIN 平铺展示，不依赖系列。</li><li>查询、筛选、查看均限定在用户有权限的数据范围内。</li><li>有权限的 ASIN 可选择创建开发任务。</li></ul></details>
+          </details>
+          <details class="rule-section"><summary>五、创建开发任务与人员分配</summary>
+            <details class="rule-sub"><summary>创建任务</summary><ul><li>拥有对应选品数据权限，即可基于该产品创建开发任务。</li><li>选品数据权限不等同于开发任务模块其他管理权限。</li></ul></details>
+            <details class="rule-sub"><summary>开发人员</summary><ul><li>非管理员：只能选择本人 + 本人下级。</li><li>管理员：不限制人员范围。</li></ul></details>
+            <details class="rule-sub"><summary>下一分配人</summary><ul><li>非管理员：只能选择本人下级，不包含本人。</li><li>管理员：不限制人员范围。</li><li>与开发任务模块现有人员分配权限保持一致。</li></ul></details>
+            <details class="rule-sub"><summary>历史数据</summary><ul><li>原品类权限保留原用户及品类范围，公司统一初始化为【全部公司】。</li><li>原品线系列权限不迁移，直接停止生效。</li><li>新业务首批权限由研发批量初始化，后续通过页面维护。</li></ul></details>
+          </details>
+        </details>
+      </div>
+    </aside>
+
+    <nav class="work-tabs"><button class="work-tab">首页</button><button class="work-tab active">权限配置 <span class="x">×</span></button></nav>
+
+    <main class="canvas">
+      <section class="page-card">
+        <span class="module-tag">权限配置</span>
+        <div class="module-head">
+          <div><h1 class="module-title">权限配置</h1><p class="module-subtitle">按用户、公司与三级品类配置产品数据访问范围</p></div>
+        </div>
+        <nav class="tabs">
+          <button class="tab active">选品数据权限</button>
+          <button class="tab">任务审核权限</button>
+          <button class="tab">任务BG公司权限</button>
+        </nav>
+
+        <div class="filter-panel">
+          <div class="filter-row">
+            <span class="search-select-wrap"><input class="filter-input" id="nameFilter" list="filterUserOptions" placeholder="请选择用户名"><span class="select-arrow">⌄</span></span>
+            <datalist id="filterUserOptions"><option value="Flora"></option><option value="李娜"></option><option value="王杰"></option><option value="陈晓"></option></datalist>
+            <span class="search-select-wrap"><input class="filter-select" id="companyFilter" list="filterCompanyOptions" placeholder="请选择公司"><span class="select-arrow">⌄</span></span>
+            <datalist id="filterCompanyOptions"><option value="全部公司"></option><option value="亚声威格"></option><option value="司顺"></option><option value="欧品汇"></option><option value="辰越"></option></datalist>
+            <button class="btn primary" id="searchBtn">搜索</button>
+            <button class="btn" id="resetBtn">重置</button>
+          </div>
+        </div>
+
+        <div class="table-toolbar">
+          <button class="btn primary" id="addBtn">新增</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <colgroup><col style="width:10%"><col style="width:12%"><col style="width:13%"><col style="width:9%"><col style="width:14%"><col style="width:9%"><col style="width:14%"><col style="width:19%"></colgroup>
+            <thead><tr><th>用户名</th><th>公司</th><th>品类</th><th>创建人</th><th>创建时间</th><th>更新人</th><th>更新时间</th><th>操作</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="pager"><button class="pager-arrow">|‹</button><button class="pager-arrow">≪</button><button class="pager-arrow">‹</button><button class="page-number">1</button><button class="pager-arrow">›</button><button class="pager-arrow">≫</button><button class="pager-arrow">›|</button><select class="page-size"><option>20条/页</option></select><span>前往</span><input class="jump-input" value="1"><span>页&nbsp;&nbsp;共 <b id="pagerCount">0</b> 条记录</span></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="mask" id="formMask" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <section class="modal">
+      <header class="modal-head"><div class="modal-title" id="formTitle">新增选品数据权限</div><button class="close" data-close="formMask">×</button></header>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-label"><span class="req">*</span>用户名</div>
+          <div><span class="search-select-wrap"><input class="control" id="userSelect" list="userOptions" placeholder="请选择用户名"><span class="select-arrow">⌄</span></span><datalist id="userOptions"><option value="Flora"></option><option value="李娜"></option><option value="王杰"></option><option value="陈晓"></option></datalist><div class="form-error" id="userError"></div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><span class="req">*</span>公司</div>
+          <div>
+            <label class="all-company-check"><input type="checkbox" id="allCompany">全部公司</label>
+            <div class="company-line"><span class="search-select-wrap"><input class="control" id="companySelect" list="companyOptions" placeholder="请选择公司"><span class="select-arrow">⌄</span></span><datalist id="companyOptions"><option value="亚声威格"></option><option value="司顺"></option><option value="欧品汇"></option><option value="辰越"></option></datalist></div>
+            <div class="form-error" id="companyError"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"><span class="req">*</span>品类选择</div>
+          <div>
+            <div class="tree-box">
+              <div class="tree-toolbar"><div class="tree-search-wrap"><span class="tree-search-icon">⌕</span><input class="tree-search" id="categorySearch" placeholder="搜索品类"><button class="tree-search-clear" id="clearCategorySearch" title="清除">×</button></div><span class="selected-count" id="selectedCount">已选 0 个</span></div>
+              <div class="tree-scroll" id="categoryTree"></div>
+            </div>
+            <div class="scope-note" id="scopeNote">可选品类将根据所选公司及当前账号的可授权范围自动更新。</div>
+            <div class="form-error" id="categoryError"></div>
+          </div>
+        </div>
+      </div>
+      <footer class="modal-foot"><button class="btn" data-close="formMask">取消</button><button class="btn primary" id="saveBtn">确定</button></footer>
+    </section>
+  </div>
+
+  <div class="mask" id="viewMask" role="dialog" aria-modal="true" aria-labelledby="viewTitle">
+    <section class="modal">
+      <header class="modal-head"><div class="modal-title" id="viewTitle">查看选品数据权限</div><button class="close" data-close="viewMask">×</button></header>
+      <div class="modal-body">
+        <div class="form-row"><div class="form-label">用户名</div><div class="readonly-value" id="viewUser"></div></div>
+        <div class="form-row"><div class="form-label">公司</div><div class="readonly-value" id="viewCompany"></div></div>
+        <div class="form-row"><div class="form-label">品类选择</div><div><div class="tree-box readonly-tree"><div class="tree-toolbar"><div class="tree-search-wrap"><span class="tree-search-icon">⌕</span><input class="tree-search" id="viewCategorySearch" placeholder="搜索品类" disabled></div><span class="selected-count" id="viewCount"></span></div><div class="tree-scroll" id="viewTree"></div></div></div></div>
+      </div>
+      <footer class="modal-foot"><button class="btn primary" data-close="viewMask">关闭</button></footer>
+    </section>
+  </div>
+
+  <div class="mask" id="deleteMask" role="dialog" aria-modal="true">
+    <section class="modal small">
+      <header class="modal-head"><div class="modal-title">确认删除</div><button class="close" data-close="deleteMask">×</button></header>
+      <div class="modal-body"><div class="delete-copy"><span class="warning-icon">!</span><span>删除后，该用户将失去此公司及对应品类范围的选品数据权限。确认删除这条权限记录吗？</span></div></div>
+      <footer class="modal-foot"><button class="btn" data-close="deleteMask">取消</button><button class="btn danger" id="confirmDelete">确认删除</button></footer>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const categoryData = [
+      { id: 'home', name: '家居用品', children: [
+        { id: 'carpet', name: '地毯 / 地垫', children: ['客厅地毯','卧室地毯','儿童地毯','厨房地垫','浴室地垫','门厅地垫','户外地垫','楼梯踏步垫','防滑垫','瑜伽垫','野餐垫','宠物垫','汽车脚垫','办公地垫','圆形地毯','长条地毯','可机洗地毯','编织地毯'] },
+        { id: 'wall', name: '墙面装饰', children: ['墙贴','壁纸','装饰画','照片墙','挂毯','墙面镜','壁饰','装饰钟','软木板','留言板','墙面置物架','儿童房墙贴','厨房防油贴','玻璃贴膜','瓷砖贴'] }
+      ]},
+      { id: 'garden', name: '庭院园艺', children: [
+        { id: 'garden-tools', name: '园艺用品', children: ['花盆','花架','育苗盘','浇水壶','喷雾器','园艺剪','铲子','耙子','园艺手套','植物标签','支撑杆','防草布','遮阳网','温室配件','堆肥桶'] },
+        { id: 'outdoor', name: '户外装饰', children: ['庭院灯','太阳能灯','风铃','户外摆件','鸟屋','鸟食器','庭院旗','喷泉摆件','户外花篮','门廊装饰'] }
+      ]}
+    ];
+
+    const records = [
+      { id: 1, user: 'Flora', company: '亚声威格', categories: ['客厅地毯','卧室地毯','厨房地垫','浴室地垫','门厅地垫','防滑垫','圆形地毯','长条地毯','可机洗地毯','编织地毯','墙贴','壁纸'], creator: '林悦', created: '2026-09-02 10:24', updater: '林悦', updated: '2026-09-08 16:40' },
+      { id: 2, user: 'Flora', company: '司顺', categories: ['墙贴','壁纸','装饰画','照片墙','挂毯'], creator: '林悦', created: '2026-09-03 14:18', updater: '林悦', updated: '2026-09-09 09:12' },
+      { id: 3, user: '李娜', company: '全部公司', categories: ['庭院灯','太阳能灯','风铃','户外摆件','鸟屋','鸟食器','庭院旗','喷泉摆件'], creator: '林悦', created: '2026-08-28 11:05', updater: '林悦', updated: '2026-09-05 18:02' },
+      { id: 4, user: '王杰', company: '欧品汇', categories: ['花盆','花架','育苗盘','浇水壶','喷雾器','园艺剪','铲子','耙子','园艺手套','植物标签'], creator: '林悦', created: '2026-09-06 13:36', updater: '林悦', updated: '2026-09-06 13:36' },
+      { id: 5, user: 'Flora', company: '全部公司', categories: ['墙贴','壁纸','装饰画'], creator: 'system', created: '2026-08-20 09:30', updater: 'system', updated: '2026-09-01 16:22', source: 'database-import' },
+      { id: 6, user: '李娜', company: '亚声威格', categories: ['客厅地毯','卧室地毯','花盆'], creator: '林悦', created: '2026-09-07 15:20', updater: '林悦', updated: '2026-09-08 10:15' },
+      { id: 7, user: '陈晓', company: '辰越', categories: ['墙面镜','壁饰','装饰钟','软木板'], creator: '林悦', created: '2026-09-08 11:40', updater: '林悦', updated: '2026-09-08 11:40' },
+      { id: 8, user: '王杰', company: '司顺', categories: ['墙贴','壁纸','装饰画'], creator: 'Flora', created: '2026-09-08 14:25', updater: 'Flora', updated: '2026-09-08 14:25' }
+    ];
+
+    const allUsers = ['Flora','李娜','王杰','陈晓','赵宁'];
+    const allCompanies = ['亚声威格','司顺','欧品汇','辰越'];
+    const state = {
+      role: 'employee', currentUser: 'Flora', subordinates: [], selected: new Set(), originalCategories: new Set(),
+      allowedLeaves: new Set(), lockedLeaves: new Set(), editingId: null, deletingId: null,
+      expanded: new Set(['home','carpet','wall','garden','garden-tools','outdoor'])
+    };
+    const genericCategories = new Set(['防滑垫','瑜伽垫','喷雾器','园艺剪','铲子','耙子','园艺手套']);
+    const $ = selector => document.querySelector(selector);
+    const leavesFor = id => {
+      for (const l1 of categoryData) {
+        if (l1.id === id) return l1.children.flatMap(l2 => l2.children);
+        const l2 = l1.children.find(item => item.id === id);
+        if (l2) return l2.children;
+      }
+      return [id];
+    };
+    const allLeaves = () => categoryData.flatMap(l1 => l1.children.flatMap(l2 => l2.children));
+    const selectedCompany = () => $('#allCompany').checked ? '全部公司' : $('#companySelect').value.trim();
+
+    function allowedCategoriesFor(company) {
+      if (state.role === 'admin') return new Set(allLeaves());
+      if (!company) return new Set();
+      const allowed = new Set();
+      records.filter(row => row.user === state.currentUser && (row.company === '全部公司' || row.company === company))
+        .forEach(row => row.categories.forEach(name => allowed.add(name)));
+      return allowed;
+    }
+
+    function visibleUsers() {
+      if (state.role === 'admin') return allUsers;
+      if (state.role === 'leader') return [state.currentUser, ...state.subordinates];
+      return [state.currentUser];
+    }
+
+    function selectableUsers() {
+      if (state.role === 'admin') return allUsers;
+      if (state.role === 'leader') return state.subordinates;
+      return [];
+    }
+
+    function hasAllCompanyAuthority() {
+      return state.role === 'admin' || records.some(permission => permission.user === state.currentUser && permission.company === '全部公司');
+    }
+
+    function hasCompanyAuthority(company) {
+      if (state.role === 'admin') return true;
+      if (company === '全部公司') return hasAllCompanyAuthority();
+      return hasAllCompanyAuthority() || records.some(permission => permission.user === state.currentUser && permission.company === company);
+    }
+
+    function availableCompanies() {
+      if (state.role === 'admin' || hasAllCompanyAuthority()) return allCompanies;
+      return allCompanies.filter(company => records.some(permission => permission.user === state.currentUser && permission.company === company));
+    }
+
+    function canMaintain(row) {
+      if (state.role === 'admin') return true;
+      if (state.role !== 'leader' || !state.subordinates.includes(row.user)) return false;
+      return hasCompanyAuthority(row.company);
+    }
+
+    function syncCandidateOptions() {
+      $('#filterUserOptions').innerHTML = visibleUsers().map(value => `<option value="${value}"></option>`).join('');
+      $('#userOptions').innerHTML = selectableUsers().map(value => `<option value="${value}"></option>`).join('');
+      $('#companyOptions').innerHTML = availableCompanies().map(value => `<option value="${value}"></option>`).join('');
+      $('#filterCompanyOptions').innerHTML = ['全部公司', ...allCompanies].map(value => `<option value="${value}"></option>`).join('');
+    }
+
+    function nowText() {
+      const date = new Date();
+      const p = value => String(value).padStart(2, '0');
+      return `${date.getFullYear()}-${p(date.getMonth()+1)}-${p(date.getDate())} ${p(date.getHours())}:${p(date.getMinutes())}`;
+    }
+
+    function showToast(text, type = 'success') {
+      const toast = $('#toast');
+      toast.textContent = text;
+      toast.className = `toast show ${type}`;
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.className = 'toast', 2200);
+    }
+
+    function actorDisplay(row, field) {
+      const actor = row[field];
+      if (actor !== 'system') return actor;
+      return row.source === 'database-import' ? '<span title="数据库直接导入">system</span>' : '—';
+    }
+
+    function renderTable() {
+      const keyword = $('#nameFilter').value.trim();
+      const company = $('#companyFilter').value;
+      const users = visibleUsers();
+      const visible = records.filter(row => users.includes(row.user) && (!keyword || row.user.includes(keyword)) && (!company || row.company === company));
+      $('#pagerCount').textContent = visible.length;
+      $('#tableBody').innerHTML = visible.length ? visible.map(row => `
+        <tr>
+          <td>${row.user}</td><td class="${row.company === '全部公司' ? 'all-company' : ''}">${row.company}</td>
+          <td><button class="link category-count" data-view="${row.id}">${row.categories.length}个三级品类</button></td>
+          <td>${actorDisplay(row, 'creator')}</td><td>${row.created}</td><td>${actorDisplay(row, 'updater')}</td><td>${row.updated}</td>
+          <td><div class="op-cell"><button class="link" data-view="${row.id}">查看</button>${canMaintain(row) ? `<button class="link" data-edit="${row.id}">编辑</button><button class="link danger-link" data-delete="${row.id}">删除</button>` : ''}</div></td>
+        </tr>`).join('') : '<tr><td colspan="8"><div class="empty">暂无符合条件的权限记录</div></td></tr>';
+    }
+
+    function checkboxState(names) {
+      const count = names.filter(name => state.selected.has(name)).length;
+      return { checked: count === names.length && count > 0, partial: count > 0 && count < names.length };
+    }
+
+    function selectionClass(names) {
+      const status = checkboxState(names);
+      return status.checked ? 'selected' : status.partial ? 'partial' : '';
+    }
+
+    function categoryMeta(name) {
+      const seed = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+      return { users: seed % 4 + 1, bg: seed % 3 + 1 };
+    }
+
+    function selectableLeavesFor(id) {
+      const names = leavesFor(id);
+      if (state.role === 'admin' || state.allowedLeaves === null) return names;
+      return names.filter(name => state.allowedLeaves.has(name));
+    }
+
+    function selectionClassFor(names, selected) {
+      const count = names.filter(name => selected.has(name)).length;
+      return count === names.length && count > 0 ? 'selected' : count > 0 ? 'partial' : '';
+    }
+
+    function renderTree(target = '#categoryTree', readOnly = false, selectedOverride = null) {
+      const selected = selectedOverride || state.selected;
+      $(target).innerHTML = buildTreeHtml(readOnly, selected);
+      $(target).querySelectorAll('input[data-node]').forEach(input => {
+        const names = leavesFor(input.dataset.node);
+        const count = names.filter(name => selected.has(name)).length;
+        input.checked = count === names.length && count > 0;
+        input.indeterminate = count > 0 && count < names.length;
+        input.disabled = readOnly || selectableLeavesFor(input.dataset.node).length === 0;
+      });
+      $(target).querySelectorAll('[data-toggle]').forEach(btn => btn.addEventListener('click', () => {
+        const id = btn.dataset.toggle;
+        state.expanded.has(id) ? state.expanded.delete(id) : state.expanded.add(id);
+        renderTree(target, readOnly, selectedOverride);
+        if (readOnly) filterTree('#viewTree', '#viewCategorySearch');
+      }));
+      if (!readOnly) bindTree();
+      updateCount();
+    }
+
+    function buildTreeHtml(readOnly, selected = state.selected) {
+      return categoryData.map(l1 => {
+        const l1Leaves = l1.children.flatMap(l2 => l2.children);
+        const l1Unavailable = !readOnly && selectableLeavesFor(l1.id).length === 0;
+        return `<div class="tree-group ${state.expanded.has(l1.id) ? '' : 'collapsed'}" data-group="${l1.id}">
+          <div class="tree-row l1 ${selectionClassFor(l1Leaves, selected)} ${l1Unavailable ? 'out-of-scope' : ''}" data-search="${l1.name}"><button class="tree-toggle" data-toggle="${l1.id}">${state.expanded.has(l1.id) ? '▾' : '▸'}</button><input class="tree-check" type="checkbox" data-node="${l1.id}"><span class="tree-name">${l1.name}</span><span class="category-tags"><span class="category-tag level parent">L1</span></span></div>
+          <div class="children">${l1.children.map(l2 => `<div class="tree-group ${state.expanded.has(l2.id) ? '' : 'collapsed'}" data-group="${l2.id}">
+            <div class="tree-row l2 ${selectionClassFor(l2.children, selected)} ${!readOnly && selectableLeavesFor(l2.id).length === 0 ? 'out-of-scope' : ''}" data-search="${l2.name}"><button class="tree-toggle" data-toggle="${l2.id}">${state.expanded.has(l2.id) ? '▾' : '▸'}</button><input class="tree-check" type="checkbox" data-node="${l2.id}"><span class="tree-name">${l2.name}</span><span class="category-tags"><span class="category-tag level parent">L2</span></span></div>
+            <div class="children">${l2.children.map(name => { const meta = categoryMeta(name); const unavailable = !readOnly && state.allowedLeaves !== null && !state.allowedLeaves.has(name); return `<label class="tree-row l3 ${selected.has(name) ? 'selected' : ''} ${unavailable ? 'out-of-scope' : ''}" data-search="${name}" ${unavailable ? 'title="超出当前操作人的可授权范围"' : ''}><span class="leaf-space"></span><input class="tree-check" type="checkbox" data-node="${name}"><span class="tree-name">${name}</span><span class="category-tags">${genericCategories.has(name) ? '<span class="category-tag generic">泛工具类</span>' : ''}<span class="category-tag level">L3</span><span class="category-tag users">♙ ${meta.users}</span><span class="category-tag bg">▣ ${meta.bg}</span></span></label>`; }).join('')}</div>
+          </div>`).join('')}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function bindTree() {
+      $('#categoryTree').querySelectorAll('input[data-node]').forEach(input => input.addEventListener('change', event => {
+        const names = selectableLeavesFor(event.target.dataset.node);
+        names.forEach(name => event.target.checked ? state.selected.add(name) : state.selected.delete(name));
+        $('#categoryError').textContent = '';
+        $('#categoryTree').closest('.tree-box').classList.remove('invalid');
+        renderTree();
+      }));
+      filterTree();
+    }
+
+    function updateCount() { $('#selectedCount').textContent = `已选 ${state.selected.size} 个`; }
+    function filterTree(target = '#categoryTree', input = '#categorySearch') {
+      const searchInput = $(input);
+      const keyword = searchInput.value.trim().toLowerCase();
+      searchInput.closest('.tree-search-wrap').classList.toggle('has-query', Boolean(keyword));
+      const root = $(target);
+      [...root.children].filter(node => node.classList.contains('tree-group')).forEach(l1Group => {
+        const l1Row = l1Group.querySelector(':scope > .tree-row.l1');
+        const l1Match = Boolean(keyword) && l1Row.dataset.search.toLowerCase().includes(keyword);
+        let branchMatched = false;
+        l1Group.querySelectorAll(':scope > .children > .tree-group').forEach(l2Group => {
+          const l2Row = l2Group.querySelector(':scope > .tree-row.l2');
+          const l2Match = Boolean(keyword) && l2Row.dataset.search.toLowerCase().includes(keyword);
+          let leafMatched = false;
+          l2Group.querySelectorAll(':scope > .children > .tree-row.l3').forEach(row => {
+            const visible = !keyword || l1Match || l2Match || row.dataset.search.toLowerCase().includes(keyword);
+            row.classList.toggle('hidden', !visible);
+            if (visible && keyword) leafMatched = true;
+          });
+          const l2Visible = !keyword || l1Match || l2Match || leafMatched;
+          l2Group.classList.toggle('search-hidden', !l2Visible);
+          if (keyword && l2Visible) l2Group.classList.remove('collapsed');
+          if (l2Visible && keyword) branchMatched = true;
+        });
+        const l1Visible = !keyword || l1Match || branchMatched;
+        l1Group.classList.toggle('search-hidden', !l1Visible);
+        if (keyword && l1Visible) l1Group.classList.remove('collapsed');
+      });
+    }
+
+    function clearErrors() {
+      ['userError','categoryError','companyError'].forEach(id => $('#' + id).textContent = '');
+      $('#userSelect').classList.remove('invalid');
+      $('#companySelect').classList.remove('invalid');
+      $('#categoryTree').closest('.tree-box').classList.remove('invalid');
+    }
+
+    function validateDuplicate() {
+      const user = $('#userSelect').value;
+      const company = $('#allCompany').checked ? '全部公司' : $('#companySelect').value;
+      const duplicate = user && company && records.some(row => row.user === user && row.company === company && row.id !== state.editingId);
+      if (duplicate) {
+        $('#companyError').textContent = '该用户已配置此公司，请编辑原权限。';
+        $('#companySelect').classList.add('invalid');
+      } else if ($('#companyError').textContent === '该用户已配置此公司，请编辑原权限。') {
+        $('#companyError').textContent = '';
+        $('#companySelect').classList.remove('invalid');
+      }
+      return Boolean(duplicate);
+    }
+
+    function applyCompanyScope() {
+      const company = selectedCompany();
+      state.allowedLeaves = state.role === 'admin' ? null : allowedCategoriesFor(company);
+      if (state.allowedLeaves) {
+        [...state.selected].forEach(name => {
+          if (!state.allowedLeaves.has(name) && !state.originalCategories.has(name)) state.selected.delete(name);
+        });
+      }
+      state.lockedLeaves = new Set(state.editingId && state.allowedLeaves ? [...state.originalCategories].filter(name => !state.allowedLeaves.has(name)) : []);
+      $('#scopeNote').classList.toggle('show', state.role !== 'admin' && Boolean(company));
+      $('#scopeNote').textContent = state.lockedLeaves.size
+        ? `当前权限包含 ${state.lockedLeaves.size} 个超出可授权范围的既有品类，相关内容仅展示且不会因本次编辑发生变更。`
+        : '可选品类将根据所选公司及当前账号的可授权范围自动更新。';
+      renderTree();
+    }
+
+    function updateFieldSequence() {
+      const userReady = Boolean($('#userSelect').value.trim()) && (state.editingId || selectableUsers().includes($('#userSelect').value.trim()));
+      const canGrantAll = hasAllCompanyAuthority();
+      $('#allCompany').disabled = !userReady || !canGrantAll;
+      $('#companySelect').disabled = !userReady || $('#allCompany').checked;
+      if (!userReady && !state.editingId) {
+        $('#allCompany').checked = false;
+        $('#companySelect').value = '';
+      }
+    }
+
+    function openForm(record = null) {
+      if (!record && state.role === 'employee') return showToast('当前账号无新增权限', 'error');
+      if (record && !canMaintain(record)) {
+        showToast('当前记录仅支持查看', 'error');
+        return openView(record);
+      }
+      state.editingId = record ? record.id : null;
+      state.selected = new Set(record ? record.categories : []);
+      state.originalCategories = new Set(record ? record.categories : []);
+      state.expanded = new Set(categoryData.flatMap(l1 => [l1.id, ...l1.children.map(l2 => l2.id)]));
+      $('#formTitle').textContent = record ? '编辑选品数据权限' : '新增选品数据权限';
+      $('#userSelect').value = record ? record.user : '';
+      $('#userSelect').disabled = Boolean(record);
+      $('#allCompany').checked = record ? record.company === '全部公司' : false;
+      $('#companySelect').value = record && record.company !== '全部公司' ? record.company : '';
+      updateFieldSequence();
+      $('#categorySearch').value = '';
+      clearErrors();
+      applyCompanyScope();
+      $('#formMask').classList.add('open');
+    }
+
+    function closeMask(id) { $('#' + id).classList.remove('open'); }
+
+    function saveRecord() {
+      clearErrors();
+      const editingRecord = state.editingId ? records.find(item => item.id === state.editingId) : null;
+      if ((editingRecord && !canMaintain(editingRecord)) || (!editingRecord && state.role === 'employee')) {
+        return showToast('当前账号无权维护该记录', 'error');
+      }
+      const user = $('#userSelect').value;
+      const company = $('#allCompany').checked ? '全部公司' : $('#companySelect').value;
+      let invalid = false;
+      if (!user) { $('#userError').textContent = '请选择用户'; $('#userSelect').classList.add('invalid'); invalid = true; }
+      if (user && !selectableUsers().includes(user) && !state.editingId) { $('#userError').textContent = '请从可授权用户列表中选择'; $('#userSelect').classList.add('invalid'); invalid = true; }
+      if (!state.selected.size) { $('#categoryError').textContent = '请至少选择1个品类'; $('#categoryTree').closest('.tree-box').classList.add('invalid'); invalid = true; }
+      if (!company) { $('#companyError').textContent = '请选择公司或勾选全部公司'; $('#companySelect').classList.add('invalid'); invalid = true; }
+      if (company !== '全部公司' && !availableCompanies().includes(company)) { $('#companyError').textContent = '请选择可授权范围内的公司'; $('#companySelect').classList.add('invalid'); invalid = true; }
+      if (validateDuplicate()) invalid = true;
+      if (invalid) return showToast('请完成必填项', 'error');
+      const stamp = nowText();
+      if (state.editingId) {
+        const row = records.find(item => item.id === state.editingId);
+        row.company = company; row.categories = [...state.selected]; row.updater = state.currentUser; row.updated = stamp;
+        showToast('选品数据权限已更新');
+      } else {
+        const operator = state.currentUser;
+        records.unshift({ id: Date.now(), user, company, categories: [...state.selected], creator: operator, created: stamp, updater: operator, updated: stamp, source: 'manual' });
+        showToast('选品数据权限已新增');
+      }
+      closeMask('formMask');
+      renderTable();
+    }
+
+    function openView(record) {
+      const selected = new Set(record.categories);
+      state.expanded = new Set();
+      categoryData.forEach(l1 => l1.children.forEach(l2 => {
+        if (l2.children.some(name => selected.has(name))) {
+          state.expanded.add(l1.id);
+          state.expanded.add(l2.id);
+        }
+      }));
+      $('#viewUser').textContent = record.user;
+      $('#viewCompany').textContent = record.company;
+      $('#viewCount').textContent = `共 ${record.categories.length} 个`;
+      $('#viewCategorySearch').value = '';
+      renderTree('#viewTree', true, selected);
+      filterTree('#viewTree', '#viewCategorySearch');
+      $('#viewMask').classList.add('open');
+    }
+
+    const sceneDescriptions = {
+      employee: '普通员工 · 仅查看本人权限，不能新增、编辑或删除',
+      leader: '负责人 · Flora 拥有【全部公司】，本人只读，李娜、王杰的记录均可维护',
+      admin: '管理员 · 全量人员、公司与完整品类树均可维护',
+      'add-company': '负责人给下级新增：用户 → 公司 → 品类',
+      linkage: '切换公司后，可授权品类随本人权限范围同步变化',
+      outscope: 'Flora 的【全部公司】覆盖王杰所在公司；记录可编辑，超范围既有品类只读保留',
+      partial: 'L1/L2 批量勾选；取消部分 L3 后展示半选',
+      all: '全部公司不再选择具体公司，仅开放本人全部公司品类',
+      duplicate: '用户与公司选完立即校验，重复记录不能确定',
+      edit: '编辑下级权限，可授权项正常编辑，超范围项只读保留'
+    };
+
+    function configureRole(role) {
+      state.role = role;
+      state.subordinates = role === 'leader' ? ['李娜','王杰'] : [];
+      $('#addBtn').style.display = role === 'employee' ? 'none' : '';
+      $('#addBtn').closest('.table-toolbar').style.display = role === 'employee' ? 'none' : 'flex';
+      $('#nameFilter').value = '';
+      $('#companyFilter').value = '';
+      syncCandidateOptions();
+      renderTable();
+    }
+
+    function runScene(name) {
+      document.querySelectorAll('.mask.open').forEach(mask => closeMask(mask.id));
+      document.querySelectorAll('[data-scene]').forEach(button => button.classList.toggle('active', button.dataset.scene === name));
+      const sceneRole = name === 'employee' ? 'employee' : name === 'admin' || name === 'partial' ? 'admin' : 'leader';
+      const relation = sceneRole === 'employee'
+        ? '当前账号：Flora　下属：无'
+        : sceneRole === 'leader'
+          ? '当前账号：Flora　下属：李娜、王杰'
+          : '当前账号：Flora（管理员）　管理范围：全部人员';
+      $('#sceneDesc').innerHTML = `${sceneDescriptions[name]}<span class="relation">${relation}</span>`;
+      if (name === 'employee') return configureRole('employee');
+      if (name === 'leader') return configureRole('leader');
+      if (name === 'admin') return configureRole('admin');
+      configureRole(name === 'partial' ? 'admin' : 'leader');
+      if (name === 'add-company') { openForm(); $('#userSelect').value = '李娜'; updateFieldSequence(); }
+      if (name === 'linkage') {
+        openForm(); $('#userSelect').value = '李娜'; updateFieldSequence(); $('#companySelect').value = '亚声威格'; applyCompanyScope();
+        selectableLeavesFor('carpet').slice(0, 3).forEach(item => state.selected.add(item)); renderTree();
+      }
+      if (name === 'outscope') openForm(records.find(row => row.id === 4));
+      if (name === 'partial') {
+        openForm(); $('#userSelect').value = '陈晓'; updateFieldSequence(); $('#companySelect').value = '司顺'; applyCompanyScope();
+        const names = leavesFor('carpet'); names.forEach(item => state.selected.add(item)); state.selected.delete(names[0]); state.selected.delete(names[1]); renderTree();
+      }
+      if (name === 'all') {
+        openForm(); $('#userSelect').value = '王杰'; updateFieldSequence(); $('#allCompany').checked = true; $('#companySelect').value = ''; updateFieldSequence();
+        applyCompanyScope(); state.allowedLeaves.forEach(item => state.selected.add(item)); renderTree();
+      }
+      if (name === 'duplicate') {
+        openForm(); $('#userSelect').value = '李娜'; updateFieldSequence(); $('#companySelect').value = '亚声威格'; applyCompanyScope();
+        leavesFor('carpet').slice(0, 3).forEach(item => state.selected.add(item)); renderTree(); validateDuplicate();
+      }
+      if (name === 'edit') openForm(records.find(row => row.id === 6));
+    }
+
+    $('#addBtn').addEventListener('click', () => openForm());
+    $('#searchBtn').addEventListener('click', renderTable);
+    $('#resetBtn').addEventListener('click', () => { $('#nameFilter').value = ''; $('#companyFilter').value = ''; renderTable(); });
+    $('#nameFilter').addEventListener('keydown', event => { if (event.key === 'Enter') renderTable(); });
+    $('#categorySearch').addEventListener('input', () => filterTree());
+    $('#clearCategorySearch').addEventListener('click', () => { $('#categorySearch').value = ''; filterTree(); $('#categorySearch').focus(); });
+    $('#allCompany').addEventListener('change', event => { $('#companySelect').disabled = event.target.checked; if (event.target.checked) $('#companySelect').value = ''; $('#companyError').textContent = ''; $('#companySelect').classList.remove('invalid'); applyCompanyScope(); validateDuplicate(); });
+    $('#userSelect').addEventListener('input', () => { $('#userError').textContent = ''; $('#userSelect').classList.remove('invalid'); updateFieldSequence(); applyCompanyScope(); validateDuplicate(); });
+    $('#companySelect').addEventListener('input', () => { $('#companyError').textContent = ''; $('#companySelect').classList.remove('invalid'); applyCompanyScope(); validateDuplicate(); });
+    $('#saveBtn').addEventListener('click', saveRecord);
+    document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeMask(btn.dataset.close)));
+    document.querySelectorAll('.mask').forEach(mask => mask.addEventListener('click', event => { if (event.target === mask) closeMask(mask.id); }));
+    document.querySelectorAll('[data-scene]').forEach(btn => btn.addEventListener('click', () => runScene(btn.dataset.scene)));
+    $('#tableBody').addEventListener('click', event => {
+      const viewId = event.target.dataset.view;
+      const editId = event.target.dataset.edit;
+      const deleteId = event.target.dataset.delete;
+      if (viewId) openView(records.find(row => row.id === Number(viewId)));
+      if (editId) openForm(records.find(row => row.id === Number(editId)));
+      if (deleteId) {
+        const record = records.find(row => row.id === Number(deleteId));
+        if (!canMaintain(record)) return showToast('当前记录仅支持查看', 'error');
+        state.deletingId = Number(deleteId); $('#deleteMask').classList.add('open');
+      }
+    });
+    $('#confirmDelete').addEventListener('click', () => {
+      const index = records.findIndex(row => row.id === state.deletingId);
+      if (index < 0 || !canMaintain(records[index])) { closeMask('deleteMask'); return showToast('当前账号无权删除该记录', 'error'); }
+      if (index >= 0) records.splice(index, 1);
+      closeMask('deleteMask'); renderTable(); showToast('权限记录已删除');
+    });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') document.querySelectorAll('.mask.open').forEach(mask => closeMask(mask.id)); });
+
+    runScene('employee');
+  </script>
+</body>
+</html>
