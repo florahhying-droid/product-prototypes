@@ -32,7 +32,7 @@
 
     .app-shell { display: grid; grid-template-columns: 226px 1fr; grid-template-rows: 48px 36px 1fr; min-height: 100vh; }
     .topbar {
-      grid-column: 1 / -1;
+      grid-column: 2;
       grid-row: 1;
       display: flex;
       align-items: center;
@@ -46,7 +46,7 @@
     .top-actions { display: flex; align-items: center; gap: 14px; color: #7b8794; }
     .avatar { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--teal); }
 
-    .left-rail { grid-column: 1; grid-row: 2 / -1; padding: 14px 10px; overflow: auto; border-right: 1px solid var(--line); background: #fff; }
+    .left-rail { grid-column: 1; grid-row: 1 / -1; position: sticky; top: 0; height: 100vh; padding: 14px 10px; overflow: auto; border-right: 1px solid var(--line); background: #fff; }
     .rail-title { margin: 2px 8px 4px; color: #263142; font-size: 14px; font-weight: 700; }
     .rail-desc { margin: 0 8px 14px; color: #8b96a5; font-size: 12px; }
     .rail-desc .relation { display: block; margin-top: 5px; color: #566579; line-height: 1.65; }
@@ -197,7 +197,7 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="crumb"><strong>配置</strong>&nbsp;&nbsp;/&nbsp;&nbsp;权限配置</div>
+      <div class="crumb"><strong>选品数据权限配置</strong>&nbsp;&nbsp;/&nbsp;&nbsp;权限配置</div>
       <div class="top-actions"><span>⌕</span><span>⇩</span><span>⛶</span><span>♧</span><span>Flora</span></div>
     </header>
 
