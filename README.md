@@ -12,6 +12,7 @@
 - `spu-category-confirmation/`：运营编辑销售信息页 SPU 品类确认
 - `qc-image-import/`：产品信息支持从大货质检导入图片
 - `product-data-permission/`：选品数据权限配置
+- `asin-selection/`：ASIN选品与开发任务完整交互
 
 ## 新增一个需求原型
 
