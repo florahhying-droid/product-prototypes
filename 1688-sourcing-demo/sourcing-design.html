@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Amazon ASIN → 1688 Pro 商品溯源方案</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #647089;
+      --line: #dfe5ef;
+      --brand: #ff5a1f;
+      --brand-soft: #fff0e9;
+      --blue: #246bfd;
+      --blue-soft: #edf3ff;
+      --green: #16875b;
+      --green-soft: #eaf8f2;
+      --amber: #a15c00;
+      --amber-soft: #fff5df;
+      --red: #c93838;
+      --red-soft: #fff0f0;
+      --purple: #7157d9;
+      --purple-soft: #f2efff;
+      --shadow: 0 12px 34px rgba(32, 52, 89, .08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      line-height: 1.65;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "Cascadia Code", Consolas, monospace; }
+    code { color: #9d3814; background: #fff2ec; padding: .08rem .34rem; border-radius: 5px; }
+    pre {
+      margin: 12px 0;
+      padding: 16px;
+      overflow: auto;
+      border: 1px solid #27354e;
+      border-radius: 12px;
+      color: #eaf0ff;
+      background: #111827;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    h1, h2, h3, h4 { line-height: 1.3; color: #10182a; }
+    h1 { margin: 10px 0 12px; font-size: clamp(28px, 4vw, 44px); }
+    h2 { margin: 0 0 18px; font-size: 25px; }
+    h3 { margin: 26px 0 10px; font-size: 18px; }
+    h4 { margin: 18px 0 8px; font-size: 15px; }
+    p { margin: 9px 0; }
+    ul, ol { padding-left: 22px; }
+    li { margin: 5px 0; }
+    .hero {
+      color: #fff;
+      background:
+        radial-gradient(circle at 88% 18%, rgba(255, 135, 73, .55), transparent 25%),
+        linear-gradient(125deg, #172033 0%, #293a63 58%, #ba4219 130%);
+      padding: 48px 28px 42px;
+    }
+    .hero-inner { max-width: 1240px; margin: 0 auto; }
+    .hero h1, .hero p { color: #fff; }
+    .eyebrow { font-size: 13px; letter-spacing: .13em; text-transform: uppercase; opacity: .78; }
+    .subtitle { max-width: 850px; color: rgba(255,255,255,.82) !important; font-size: 17px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .hero-tags span {
+      padding: 6px 10px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      font-size: 13px;
+    }
+    .layout { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 22px; padding: 24px; }
+    nav {
+      position: sticky; top: 18px; align-self: start;
+      max-height: calc(100vh - 36px); overflow: auto;
+      padding: 16px;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--panel); box-shadow: var(--shadow);
+    }
+    nav strong { display: block; margin-bottom: 8px; }
+    nav a { display: block; padding: 6px 8px; border-radius: 8px; color: #33405a; font-size: 13px; }
+    nav a:hover { background: var(--blue-soft); text-decoration: none; }
+    main { min-width: 0; }
+    section {
+      margin-bottom: 22px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      scroll-margin-top: 18px;
+    }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .card { padding: 18px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcff; }
+    .card strong { display: block; margin-bottom: 6px; }
+    .metric { margin: 5px 0; font-size: 25px; font-weight: 750; color: var(--brand); }
+    .muted { color: var(--muted); }
+    .callout { margin: 14px 0; padding: 14px 16px; border-left: 4px solid var(--blue); border-radius: 10px; background: var(--blue-soft); }
+    .callout.success { border-color: var(--green); background: var(--green-soft); }
+    .callout.warning { border-color: var(--amber); background: var(--amber-soft); }
+    .callout.danger { border-color: var(--red); background: var(--red-soft); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    th, td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #f3f6fb; color: #3a465e; font-size: 13px; }
+    tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tag { display: inline-block; margin: 2px 5px 2px 0; padding: 3px 8px; border-radius: 999px; background: var(--blue-soft); color: #174cb4; font-size: 12px; }
+    .tag.green { color: var(--green); background: var(--green-soft); }
+    .tag.amber { color: var(--amber); background: var(--amber-soft); }
+    .tag.red { color: var(--red); background: var(--red-soft); }
+    .tag.purple { color: var(--purple); background: var(--purple-soft); }
+    .diagram-scroll { overflow-x: auto; padding-bottom: 6px; }
+    .diagram-scroll svg { display: block; min-width: 1000px; width: 100%; height: auto; }
+    .flow-box { fill: #fff; stroke: #cfd8e7; stroke-width: 1.5; }
+    .flow-start { fill: #edf3ff; stroke: #246bfd; }
+    .flow-good { fill: #eaf8f2; stroke: #16875b; }
+    .flow-warn { fill: #fff5df; stroke: #a15c00; }
+    .flow-stop { fill: #fff0f0; stroke: #c93838; }
+    .flow-purple { fill: #f2efff; stroke: #7157d9; }
+    .flow-text { fill: #172033; font-size: 14px; font-family: Inter, "Microsoft YaHei", sans-serif; text-anchor: middle; dominant-baseline: middle; }
+    .flow-small { fill: #647089; font-size: 11px; font-family: Inter, "Microsoft YaHei", sans-serif; text-anchor: middle; }
+    .flow-line { stroke: #7d8ba5; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+    .scorebar { height: 10px; border-radius: 999px; overflow: hidden; background: #edf0f5; min-width: 130px; }
+    .scorebar > span { display: block; height: 100%; background: linear-gradient(90deg, #246bfd, #7157d9); }
+    .grade { font-weight: 750; }
+    .grade-a { color: var(--green); }
+    .grade-b { color: #527000; }
+    .grade-c { color: var(--amber); }
+    .grade-d { color: var(--red); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .step-list { counter-reset: step; list-style: none; padding: 0; }
+    .step-list li { counter-increment: step; position: relative; padding: 0 0 18px 42px; margin: 0; }
+    .step-list li::before { content: counter(step); position: absolute; left: 0; top: 1px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--brand); font-weight: 700; }
+    .step-list li:not(:last-child)::after { content: ""; position: absolute; left: 13px; top: 29px; bottom: 2px; width: 1px; background: var(--line); }
+    details { margin: 10px 0; border: 1px solid var(--line); border-radius: 10px; background: #fbfcff; }
+    summary { cursor: pointer; padding: 12px 14px; font-weight: 650; }
+    details > div { padding: 0 14px 14px; }
+    footer { max-width: 1240px; margin: 0 auto; padding: 10px 24px 34px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 940px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; display: flex; flex-wrap: wrap; gap: 4px; }
+      nav strong { width: 100%; }
+      nav a { display: inline-block; }
+      .cards { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 34px 18px; }
+      .layout { padding: 14px; }
+      section { padding: 18px; }
+    }
+    @media print {
+      body { background: #fff; }
+      .hero { background: #22314f !important; print-color-adjust: exact; }
+      .layout { display: block; padding: 0; }
+      nav { display: none; }
+      section { box-shadow: none; break-inside: avoid; margin: 12px 0; }
+      .diagram-scroll { overflow: visible; }
+    }
+  </style>
+<style>
+  .demo-suite-switch{position:fixed;left:18px;bottom:18px;z-index:9999;display:flex;align-items:center;gap:3px;padding:5px;border:1px solid #d9e2e8;border-radius:7px;background:rgba(255,255,255,.96);box-shadow:0 6px 20px rgba(28,45,61,.16);font:12px/1.2 "Microsoft YaHei","PingFang SC",sans-serif}.demo-suite-switch .switch-label{padding:0 7px;color:#788694}.demo-suite-switch a{padding:7px 10px;border-radius:4px;color:#536273;text-decoration:none;white-space:nowrap}.demo-suite-switch a:hover{color:#07998f;background:#edf9f7}.demo-suite-switch a.active{color:#fff;background:#18b7ad;font-weight:600}@media(max-width:720px){.demo-suite-switch{right:8px;left:8px;bottom:8px;justify-content:center}.demo-suite-switch .switch-label{display:none}.demo-suite-switch a{padding:7px 8px}}
+</style>
+</head>
+<body>
+<nav class="demo-suite-switch" aria-label="演示资料切换"><span class="switch-label">演示资料</span><a href="api-guide.html">接口说明</a><a class="active" href="sourcing-design.html">方案设计</a><a href="prototype.html">交互原型</a></nav>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Product development · sourcing design</div>
+      <h1>Amazon ASIN → 1688 Pro 商品溯源方案</h1>
+      <p class="subtitle">在用户创建开发任务时，基于参考 ASIN 的图片、标题和公司统一采购价预算，自动召回、筛选、排序并补全 1688 商品与供应商数据，输出可解释的备选货源。</p>
+      <div class="hero-tags">
+        <span>异步任务</span><span>图搜 + 关键词</span><span>价格阶梯兜底</span><span>两阶段排序</span><span>供应商匹配</span><span>Pro 履约数据</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="目录">
+      <strong>目录</strong>
+      <a href="#decisions">1. 核心决策</a>
+      <a href="#flow">2. 总体流程图</a>
+      <a href="#profit-gate">3. 利润与价格门禁</a>
+      <a href="#input">4. ASIN 输入处理</a>
+      <a href="#recall">5. 多路搜索召回</a>
+      <a href="#merge">6. 合并与去重</a>
+      <a href="#ranking">7. 两阶段排序</a>
+      <a href="#price">8. 价格等级</a>
+      <a href="#detail">9. 详情补全</a>
+      <a href="#supplier">10. 供应商匹配</a>
+      <a href="#display">11. 页面展示</a>
+      <a href="#data">12. 数据结构</a>
+      <a href="#exceptions">13. 异常与兜底</a>
+      <a href="#acceptance">14. 验收标准</a>
+<a href="api-guide.html">返回 API 指南</a>
+    </nav>
+
+    <main>
+      <section id="decisions">
+        <h2>1. 核心决策</h2>
+        <div class="cards">
+          <div class="card"><strong>利润模型不可调整</strong><div class="metric">自动门禁</div><div class="muted">任务创建时采购价已经存在；小于等于 0 时重算一次，仍不大于 0 则跳过自动溯源，但保留手动入口。</div></div>
+          <div class="card"><strong>候选生成</strong><div class="metric">多路召回</div><div class="muted">主图图搜 + 核心关键词 + 属性关键词，按 offerId 合并去重。</div></div>
+          <div class="card"><strong>最终输出</strong><div class="metric">Top 10</div><div class="muted">先对 15～20 条候选查询详情，再复排并控制供应商多样性。</div></div>
+        </div>
+        <div class="callout success"><strong>目标：</strong>输出的不只是“相似商品”，而是商品相似、预算可行、供应商可识别、履约风险可解释的备选货源。</div>
+      </section>
+
+      <section id="flow">
+        <h2>2. 总体流程图</h2>
+        <div class="diagram-scroll" role="img" aria-label="ASIN 到 1688 商品溯源完整流程">
+          <svg viewBox="0 0 1160 520">
+            <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7d8ba5"/></marker></defs>
+            <rect class="flow-box flow-start" x="30" y="42" rx="12" width="180" height="66"/><text class="flow-text" x="120" y="68">创建开发任务</text><text class="flow-small" x="120" y="91">ASIN 数据与采购价已知</text>
+            <path class="flow-line" d="M210 75 H260"/>
+            <rect class="flow-box flow-purple" x="260" y="42" rx="12" width="190" height="66"/><text class="flow-text" x="355" y="68">读取任务数据快照</text><text class="flow-small" x="355" y="91">图片/名称/品类/属性/采购价</text>
+            <path class="flow-line" d="M450 75 H500"/>
+            <polygon class="flow-box flow-warn" points="590,24 680,75 590,126 500,75"/><text class="flow-text" x="590" y="68">采购价 &gt; 0？</text><text class="flow-small" x="590" y="91">不可调整的硬条件</text>
+            <path class="flow-line" d="M590 126 V171"/><text class="flow-small" x="616" y="153">否</text>
+            <rect class="flow-box flow-warn" x="500" y="171" rx="12" width="180" height="62"/><text class="flow-text" x="590" y="194">重新计算一次</text><text class="flow-small" x="590" y="215">排除数据或计算错误</text>
+            <path class="flow-line" d="M590 233 V278"/>
+            <polygon class="flow-box flow-warn" points="590,278 675,325 590,372 505,325"/><text class="flow-text" x="590" y="318">仍 ≤ 0？</text><text class="flow-small" x="590" y="340">不调整模型</text>
+            <path class="flow-line" d="M505 325 H415"/><text class="flow-small" x="460" y="313">是</text>
+            <rect class="flow-box flow-stop" x="215" y="292" rx="12" width="200" height="66"/><text class="flow-text" x="315" y="318">跳过自动溯源</text><text class="flow-small" x="315" y="341">保留手动溯源入口</text>
+            <path class="flow-line" d="M315 358 V397"/>
+            <rect class="flow-box flow-purple" x="215" y="397" rx="12" width="200" height="66"/><text class="flow-text" x="315" y="421">用户手动溯源</text><text class="flow-small" x="315" y="444">不限价或填写自定义条件</text>
+            <path class="flow-line" d="M415 430 H695 V182 H720"/>
+            <path class="flow-line" d="M680 75 H740"/><text class="flow-small" x="710" y="63">是</text>
+            <path class="flow-line" d="M675 325 H720 V149"/><text class="flow-small" x="699" y="313">否</text>
+            <rect class="flow-box flow-start" x="740" y="42" rx="12" width="180" height="66"/><text class="flow-text" x="830" y="68">准备 ASIN 输入</text><text class="flow-small" x="830" y="91">图片 + AI 关键词</text>
+            <path class="flow-line" d="M830 108 V149"/>
+            <rect class="flow-box" x="720" y="149" rx="12" width="220" height="66"/><text class="flow-text" x="830" y="174">多路搜索召回</text><text class="flow-small" x="830" y="197">图搜 + 2 组关键词 + 价格层级</text>
+            <path class="flow-line" d="M830 215 V256"/>
+            <rect class="flow-box" x="720" y="256" rx="12" width="220" height="66"/><text class="flow-text" x="830" y="280">合并、去重、搜索级初排</text><text class="flow-small" x="830" y="303">保留 15～20 条</text>
+            <path class="flow-line" d="M830 322 V363"/>
+            <rect class="flow-box flow-purple" x="720" y="363" rx="12" width="220" height="66"/><text class="flow-text" x="830" y="387">查询商品详情</text><text class="flow-small" x="830" y="410">SKU + 供应商 + 物流 + 属性</text>
+            <path class="flow-line" d="M940 396 H990"/>
+            <rect class="flow-box flow-good" x="990" y="363" rx="12" width="145" height="66"/><text class="flow-text" x="1062" y="387">详情级复排</text><text class="flow-small" x="1062" y="410">最终 Top 10</text>
+            <path class="flow-line" d="M1062 429 V470 H910"/>
+            <rect class="flow-box flow-good" x="670" y="455" rx="12" width="240" height="48"/><text class="flow-text" x="790" y="479">内部系统展示与供应商匹配</text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="profit-gate">
+        <h2>3. 利润与价格门禁</h2>
+        <p>参考 ASIN 的基础数据和公司内部接口计算出的“0% 毛利推算采购件价”，在选择 ASIN 创建开发任务时已经存在，应作为任务数据快照保存。该价格已包含运输等公司统一成本模型，定义为自动溯源的预算基准：</p>
+        <pre>budgetPrice = internalZeroMarginPurchasePrice</pre>
+        <div class="table-wrap"><table>
+          <thead><tr><th>计算结果</th><th>系统判断</th><th>允许动作</th><th>禁止动作</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag red">budgetPrice &lt; 0</span></td><td>采购成本为 0 仍亏损</td><td>重新调用公司接口计算一次；仍为负则跳过自动溯源，页面保留“手动溯源”</td><td>不得自动放宽价格继续搜索</td></tr>
+            <tr><td><span class="tag red">budgetPrice = 0</span></td><td>免费采购才刚好盈亏平衡</td><td>同样重算一次；仍为 0 则跳过自动溯源，允许用户手动不限价或自定义条件搜索</td><td>不得自动进入正常候选流程</td></tr>
+            <tr><td><span class="tag amber">budgetPrice &gt; 0 但极低</span></td><td>理论可行、采购难度高</td><td>进入严格预算搜索，允许无结果</td><td>不得修改公司利润模型</td></tr>
+            <tr><td><span class="tag green">budgetPrice 正常</span></td><td>具备采购空间</td><td>进入多路召回与价格阶梯兜底</td><td>—</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout danger"><strong>最终规则：</strong>重新计算后仍然 <code>budgetPrice ≤ 0</code>，状态写为 <code>AUTO_SOURCING_SKIPPED_NON_POSITIVE_BUDGET</code>，自动流程结束，模型本身不调整。用户仍可从任务详情发起手动溯源；默认不限制价格，或由用户填写自定义上限及其他条件。</div>
+      </section>
+
+      <section id="input">
+        <h2>4. ASIN 输入处理</h2>
+        <div class="callout success"><strong>无需再次抓取 ASIN：</strong>任务创建时已经带入商品图片、产品名称、Amazon 品类、基础属性和 0% 毛利推算采购价。溯源任务直接读取这份任务快照，仅对现有标题和属性做 AI 关键词结构化，并将现有图片上传换取 imageId。</div>
+        <div class="two-col">
+          <div>
+            <h3>原始输入</h3>
+            <ul>
+              <li>任务内已有的 ASIN 与 Amazon 站点</li>
+              <li>任务内已有的商品图片和产品名称</li>
+              <li>任务内已有的 Amazon 品类和基础属性</li>
+              <li>任务创建时已知的 <code>budgetPrice</code></li>
+            </ul>
+          </div>
+          <div>
+            <h3>AI 结构化结果</h3>
+            <pre>{
+  "coreCategory": "人体工学坐垫",
+  "material": ["记忆棉"],
+  "features": ["护腰", "久坐"],
+  "color": "黑色",
+  "excludeTerms": ["收纳袋", "坐垫套"],
+  "queryCore": "人体工学坐垫",
+  "queryAttribute": "记忆棉护腰坐垫"
+}</pre>
+          </div>
+        </div>
+        <div class="callout warning"><strong>关键词原则：</strong>不要把 Amazon 长标题原样传给 1688。品牌词、营销词、兼容机型堆叠和无关规格会降低召回；应拆成“核心品类词”和“属性组合词”。</div>
+      </section>
+
+      <section id="recall">
+        <h2>5. 多路搜索召回</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>召回通道</th><th>输入</th><th>建议数量</th><th>主要价值</th></tr></thead>
+          <tbody>
+            <tr><td>图片搜索</td><td>主图上传取得 <code>imageId</code>，可附简短 <code>auxiliaryText</code></td><td>首轮 20</td><td>寻找外观、结构、构图相似商品</td></tr>
+            <tr><td>核心关键词</td><td><code>queryCore</code></td><td>首轮 20</td><td>保证品类语义正确</td></tr>
+            <tr><td>属性关键词</td><td><code>queryAttribute</code></td><td>首轮 20</td><td>补充材质、功能、用途等特征</td></tr>
+          </tbody>
+        </table></div>
+        <h3>价格阶梯只在候选不足时推进</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>层级</th><th>priceEnd</th><th>标识</th><th>进入下一层条件</th></tr></thead>
+          <tbody>
+            <tr><td>L0</td><td><code>budgetPrice</code></td><td><span class="tag green">预算内</span></td><td>去重且基本过滤后少于 15 条</td></tr>
+            <tr><td>L1</td><td><code>budgetPrice × 1.10</code></td><td><span class="tag">轻微超预算</span></td><td>累计有效候选仍少于 15 条</td></tr>
+            <tr><td>L2</td><td><code>budgetPrice × 1.20</code></td><td><span class="tag amber">超预算</span></td><td>累计有效候选仍少于 15 条</td></tr>
+            <tr><td>L3</td><td>不传 <code>priceEnd</code></td><td><span class="tag red">兜底</span></td><td>作为最后一次召回；结果仍需强降权</td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted">每个 offer 记录首次命中的最低层级。达到 15～20 个有效候选即停止继续扩价，避免不必要的 API 调用。</p>
+        <h3>5.1 自动溯源与手动溯源</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>模式</th><th>触发</th><th>价格规则</th><th>其他条件</th></tr></thead>
+          <tbody>
+            <tr><td>自动溯源</td><td>任务创建且重算后 <code>budgetPrice &gt; 0</code></td><td>按 L0～L3 阶梯自动兜底</td><td>使用系统默认类目、国别偏好和排序配置</td></tr>
+            <tr><td>手动溯源</td><td>用户在任务详情主动点击</td><td>采购价 ≤ 0 时默认不限价；用户也可以自定义最低价/最高价</td><td>允许修改关键词、类目、国别、评分阈值、销量等条件</td></tr>
+            <tr><td>重新溯源</td><td>已有结果但用户需要更新</td><td>使用最新采购价快照或本次手动条件</td><td>生成新批次，保留历史结果和用户已选候选</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>5.2 过滤条件还是排序维度？</h3>
+        <p>建议采用“少量硬筛选 + 多数软排序”。1688 字段可能缺失，评分设成默认硬门槛会把本来合适的商品直接丢掉。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>条件</th><th>系统默认</th><th>建议原因</th><th>手动模式</th></tr></thead>
+          <tbody>
+            <tr><td>价格</td><td><strong>搜索硬筛选 + 详情复核</strong></td><td>自动模式有明确 budgetPrice；但详情仍要排除配件低价</td><td>可不限价或自定义区间</td></tr>
+            <tr><td>Amazon/1688 类目</td><td><strong>高置信度时硬筛选</strong></td><td>能显著减少噪声；类目映射不确定时应改为排序加权</td><td>允许用户指定或取消</td></tr>
+            <tr><td>目标国别/市场</td><td><strong>软排序优先</strong></td><td>API 的 <code>country</code> 是语言代码；实际市场能力依赖 <code>regionOpp</code> 或 Pro 区域标签，权限与覆盖可能不足</td><td>用户明确选择“严格国别”时才使用有权限的区域筛选</td></tr>
+            <tr><td>商品/商家综合评分</td><td><strong>搜索级初排</strong></td><td>评分字段可能为空，且当前接口没有稳定的评分入参过滤；默认硬过滤容易导致无结果</td><td>用户可设置最低分，作为搜索结果的后置硬过滤</td></tr>
+            <tr><td>物流、售后、履约率</td><td><strong>排序与风险标签</strong></td><td>适合区分优先级；缺失不能当作 0</td><td>允许开启严格门槛，但应提示可能减少候选</td></tr>
+            <tr><td>销量/复购</td><td><strong>排序；必要时 saleFilterList</strong></td><td>默认软排序保留新品；用户明确要求成熟款时再用销量区间硬筛</td><td>可配置近 7/14/30 天或累计销量区间</td></tr>
+            <tr><td>专利、白底图、一件代发</td><td><strong>业务需要时硬筛选</strong></td><td>语义相对明确，但必须确认 AppKey 权限</td><td>作为开关型自定义条件</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout"><strong>国别特别说明：</strong>Amazon 站点可自动带出“目标市场偏好”，用于排序加分；不要把接口的 <code>country=en</code> 当成美国市场筛选。只有已确认 Pro 权限和合法枚举/标签时，才把区域条件下推为搜索过滤。</div>
+      </section>
+
+      <section id="merge">
+        <h2>6. 合并、去重与基础过滤</h2>
+        <ol class="step-list">
+          <li><strong>按 offerId 去重。</strong>同一个商品可保留多个命中来源及各自排名。</li>
+          <li><strong>记录来源。</strong>例如 image、keyword_core、keyword_attribute 和首次价格层级。</li>
+          <li><strong>做基础硬过滤。</strong>明显错误类目、无图片、无价格、已知不可售商品直接排除。</li>
+          <li><strong>不要解析 traceInfo 作为稳定相似度。</strong>它是追踪与内部检索信息，结构和口径可能变化。</li>
+          <li><strong>双通道命中加分。</strong>同时被图搜和关键词命中的商品置信度高于单一通道。</li>
+        </ol>
+        <pre>{
+  "offerId": "1084127309764",
+  "sources": ["image", "keyword_core"],
+  "sourceRanks": { "image": 3, "keyword_core": 8 },
+  "firstFallbackLevel": "L0",
+  "searchMinPrice": 2.84,
+  "budgetPrice": 30.00
+}</pre>
+      </section>
+
+      <section id="ranking">
+        <h2>7. 两阶段排序</h2>
+        <h3>7.1 搜索级初排：从去重候选缩小到 15～20 条</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>维度</th><th class="num">建议权重</th><th>数据来源与计算</th></tr></thead>
+          <tbody>
+            <tr><td>多路召回排名</td><td class="num">30%</td><td>图搜、核心词、属性词排名融合；图搜可给予略高权重</td></tr>
+            <tr><td>标题语义相似度</td><td class="num">25%</td><td>ASIN 结构化标题与 <code>subject/subjectTrans</code> 的语义相似度</td></tr>
+            <tr><td>类目一致性</td><td class="num">15%</td><td>目标品类与 <code>thirdCategoryId</code>、标题品类的一致性</td></tr>
+            <tr><td>双通道/多通道命中</td><td class="num">10%</td><td>图片与关键词同时命中加分</td></tr>
+            <tr><td>搜索价格</td><td class="num">10%</td><td>只作宽松初筛；搜索最低价可能是配件价</td></tr>
+            <tr><td>商家摘要</td><td class="num">10%</td><td>服务分、物流分、售后分、复购等搜索摘要</td></tr>
+          </tbody>
+        </table></div>
+        <p>多路排名可以采用 Reciprocal Rank Fusion：</p>
+        <pre>retrievalScore = Σ sourceWeight / (60 + rank)
+
+sourceWeight:
+  image             = 1.2
+  keyword_core      = 1.0
+  keyword_attribute = 0.8</pre>
+
+        <h3>7.2 详情级复排：从 15～20 条中输出最终 10 条</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>维度</th><th class="num">建议权重</th><th>重点判断</th><th>分值条</th></tr></thead>
+          <tbody>
+            <tr><td>商品相似度</td><td class="num">35%</td><td>视觉、标题、属性、类目与 ASIN 主体的一致性</td><td><div class="scorebar"><span style="width:100%"></span></div></td></tr>
+            <tr><td>主体 SKU 价格</td><td class="num">20%</td><td>排除配件 SKU 后，与 <code>budgetPrice</code> 比较</td><td><div class="scorebar"><span style="width:57%"></span></div></td></tr>
+            <tr><td>供应商质量</td><td class="num">15%</td><td>服务、商品、物流、售后、纠纷、经营身份</td><td><div class="scorebar"><span style="width:43%"></span></div></td></tr>
+            <tr><td>履约能力</td><td class="num">10%</td><td>发货承诺、揽收、履约、退货率及 Pro 字段</td><td><div class="scorebar"><span style="width:29%"></span></div></td></tr>
+            <tr><td>内部供应商匹配</td><td class="num">10%</td><td>供应商名称精确匹配；省市与“渠道-1688”类型辅助确认</td><td><div class="scorebar"><span style="width:29%"></span></div></td></tr>
+            <tr><td>销量与复购</td><td class="num">5%</td><td>销量区间、复购率；缺失时不按 0 处理</td><td><div class="scorebar"><span style="width:14%"></span></div></td></tr>
+            <tr><td>数据完整与风险</td><td class="num">5%</td><td>SKU、证书、包装、发票、字段可信度及异常处罚</td><td><div class="scorebar"><span style="width:14%"></span></div></td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout"><strong>供应商多样化：</strong>最终 Top 10 中同一 1688 供应商（优先按 companyName，缺失时按 sellerOpenId）默认最多保留 2 个商品，避免结果被单一供应商占满。</div>
+      </section>
+
+      <section id="price">
+        <h2>8. 价格等级与最终判断</h2>
+        <p>搜索价格只用于召回；最终必须在商品详情中找到与 ASIN 主体可比的 SKU，并使用该 SKU 价格判断预算。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>价格等级</th><th>可比 SKU 价格 / budgetPrice</th><th>价格分</th><th>处理</th></tr></thead>
+          <tbody>
+            <tr><td><span class="grade grade-a">A · 预算内</span></td><td>≤ 100%</td><td>100</td><td>优先候选</td></tr>
+            <tr><td><span class="grade grade-b">B · 轻微超预算</span></td><td>&gt; 100% 且 ≤ 110%</td><td>80</td><td>L1 兜底，可展示超出比例</td></tr>
+            <tr><td><span class="grade grade-c">C · 超预算</span></td><td>&gt; 110% 且 ≤ 120%</td><td>60</td><td>L2 兜底，明显降权</td></tr>
+            <tr><td><span class="grade grade-d">D · 高度超预算</span></td><td>&gt; 120%</td><td>20～40</td><td>仅在预算内候选不足时展示</td></tr>
+            <tr><td><span class="grade">N · 无法判断</span></td><td>无法识别主体 SKU</td><td>0～30</td><td>标记“价格待人工确认”，不得用最低配件价替代</td></tr>
+          </tbody>
+        </table></div>
+        <h3>配件低价识别</h3>
+        <p>结合 ASIN 主体、SKU 属性、SKU 图片和排除词识别“收纳袋、替换套、赠品、补差价”等配件。示例：</p>
+        <pre>budgetPrice       = ¥30.00
+searchMinPrice    = ¥2.84   // 绒布收纳袋，不可作为主体价格
+comparableSkuPrice= ¥35.00  // 坐垫主体
+priceRatio        = 116.67%
+priceGrade        = C
+overBudgetRate    = 16.67%</pre>
+      </section>
+
+      <section id="detail">
+        <h2>9. 商品详情补全与校验</h2>
+        <p>初排后建议查询 15～20 条详情，而不是只查询恰好 10 条；详情校验会淘汰低价配件、下架商品、错误类目和数据严重异常的候选。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>模块</th><th>字段示例</th><th>用途</th><th>校验重点</th></tr></thead>
+          <tbody>
+            <tr><td>商品</td><td>offerId、status、subject、categoryId</td><td>确认商品状态和品类</td><td>必须 published；类目不能明显错误</td></tr>
+            <tr><td>媒体</td><td>productImage、detailVideo、description</td><td>内部展示和 AI 理解</td><td>description 为 HTML，必须安全清洗</td></tr>
+            <tr><td>属性</td><td>productAttribute、*Trans</td><td>与 ASIN 属性比对</td><td>同一属性可能出现多个值</td></tr>
+            <tr><td>SKU</td><td>skuId、skuAttributes、price、amountOnSale</td><td>识别主体 SKU、价格和库存</td><td>排除配件，避免最低价误判</td></tr>
+            <tr><td>物流</td><td>weight、length、width、height、sendGoodsAddressText</td><td>物流风险展示</td><td>0 尺寸、异常轻重量、商家自填需标记</td></tr>
+            <tr><td>供应商</td><td>sellerOpenId、companyName、sellerDataInfo</td><td>匹配内部供应商并评价</td><td>发货地不等于公司注册地址</td></tr>
+            <tr><td>发票与证书</td><td>invoiceInfo、certificateList</td><td>采购合规辅助</td><td>缺失不等于否；最终需供应商确认</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout warning"><strong>字段差异：</strong>搜索返回 <code>promotionURL</code>，详情返回 <code>promotionUrl</code>；搜索链接通常带更完整的归因参数，应保留搜索值。搜索与详情的商家评分也可能来自不同快照。</div>
+      </section>
+
+      <section id="supplier">
+        <h2>10. 内部供应商匹配</h2>
+        <p>按现有内部数据特点，供应商名称是主匹配键，采用精确匹配；省市和供应商类型只做辅助核验，不使用发货地。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>步骤</th><th>规则</th><th>结果</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1688 <code>companyName</code> 与内部供应商名称精确一致</td><td><span class="tag green">内部供应商已匹配</span></td><td>内部供应商名称通常不重复，因此直接标记匹配</td></tr>
+            <tr><td>2</td><td>核对 <code>companyAddress</code> 的省市与内部供应商省市</td><td>一致则增加辅助确认标记</td><td>省市不一致时不自动取消名称匹配，但显示“地址不一致”提醒</td></tr>
+            <tr><td>3</td><td>核对内部供应商类型是否为“渠道-1688”</td><td>一致则增加渠道确认标记</td><td>类型只作辅助，不作为名称精确匹配的必要条件</td></tr>
+            <tr><td>4</td><td>供应商名称没有精确命中</td><td><span class="tag">临时新供应商</span></td><td>只随候选商品展示，不创建供应商档案、不自动绑定</td></tr>
+          </tbody>
+        </table></div>
+        <pre>{
+  "companyName": "苍南县新敏百货商行",
+  "internalSupplierId": "SUP-00125",
+  "matchType": "exact_company_name",
+  "matched": true,
+  "provinceCityMatched": true,
+  "supplierType": "渠道-1688",
+  "supplierTypeMatched": true,
+  "matchReason": "供应商名称精确一致，省市和渠道类型辅助一致"
+}</pre>
+        <div class="callout"><strong>地址口径：</strong>只使用 <code>companyAddress</code> 提取的省市辅助比对；明确忽略 <code>sendGoodsAddressText</code>，因为它只是发货地。对于名称精确命中但省市或类型冲突的情况，仍标记为已匹配，同时显示辅助信息冲突，供用户核对。</div>
+      </section>
+
+      <section id="display">
+        <h2>11. 内部页面展示建议</h2>
+        <div class="callout success"><strong>最终建议：把“1688 备选货源”直接铺在参考产品区和备选供应商区之间，作为任务详情的独立模块。</strong>候选货源需要比较、排序、多选并持续回看，不适合只放在一次性弹窗中；自定义溯源条件和单条商品的完整 SKU/评分解释适合弹窗或右侧抽屉。</div>
+        <h3>11.1 结合现有任务详情页的推荐位置</h3>
+        <pre>任务信息
+参考产品（现有 ASIN 表格）
+  └─ 每个 ASIN：溯源状态 / 候选货源（数量）/ 手动溯源
+
+1688 备选货源（新增主表格区）
+  └─ 默认查看全部 ASIN；支持按参考 ASIN 筛选，展示最终候选商品
+
+备选供应商（现有区域）
+  └─ 汇总候选货源中的已匹配内部供应商与临时新供应商
+
+待开发产品（现有区域）
+  └─ 从候选货源选择后预填或创建</pre>
+        <div class="table-wrap"><table>
+          <thead><tr><th>承载方式</th><th>适合内容</th><th>优点</th><th>结论</th></tr></thead>
+          <tbody>
+            <tr><td>任务详情表格区</td><td>每个 ASIN 的 Top 10 候选、排序、勾选、供应商和价格比较</td><td>可持续查看，支持横向对比、多选和后续操作</td><td><strong>作为主入口</strong></td></tr>
+            <tr><td>普通弹窗</td><td>自定义溯源条件、确认重新溯源</td><td>不离开当前任务，适合短表单</td><td><strong>作为配置入口</strong></td></tr>
+            <tr><td>右侧抽屉/大弹窗</td><td>单条 1688 商品详情、SKU、评分拆分、异常信息</td><td>保留列表上下文，避免主表无限加列</td><td><strong>作为单条详情</strong></td></tr>
+          </tbody>
+        </table></div>
+        <h3>11.2 入口与联动定稿</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>位置</th><th>入口/控件</th><th>点击后的行为</th><th>是否推荐</th></tr></thead>
+          <tbody>
+            <tr><td>参考产品模块右上角</td><td>“查看全部候选”</td><td>仅滚动到下面的 1688 备选货源模块，并切换为“全部 ASIN”</td><td>可选；不是唯一入口</td></tr>
+            <tr><td>每个参考 ASIN 的操作列</td><td><strong>候选货源（10）</strong></td><td>滚动到下面的独立模块，并自动筛选为当前 ASIN</td><td><strong>推荐保留</strong></td></tr>
+            <tr><td>参考 ASIN 采购价 ≤ 0</td><td><strong>手动溯源</strong></td><td>打开自定义条件弹窗；默认不限价</td><td><strong>必须保留</strong></td></tr>
+            <tr><td>1688 备选货源模块</td><td>ASIN 筛选、全部 ASIN、重新溯源、自定义溯源</td><td>直接更新当前候选表格</td><td><strong>主操作区</strong></td></tr>
+            <tr><td>候选商品行</td><td>查看详情</td><td>打开右侧抽屉或大弹窗，查看 SKU、评分拆分和风险</td><td><strong>推荐</strong></td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout"><strong>不要把“查看候选”设计成打开另一张候选列表弹窗。</strong>它只负责定位到独立模块并带入当前 ASIN 筛选。这样用户关闭详情或切换 ASIN 后，候选结果仍保留在任务页面中。</div>
+        <h3>11.3 参考产品行上的操作</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>采购价状态</th><th>自动动作</th><th>页面操作</th><th>提示</th></tr></thead>
+          <tbody>
+            <tr><td><code>budgetPrice &gt; 0</code></td><td>创建任务后自动溯源</td><td>查看候选、重新溯源、自定义溯源</td><td>显示进度、完成时间和候选数量</td></tr>
+            <tr><td><code>budgetPrice ≤ 0</code></td><td>自动重算一次；仍 ≤ 0 则跳过</td><td>重新计算、手动溯源</td><td>“自动溯源已跳过；手动溯源默认不限价”</td></tr>
+            <tr><td>自动接口失败</td><td>保留已有部分结果</td><td>重试、手动溯源</td><td>显示失败通道与 request_id</td></tr>
+          </tbody>
+        </table></div>
+        <h3>11.4 1688 备选货源模块头部</h3>
+        <p>模块标题建议显示总数和当前筛选状态：</p>
+        <pre>1688 备选货源（共 26 条）
+[全部 ASIN 26] [B0XXXX 10] [B0YYYY 8] [B0ZZZZ 8]
+
+右侧操作：重新溯源｜自定义溯源｜刷新</pre>
+        <p>任务只有一个参考 ASIN 时不需要显示 ASIN 标签栏，直接显示候选表格。多个 ASIN 时，默认“全部 ASIN”，并在表格中增加“参考 ASIN”列。</p>
+        <h3>11.5 1688 备选货源表格建议列</h3>
+        <div class="cards">
+          <div class="card"><strong>商品匹配</strong><span class="tag green">双通道命中</span><span class="tag">相似度 89</span><p>展示图片、标题、类目、匹配原因以及主体 SKU。</p></div>
+          <div class="card"><strong>价格判断</strong><span class="tag green">预算内</span><span class="tag purple">价格等级 A</span><p>同时显示预算价、主体 SKU 价、差额和价格可靠性。</p></div>
+          <div class="card"><strong>供应商</strong><span class="tag green">内部已合作</span><span class="tag">精确匹配</span><p>显示公司名、sellerOpenId、地区、评分和匹配原因。</p></div>
+        </div>
+        <h3>候选列表最低展示字段</h3>
+        <ul>
+          <li>参考 ASIN（任务包含多个 ASIN 时用于分组或筛选）</li>
+          <li>商品图、中文/英文标题、1688 商品链接</li>
+          <li>商品综合分及各维度拆分，不能只显示一个黑盒分数</li>
+          <li>预算价、搜索最低价、主体 SKU 价、价格等级和超预算比例</li>
+          <li>起订量、一件代发、混批、库存和关键 Pro 履约字段</li>
+          <li>供应商名称、公司省市、内部名称精确匹配结果、内部供应商类型</li>
+          <li>风险标签：配件低价、包装异常、字段缺失、证书/发票待确认</li>
+        </ul>
+        <p>主表不要把全部详情字段横向铺开。推荐冻结“勾选、参考 ASIN、商品图片/标题”三列，右侧固定“选择为货源/查看详情”；评分拆分、全部 SKU、详情图和发票证书放入抽屉。</p>
+        <div class="callout warning">预算范围内没有结果时，不显示“没有相似商品”，而显示：“预算内未找到有效货源，已放宽价格范围并提供 N 个兜底候选。”</div>
+      </section>
+
+      <section id="data">
+        <h2>12. 推荐数据结构</h2>
+        <pre>{
+  "sourcingTaskId": "SRC-20260924-001",
+  "asin": "B0XXXXXXXX",
+  "marketplace": "US",
+  "productName": "Ergonomic seat cushion",
+  "amazonCategory": "Seat Cushions",
+  "asinImageSnapshot": "https://...",
+  "asinAttributeSnapshot": { "material": "Memory foam" },
+  "budgetPrice": 30.00,
+  "budgetCalculationId": "CALC-001",
+  "budgetCalculationAttempt": 0,
+  "sourcingMode": "auto",
+  "customSearchConditions": null,
+  "status": "ready",
+  "queryVersion": "v1",
+  "candidate": {
+    "offerId": "1084127309764",
+    "sources": ["image", "keyword_core"],
+    "firstFallbackLevel": "L0",
+    "searchMinPrice": 2.84,
+    "comparableSkuId": "6301938354188",
+    "comparableSkuPrice": 14.01,
+    "priceGrade": "A",
+    "priceReliable": true,
+    "similarityScore": 89,
+    "supplierScore": 82,
+    "riskPenalty": 10,
+    "finalScore": 84,
+    "sellerOpenId": "BBBkqIXN-IFumuDNZhnwJG3mQ",
+    "companyName": "苍南县新敏百货商行",
+    "internalSupplierId": "SUP-00125",
+    "supplierMatchType": "exact_company_name",
+    "provinceCityMatched": true,
+    "supplierTypeMatched": true,
+    "warnings": ["包装尺寸缺失"]
+  }
+}</pre>
+        <h3>任务状态</h3>
+        <p><span class="tag">pending</span><span class="tag">searching</span><span class="tag">ranking</span><span class="tag">enriching</span><span class="tag green">ready</span><span class="tag amber">partial_success</span><span class="tag red">failed</span><span class="tag red">auto_sourcing_skipped_non_positive_budget</span></p>
+        <p>建议幂等键：</p>
+        <pre>ASIN + marketplace + mainImageHash + budgetCalculationId + queryVersion</pre>
+      </section>
+
+      <section id="exceptions">
+        <h2>13. 异常与兜底策略</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>异常</th><th>处理</th><th>是否保留部分结果</th></tr></thead>
+          <tbody>
+            <tr><td>任务中的采购价 ≤ 0</td><td>重新计算一次；仍 ≤ 0 则跳过自动溯源，保留不限价/自定义条件的手动溯源入口</td><td>手动结果可独立保存</td></tr>
+            <tr><td>图片上传或图搜失败</td><td>继续关键词召回，任务标记 partial_success</td><td>是</td></tr>
+            <tr><td>关键词搜索失败</td><td>继续图搜，记录失败通道</td><td>是</td></tr>
+            <tr><td>L0 无候选</td><td>依次进入 L1、L2、L3</td><td>是</td></tr>
+            <tr><td>详情查询部分失败</td><td>有限重试；用后续候选递补</td><td>是</td></tr>
+            <tr><td>Pro 标签无权限</td><td>移除未授权标签并告警，不无限重试</td><td>是</td></tr>
+            <tr><td>供应商无法匹配</td><td>保留为新供应商候选</td><td>是</td></tr>
+            <tr><td>包装重量/尺寸异常</td><td>保留商品并降权，标记待核实；不得用于正式运费计算</td><td>是</td></tr>
+          </tbody>
+        </table></div>
+        <h3>缓存建议</h3>
+        <ul>
+          <li>搜索结果短期缓存，键包含查询词、图片哈希、价格层级、类目和规则版本。</li>
+          <li>商品详情短期缓存；价格和库存比供应商名称更容易变化，应设置更短有效期。</li>
+          <li>内部供应商匹配映射长期保存，并保留人工修正记录。</li>
+          <li>保存 1688 <code>request_id</code>、业务 code、字段缺失率和各阶段候选数量。</li>
+        </ul>
+      </section>
+
+      <section id="acceptance">
+        <h2>14. 第一阶段验收标准</h2>
+        <ol class="step-list">
+          <li><strong>利润门禁正确。</strong>采购价重算后仍 ≤ 0 的任务不自动调用 1688，并给出明确原因和手动溯源入口。</li>
+          <li><strong>召回可追溯。</strong>每个候选都能看到来源、排名、价格层级和使用的查询词。</li>
+          <li><strong>排序可解释。</strong>展示相似度、价格、供应商、履约和风险等维度得分。</li>
+          <li><strong>价格不被配件误导。</strong>最终预算判断使用主体可比 SKU，而不是搜索最低价。</li>
+          <li><strong>供应商匹配符合内部规则。</strong>名称精确一致即标记已匹配，省市和“渠道-1688”辅助展示；未命中仅作为临时新供应商。</li>
+          <li><strong>结果有供应商多样性。</strong>默认同一 1688 供应商不超过 2 个最终候选。</li>
+          <li><strong>详情字段安全。</strong>HTML 描述经过清洗，空值、异常重量和 0 尺寸均有明确状态。</li>
+          <li><strong>部分失败可用。</strong>图搜或关键词单路失败时仍可返回另一通道的候选。</li>
+          <li><strong>最终输出稳定。</strong>尽量输出 10 个；不足时展示实际数量和不足原因，不用低质量商品强行补满。</li>
+        </ol>
+        <div class="callout success"><strong>推荐上线顺序：</strong>先完成任务快照读取、自动/手动溯源入口、利润门禁、双路召回、offerId 去重、详情补全、名称精确匹配和可解释排序；第二阶段再增加视觉向量二次比对和 AI 预填待开发产品。</div>
+      </section>
+    </main>
+  </div>
+
+  <footer>方案基于当前 1688 跨境多语言搜索、图搜、图片上传、商品详情接口及寻源通 API Pro 能力整理。权重和阈值应通过历史开发任务回放与人工选择结果持续校准。</footer>
+</body>
+</html>

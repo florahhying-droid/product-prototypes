@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1688 寻源通 API Pro 接入说明</title>
+  <style>
+    :root {
+      --orange: #ff5a1f;
+      --orange-soft: #fff3ed;
+      --blue: #2563eb;
+      --green: #15803d;
+      --red: #b42318;
+      --amber: #a15c00;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #e5e7eb;
+      --panel: #f8fafc;
+      --white: #fff;
+      --shadow: 0 12px 32px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #f4f6f8;
+      font: 14px/1.68 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { padding: 2px 6px; border-radius: 5px; background: #eef2f7; color: #344054; }
+    pre {
+      overflow: auto;
+      margin: 12px 0;
+      padding: 16px;
+      border: 1px solid #dbe2ea;
+      border-radius: 10px;
+      background: #101828;
+      color: #e6edf7;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    h1, h2, h3 { line-height: 1.3; }
+    h1 { margin: 0; font-size: 34px; letter-spacing: -.6px; }
+    h2 { margin: 0 0 16px; font-size: 24px; }
+    h3 { margin: 26px 0 10px; font-size: 17px; }
+    p { margin: 8px 0 12px; }
+
+    .hero {
+      color: white;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,.18), transparent 25%),
+        linear-gradient(130deg, #ff6a00, #f04438 68%, #b42318);
+    }
+    .hero-inner { max-width: 1240px; margin: auto; padding: 50px 28px 42px; }
+    .eyebrow { font-weight: 700; letter-spacing: .12em; opacity: .85; }
+    .subtitle { max-width: 850px; margin-top: 12px; font-size: 16px; opacity: .92; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .hero-meta span { padding: 6px 12px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; background: rgba(255,255,255,.12); }
+
+    .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; max-width: 1240px; margin: 24px auto 60px; padding: 0 24px; }
+    nav { position: sticky; top: 18px; align-self: start; max-height: calc(100vh - 36px); overflow: auto; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); }
+    nav strong { display: block; margin-bottom: 10px; color: #101828; }
+    nav a { display: block; padding: 7px 9px; border-radius: 7px; color: #475467; }
+    nav a:hover { color: var(--orange); background: var(--orange-soft); }
+    main { min-width: 0; }
+    section { margin-bottom: 22px; padding: 26px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); scroll-margin-top: 18px; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .card { padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .card strong { display: block; margin-bottom: 5px; font-size: 16px; }
+    .kpi { font-size: 26px; font-weight: 800; color: var(--orange); }
+    .muted { color: var(--muted); }
+    .tag { display: inline-block; margin: 2px 4px 2px 0; padding: 3px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-family: Consolas, monospace; font-size: 12px; }
+    .required, .optional, .pro, .proplus { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .required { color: #b42318; background: #fee4e2; }
+    .optional { color: #475467; background: #eaecf0; }
+    .pro { color: #175cd3; background: #dbeafe; }
+    .proplus { color: #6b21a8; background: #f3e8ff; }
+
+    .callout { margin: 14px 0; padding: 14px 16px; border-left: 4px solid var(--blue); border-radius: 8px; background: #eff6ff; }
+    .callout.warning { border-color: #f59e0b; background: #fffbeb; }
+    .callout.danger { border-color: #ef4444; background: #fff1f2; }
+    .callout.success { border-color: #22c55e; background: #f0fdf4; }
+
+    .table-wrap { overflow-x: auto; margin: 12px 0 20px; border: 1px solid var(--line); border-radius: 10px; }
+    table { width: 100%; min-width: 720px; border-collapse: collapse; background: white; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #344054; background: #f8fafc; font-size: 13px; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child code { white-space: nowrap; }
+    ul, ol { padding-left: 22px; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); align-items: stretch; gap: 10px; margin: 18px 0; }
+    .flow div { position: relative; display: grid; place-items: center; min-height: 76px; padding: 12px; border: 1px solid #fed7aa; border-radius: 10px; background: #fff7ed; text-align: center; font-weight: 700; }
+    .flow div:not(:last-child)::after { content: "→"; position: absolute; right: -18px; z-index: 2; color: var(--orange); font-size: 20px; }
+    .checklist { columns: 2; column-gap: 28px; }
+    .checklist li { break-inside: avoid; margin-bottom: 8px; }
+    footer { padding: 0 24px 40px; color: var(--muted); text-align: center; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; }
+      .cards { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow div:not(:last-child)::after { content: "↓"; right: auto; bottom: -22px; }
+      .checklist { columns: 1; }
+    }
+    @media print {
+      body { background: white; }
+      .hero { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .layout { display: block; max-width: none; margin: 0; padding: 0; }
+      nav { display: none; }
+      section { box-shadow: none; break-inside: avoid; }
+      a { color: inherit; }
+    }
+  </style>
+<style>
+  .demo-suite-switch{position:fixed;left:18px;bottom:18px;z-index:9999;display:flex;align-items:center;gap:3px;padding:5px;border:1px solid #d9e2e8;border-radius:7px;background:rgba(255,255,255,.96);box-shadow:0 6px 20px rgba(28,45,61,.16);font:12px/1.2 "Microsoft YaHei","PingFang SC",sans-serif}.demo-suite-switch .switch-label{padding:0 7px;color:#788694}.demo-suite-switch a{padding:7px 10px;border-radius:4px;color:#536273;text-decoration:none;white-space:nowrap}.demo-suite-switch a:hover{color:#07998f;background:#edf9f7}.demo-suite-switch a.active{color:#fff;background:#18b7ad;font-weight:600}@media(max-width:720px){.demo-suite-switch{right:8px;left:8px;bottom:8px;justify-content:center}.demo-suite-switch .switch-label{display:none}.demo-suite-switch a{padding:7px 8px}}
+</style>
+</head>
+<body>
+<nav class="demo-suite-switch" aria-label="演示资料切换"><span class="switch-label">演示资料</span><a class="active" href="api-guide.html">接口说明</a><a href="sourcing-design.html">方案设计</a><a href="prototype.html">交互原型</a></nav>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">INTEGRATION REFERENCE</div>
+      <h1>1688 寻源通 API Pro 接入说明</h1>
+      <p class="subtitle">整合多语言关键词搜索、多语言图搜、图片上传、商品详情、类目查询、Base/Pro/Pro+ 字段和权限规则，并结合当前实测响应给出落地建议。</p>
+      <div class="hero-meta">
+        <span>整理日期：2026-09-24</span>
+        <span>目标版本：Pro</span>
+        <span>请求格式：application/x-www-form-urlencoded</span>
+        <span>接口版本：v1</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="目录">
+      <strong>目录</strong>
+      <a href="#summary">1. 接入结论</a>
+      <a href="#apis">2. API 清单</a>
+      <a href="#auth">3. 鉴权与公共参数</a>
+      <a href="#keyword">4. 关键词搜索参数</a>
+      <a href="#image">5. 图片搜索参数</a>
+      <a href="#upload">6. 图片上传与 imageId</a>
+      <a href="#detail">7. 商详与类目查询</a>
+      <a href="#response">8. 搜索返回字段</a>
+      <a href="#pro">9. Pro 版能力</a>
+      <a href="#regions">10. 区域标签</a>
+      <a href="#permissions">11. 权限与错误处理</a>
+      <a href="#observed">12. 实测结果</a>
+      <a href="#implementation">13. 实施建议</a>
+      <a href="#faq">14. 常见问题速查</a>
+    </nav>
+
+    <main>
+      <section id="summary">
+        <h2>1. 接入结论</h2>
+        <div class="cards">
+          <div class="card"><strong>关键词搜索</strong><div class="kpi">4 个</div><div class="muted">业务必填：keyword、beginPage、pageSize、country</div></div>
+          <div class="card"><strong>图片搜索</strong><div class="kpi">4 个</div><div class="muted">业务必填：imageId、beginPage、pageSize、country</div></div>
+          <div class="card"><strong>Pro 核心价值</strong><div class="kpi">履约 + 区域</div><div class="muted">物流置信字段、区域商机标签、精准搜索</div></div>
+        </div>
+        <div class="callout success"><strong>重要：</strong><code>country</code> 虽然名字像“国家”，官方定义实际是<strong>语言</strong>，例如 <code>en</code>。区域/商机参数不是必填，不传不会阻止普通搜索，也不会让基础商品字段消失。</div>
+        <div class="callout warning"><strong>返回模型 ≠ 一定有值：</strong>字段可能被省略、返回 <code>null</code>、空字符串或空数组。前后端必须按“字段可缺失”设计，不要把缺失直接转换为 0。</div>
+      </section>
+
+      <section id="apis">
+        <h2>2. API 清单</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>用途</th><th>API</th><th>请求地址（APPKEY 替换为真实值）</th></tr></thead>
+          <tbody>
+            <tr><td>多语言关键词搜索</td><td><code>product.search.keywordQuery</code></td><td><code>.../param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/${APPKEY}</code></td></tr>
+            <tr><td>多语言图片搜索</td><td><code>product.search.imageQuery</code></td><td><code>.../param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/${APPKEY}</code></td></tr>
+            <tr><td>上传图片获取 imageId</td><td><code>product.image.upload</code></td><td><code>.../param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/${APPKEY}</code></td></tr>
+            <tr><td>多语言商品详情</td><td><code>product.search.queryProductDetail</code></td><td><code>.../param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/${APPKEY}</code></td></tr>
+            <tr><td>关键词搜索叶子类目</td><td><code>alibaba.category.searchByKeyword</code></td><td><code>.../param2/1/com.alibaba.product/alibaba.category.searchByKeyword/${APPKEY}</code></td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted">以上地址前缀均为 <code>https://gw.open.1688.com/openapi</code>，HTTP 方法均为 POST。</p>
+      </section>
+
+      <section id="auth">
+        <h2>3. 鉴权与公共参数</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>参数</th><th>必填</th><th>类型</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>${APPKEY}</code></td><td><span class="required">必填</span></td><td>URL 路径</td><td>应用 AppKey。</td></tr>
+            <tr><td><code>_aop_signature</code></td><td><span class="required">必填</span></td><td>String</td><td>按 1688 AOP 规则生成的请求签名。</td></tr>
+            <tr><td><code>access_token</code></td><td><span class="required">必填</span></td><td>String</td><td>用户授权令牌。</td></tr>
+            <tr><td><code>_aop_timestamp</code></td><td><span class="optional">可选</span></td><td>String</td><td>请求时间戳；当前几个接口均未要求必填。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout danger"><strong>安全要求：</strong>AppSecret 只保存在后端，用于本地签名；不要下发给浏览器、App 或第三方客户端。</div>
+      </section>
+
+      <section id="keyword">
+        <h2>4. 多语言关键词搜索参数</h2>
+        <p>顶层业务参数 <code>offerQueryParam</code> 必填，内部字段如下。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>字段</th><th>必填</th><th>类型</th><th>含义</th><th>示例</th></tr></thead>
+          <tbody>
+            <tr><td><code>keyword</code></td><td><span class="required">必填</span></td><td>String</td><td>搜索关键词。</td><td><code>人体工学椅</code></td></tr>
+            <tr><td><code>beginPage</code></td><td><span class="required">必填</span></td><td>Integer</td><td>起始页码。</td><td><code>1</code></td></tr>
+            <tr><td><code>pageSize</code></td><td><span class="required">必填</span></td><td>Integer</td><td>每页数量。</td><td><code>20</code></td></tr>
+            <tr><td><code>country</code></td><td><span class="required">必填</span></td><td>String</td><td><strong>语言代码</strong>，不是经营国家。</td><td><code>en</code></td></tr>
+            <tr><td><code>filter</code></td><td><span class="optional">可选</span></td><td>String</td><td>筛选标签，多个 tagKey 用英文逗号分隔。</td><td><code>whiteBgImage,hasPatent</code></td></tr>
+            <tr><td><code>sort</code></td><td><span class="optional">可选</span></td><td>String(JSON)</td><td>排序配置。</td><td><code>{"price":"asc"}</code></td></tr>
+            <tr><td><code>outMemberId</code></td><td><span class="optional">可选</span></td><td>String</td><td>调用方自己的终端用户标识，用于链路识别或分析；不是 1688 会员 ID，也不能代替鉴权。</td><td>建议传匿名内部 ID，如 <code>user-123</code>；不需要区分终端用户时不传</td></tr>
+            <tr><td><code>priceStart</code> / <code>priceEnd</code></td><td><span class="optional">可选</span></td><td>String</td><td>批发价范围。</td><td><code>10</code> / <code>100</code></td></tr>
+            <tr><td><code>categoryId</code></td><td><span class="optional">可选</span></td><td>Long</td><td>单个数字类目 ID；不得填写“类目id”等占位文字。</td><td><code>1045585</code></td></tr>
+            <tr><td><code>categoryIdList</code></td><td><span class="optional">可选</span></td><td>String</td><td>多个类目取并集，用英文逗号分隔。</td><td><code>2,45</code></td></tr>
+            <tr><td><code>regionOpp</code></td><td><span class="optional">可选</span></td><td>String</td><td>1688 区域商机场景枚举，用于限定目标市场商机；不是语言代码，也不是图片坐标。</td><td>只能使用开发者菜单给出的枚举；第一期建议不传</td></tr>
+            <tr><td><code>productCollectionId</code></td><td><span class="optional">可选</span></td><td>String</td><td>1688/寻源通配置的业务货盘（商品池）ID；传入后可能只在该货盘中搜索。</td><td><code>174316138</code>；不是 offerId、categoryId 或自建集合 ID</td></tr>
+            <tr><td><code>snId</code></td><td><span class="optional">可选</span></td><td>String</td><td>1688 平台搜索导航节点或导航路径 ID，面向特定导航场景。</td><td><code>978:1352</code>；普通 API 关键词搜索不需要传</td></tr>
+            <tr><td><code>keywordTranslate</code></td><td><span class="optional">可选</span></td><td>Boolean</td><td>true 表示关键词已经翻译，服务端跳过翻译。</td><td><code>false</code></td></tr>
+            <tr><td><code>saleFilterList</code></td><td><span class="optional">可选</span></td><td>Array</td><td>按 <code>sales7</code>、<code>sales14</code>、<code>sales30</code> 或 <code>totalSales</code> 筛选销量区间；多个条件是 AND 交集，不是排序。</td><td><code>[{"saleType":"sales7","saleStart":"10","saleEnd":"100"}]</code></td></tr>
+          </tbody>
+        </table></div>
+        <h3>最小请求</h3>
+        <pre>{
+  "offerQueryParam": {
+    "keyword": "人体工学椅",
+    "beginPage": 1,
+    "pageSize": 20,
+    "country": "en"
+  }
+}</pre>
+        <div class="callout"><strong>普通接入建议：</strong><code>regionOpp</code>、<code>productCollectionId</code>、<code>snId</code> 都是特定平台业务场景参数，没有 1688 提供的合法值就不要传。需要销量门槛时再增加 <code>saleFilterList</code>，例如同时设置近 7 天和累计销量时，两项必须同时满足。</div>
+      </section>
+
+      <section id="image">
+        <h2>5. 多语言图片搜索参数</h2>
+        <p>顶层业务参数 <code>offerQueryParam</code> 必填。当前官方字段模型将 <code>imageId</code> 标记为必填。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>字段</th><th>必填</th><th>类型</th><th>含义</th><th>示例/注意</th></tr></thead>
+          <tbody>
+            <tr><td><code>imageId</code></td><td><span class="required">必填</span></td><td>String</td><td>调用图片上传接口后生成的图片标识；不是文件名、URL 或哈希。</td><td>上传接口的 <code>result.result</code></td></tr>
+            <tr><td><code>beginPage</code></td><td><span class="required">必填</span></td><td>Integer</td><td>页码。</td><td><code>1</code></td></tr>
+            <tr><td><code>pageSize</code></td><td><span class="required">必填</span></td><td>Integer</td><td>最大不超过 50，官方建议 20。</td><td><code>20</code></td></tr>
+            <tr><td><code>country</code></td><td><span class="required">必填</span></td><td>String</td><td>语言代码。</td><td><code>en</code></td></tr>
+            <tr><td><code>region</code></td><td><span class="optional">可选</span></td><td>String</td><td>图片中参与图搜的主体裁剪区域，不是国家、市场或 <code>regionOpp</code>。</td><td>4 个整数的坐标字符串；官方保存页未明确坐标顺序，优先沿用平台返回的区域格式，不要猜测拼接</td></tr>
+            <tr><td><code>filter</code></td><td><span class="optional">可选</span></td><td>String</td><td>筛选标签，多个用英文逗号分隔。</td><td><code>whiteBgImage,hasPatent</code></td></tr>
+            <tr><td><code>sort</code></td><td><span class="optional">可选</span></td><td>String(JSON)</td><td>排序配置。</td><td><code>{"price":"asc"}</code></td></tr>
+            <tr><td><code>outMemberId</code></td><td><span class="optional">可选</span></td><td>String</td><td>你们系统里的终端用户标识，不是 1688 账号；可用于链路区分或分析。</td><td>建议匿名化；不需要区分用户时不传</td></tr>
+            <tr><td><code>priceStart</code> / <code>priceEnd</code></td><td><span class="optional">可选</span></td><td>String</td><td>批发价范围。</td><td><code>10</code> / <code>20</code></td></tr>
+            <tr><td><code>categoryId</code></td><td><span class="optional">可选</span></td><td>Long</td><td>数字类目 ID；建议用相似结果的 <code>thirdCategoryId</code>。</td><td>坐垫实测：<code>1046964</code></td></tr>
+            <tr><td><code>imageAddress</code></td><td><span class="optional">可选</span></td><td>String</td><td>直接图片地址；官方仅保证 1688 图片链接场景。</td><td>外部图片优先上传换取 imageId</td></tr>
+            <tr><td><code>keyword</code></td><td><span class="optional">可选</span></td><td>String</td><td>在图搜结果中继续按词搜索。</td><td><code>坐垫</code></td></tr>
+            <tr><td><code>auxiliaryText</code></td><td><span class="optional">可选</span></td><td>String</td><td>图文联合检索的辅助描述，用颜色、材质、款式或用途帮助理解图片；是相关性提示，不是严格筛选条件。</td><td><code>黑色 人体工学 坐垫</code>；只找视觉同款时可不传</td></tr>
+            <tr><td><code>productCollectionId</code></td><td><span class="optional">可选</span></td><td>String</td><td>寻源通工作台货盘 ID。</td><td>—</td></tr>
+            <tr><td><code>keywordTranslate</code></td><td><span class="optional">可选</span></td><td>Boolean</td><td>辅助搜索词是否已翻译。</td><td><code>false</code></td></tr>
+            <tr><td><code>itemTitle</code></td><td><span class="optional">可选</span></td><td>String</td><td>原商品标题，可提升图搜效果。</td><td>—</td></tr>
+          </tbody>
+        </table></div>
+        <pre>{
+  "offerQueryParam": {
+    "imageId": "上传接口返回的图片ID",
+    "beginPage": 1,
+    "pageSize": 20,
+    "country": "en",
+    "categoryId": 1046964
+  }
+}</pre>
+        <div class="callout warning">官方接口详情的某个顶层示例曾仅使用 <code>imageAddress</code>，但当前嵌套字段模型仍将 <code>imageId</code> 标为必填。生产接入建议以“上传图片 → imageId → 图搜”为主路径，将 imageAddress 作为 1688 图片链接的兼容路径。</div>
+        <div class="callout"><strong>关于 region：</strong>单主体、商品占画面较大的图片直接不传即可；只有图片中存在多个商品、人物或大面积背景，并且用户需要框选局部时才传。之前的黑色坐垫图主体明确，第一期不需要 region。</div>
+      </section>
+
+      <section id="upload">
+        <h2>6. 图片上传与 imageId</h2>
+        <div class="flow">
+          <div>本地/外部图片</div><div>读取二进制</div><div>转纯 Base64</div><div>product.image.upload</div><div>result.result → imageId</div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>字段</th><th>必填</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>uploadImageParam</code></td><td><span class="required">必填</span></td><td>上传业务参数对象。</td></tr>
+            <tr><td><code>uploadImageParam.imageBase64</code></td><td><span class="required">必填</span></td><td>纯 Base64 内容，通常不要包含 <code>data:image/png;base64,</code> 前缀。</td></tr>
+            <tr><td><code>uploadImageParam.outMemberId</code></td><td><span class="optional">可选</span></td><td>外部用户 ID。</td></tr>
+          </tbody>
+        </table></div>
+        <pre>{
+  "uploadImageParam": {
+    "imageBase64": "iVBORw0KGgoAAA..."
+  }
+}</pre>
+        <p>上传响应中的图片 ID 位于：</p>
+        <pre>response.result.result</pre>
+      </section>
+
+      <section id="detail">
+        <h2>7. 商品详情与类目查询</h2>
+        <h3>7.1 根据商品 ID 查精确类目</h3>
+        <pre>{
+  "offerDetailParam": {
+    "offerId": 1076502525120,
+    "country": "en"
+  }
+}</pre>
+        <p>重点读取：</p>
+        <pre>result.result.categoryId
+result.result.categoryName
+result.result.topCategoryId
+result.result.secondCategoryId
+result.result.thirdCategoryId</pre>
+        <h3>7.2 本次商品详情实测（offerId 1084127309764）</h3>
+        <div class="callout success"><strong>调用成功：</strong><code>offerId</code> 与搜索结果一致，<code>country=en</code> 返回了英文标题、属性名、属性值和计量单位。搜索接口缺失的 <code>companyName</code> 也在详情响应中补出。</div>
+        <h4>请求参数</h4>
+        <pre>{
+  "offerDetailParam": {
+    "offerId": 1084127309764,
+    "country": "en"
+  }
+}</pre>
+        <table>
+          <thead><tr><th>参数</th><th>结论</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><code>offerId</code></td><td><span class="required">必填</span></td><td>搜索结果已经返回，可直接用于查询详情。文档模型为数值 ID，建议发送数字；本次以字符串发送也被网关成功转换。</td></tr>
+            <tr><td><code>country</code></td><td><span class="required">必填</span></td><td>目标语言代码。本次传 <code>en</code>，中文原文仍保留，同时增加 <code>*Trans</code> 英文翻译字段。</td></tr>
+          </tbody>
+        </table>
+        <h4>本次实际返回概况</h4>
+        <table>
+          <thead><tr><th>模块</th><th>实际结果</th><th>接入用途</th></tr></thead>
+          <tbody>
+            <tr><td>商品基础信息</td><td><code>offerId</code>、标题、英文标题、三级类目、状态、货号、创建时间</td><td>商品详情页基础展示及状态校验。</td></tr>
+            <tr><td>媒体</td><td>5 张主图、1 个详情视频、详情 HTML 内 36 张图片</td><td><code>description</code> 是 HTML；展示前需要做安全清洗和图片域名白名单。</td></tr>
+            <tr><td>商品属性</td><td>32 条属性，包含中英文名称和值</td><td>可建立规格参数表；同一属性 ID 可能重复出现多个值。</td></tr>
+            <tr><td>SKU</td><td>16 个 SKU；每个都有 <code>skuId</code>、规格、SKU 图、价格和可售数量</td><td>下单、库存和规格选择必须使用 SKU 级数据。</td></tr>
+            <tr><td>价格</td><td>SKU 价格 ¥2.84～¥14.01；其中 ¥2.84 对应“绒布收纳袋”配件</td><td>搜索最低价不等于主体商品价格，必须结合 SKU 属性展示，避免“低价配件引流”误判。</td></tr>
+            <tr><td>库存</td><td>16 个 SKU 各 300，汇总 4,800，与 <code>productSaleInfo.amountOnSale</code> 一致</td><td>库存展示应优先使用 SKU 数据，并在下单前重新校验。</td></tr>
+            <tr><td>起订与混批</td><td>1 件起订；支持一件代发、支持混批；不包邮</td><td>对应 <code>fenxiaoSaleInfo</code>、<code>tagInfoList</code> 和 <code>sellerMixSetting</code>。</td></tr>
+            <tr><td>供应商</td><td><code>sellerOpenId</code> 有值；<code>companyName=苍南县新敏百货商行</code></td><td>证明详情接口能补充本条商品在搜索结果中缺失的供应商名称。</td></tr>
+            <tr><td>地址</td><td>没有返回 <code>companyAddress</code>；返回了发货地 <code>安徽省宿州市</code></td><td>发货地不等于公司注册地址、工厂地址或仓库固定地址，不能互相替代。</td></tr>
+            <tr><td>商家表现</td><td>交易勋章 1，综合服务 4.5，物流 4.1，纠纷 5.0，商品 5.0，售后 5.0，复购小数约 0.178916</td><td>复购小数按比例理解时约为 17.89%；展示前需统一百分比格式。</td></tr>
+            <tr><td>发票</td><td>不支持在线开票、不支持极速开票；未返回发票类型和纳税人类型</td><td>不能据此断言商家完全不能开票，必要时仍需向供应商确认。</td></tr>
+            <tr><td>证书</td><td><code>certificateList=[]</code></td><td>本条商品没有返回证书信息，不能解释为已经完成合规认证。</td></tr>
+          </tbody>
+        </table>
+        <div class="callout warning"><strong>物流数据需要强校验：</strong>返回发货地为安徽省宿州市，但商品级和 SKU 级重量均为 <code>0.005</code>，长宽高全部为 0，且来源为“商家自填”。对于坐垫商品，5 克重量明显不可信。此类数据不能直接用于跨境运费报价，建议将 0 尺寸、异常轻重量标为“待核实”，并向供应商获取真实包装尺寸和毛重。</div>
+        <div class="callout warning"><strong>搜索和详情字段不能机械覆盖：</strong>搜索返回 <code>promotionURL</code>，详情返回 <code>promotionUrl</code>，大小写不同；搜索链接还带有更完整的归因参数，应优先保留。相同商品的综合服务分和复购比例在搜索、详情响应中也有差异，说明数据可能来自不同快照或口径；详情页可优先展示详情值，但应短期缓存并允许更新。</div>
+        <div class="callout warning"><strong>附件完整性：</strong>当前粘贴文件在 <code>invoiceInfo</code> 后缺少最外层 JSON 的结束花括号，直接作为 JSON 解析会报错；这不影响判断本次 API 调用成功，但保存原始响应时应确保报文完整。</div>
+        <h4>搜索与详情的推荐数据合并方式</h4>
+        <pre>搜索结果.offerId
+  → queryProductDetail(offerId, country)
+  → 用详情数据补齐 SKU、库存、属性、供应商名称、图文详情和物流数据
+  → 保留搜索结果中的 traceInfo / promotionURL 用于点击归因</pre>
+        <p>详情接口更完整，但仍不是完整企业工商档案接口。若后续需要营业执照主体、工厂资质或详细注册地址，应再确认是否具备供应商/会员详情能力。</p>
+        <h3>7.3 根据关键词查叶子类目</h3>
+        <p><code>alibaba.category.searchByKeyword</code> 的业务参数只有一个必填字段：</p>
+        <pre>{ "keyword": "护腰坐垫" }</pre>
+        <p>返回 <code>products[].categoryID</code>、<code>name</code>、<code>isLeaf</code>。应选择语义最相关且 <code>isLeaf=true</code> 的类目。</p>
+        <div class="callout"><strong>不要混淆：</strong>商品链接中的 <code>offerId</code> 是商品 ID；店铺页面的“护腰/键盘护腕”等通常是店铺自定义分类；两者都不是平台 <code>categoryId</code>。</div>
+      </section>
+
+      <section id="response">
+        <h2>8. 搜索返回字段与含义</h2>
+        <h3>8.1 业务状态和分页</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>字段</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>result.success</code></td><td>业务是否成功；必须判断，不能只看 HTTP 200。</td></tr>
+            <tr><td><code>result.code</code></td><td>业务状态码。</td></tr>
+            <tr><td><code>result.message</code></td><td>提示或错误信息。</td></tr>
+            <tr><td><code>result.result.totalRecords</code></td><td>结果条数；关键词搜索实测出现 2000，可能是平台上限而非全量。</td></tr>
+            <tr><td><code>totalPage / pageSize / currentPage</code></td><td>总页数、每页数量、当前页。</td></tr>
+            <tr><td><code>data[]</code></td><td>商品列表。</td></tr>
+            <tr><td><code>picRegionInfo</code></td><td>仅图搜：图片当前主体区域和 YOLO 裁剪候选区域；不是海外市场。</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>8.2 商品基础字段</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>字段</th><th>含义</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td><code>offerId</code></td><td>1688 商品 ID。</td><td>后续查商详、相关推荐的主键。</td></tr>
+            <tr><td><code>imageUrl</code> / <code>aigcImageUrl</code></td><td>商品原始主图 / 1688 AI 生成或优化后的备选展示图。</td><td>AIGC 具体处理方式没有固定承诺，也不等于白底图；实测 0/17 返回，必须回退到 <code>imageUrl</code>，且不能把 AIGC 图当作实物真实性依据。</td></tr>
+            <tr><td><code>subject</code> / <code>subjectTrans</code></td><td>中文标题 / 多语言标题。</td><td>建议都保留。</td></tr>
+            <tr><td><code>repurchaseRate</code></td><td>复购率。</td><td>字符串百分比，例如 <code>33.33%</code>。</td></tr>
+            <tr><td><code>monthSold</code></td><td>近 30 天销量。</td><td>权限规则说明为所有 AppKey 一致，但实际个别响应可能省略。</td></tr>
+            <tr><td><code>tradeScore</code></td><td>商品交易评分。</td><td>可能是空字符串。</td></tr>
+            <tr><td><code>isOnePsale</code></td><td>是否支持一件代发。</td><td>Boolean。</td></tr>
+            <tr><td><code>isJxhy</code></td><td>是否精选货源。</td><td>Boolean。</td></tr>
+            <tr><td><code>isSelect</code></td><td>是否属于跨境 Select 货盘。</td><td>Boolean。</td></tr>
+            <tr><td><code>sellerIdentities[]</code></td><td>商家身份。</td><td>如 tp_member、super_factory。</td></tr>
+            <tr><td><code>offerIdentities[]</code></td><td>商品身份标签。</td><td>如 yx、select。</td></tr>
+            <tr><td><code>topCategoryId / secondCategoryId / thirdCategoryId</code></td><td>一级、二级、三级平台类目。</td><td>需要精细类目过滤时优先用三级类目。</td></tr>
+            <tr><td><code>createDate / modifyDate</code></td><td>商品创建和修改时间。</td><td>字符串时间。</td></tr>
+            <tr><td><code>minOrderQuantity</code></td><td>最小起批量。</td><td>Integer。</td></tr>
+            <tr><td><code>promotionURL</code></td><td>可直接打开的 1688 商品详情/推广链接，通常包含来源归因参数。</td><td>点击跳转优先使用该值；缺失时可由 <code>offerId</code> 拼成 <code>https://detail.1688.com/offer/{offerId}.html</code>。</td></tr>
+            <tr><td><code>traceInfo</code></td><td>1688 追踪打点信息。</td><td>通常不直接展示。</td></tr>
+            <tr><td><code>token</code></td><td>插件返佣或同店返佣标识。</td><td>按业务要求透传。</td></tr>
+            <tr><td><code>companyName / companyAddress</code></td><td>供应商公司名称 / 供应商所在地区。</td><td>搜索摘要不保证返回：图搜实测 companyName 0/17、companyAddress 14/17；地址多为省市级，不是完整工商、工厂或仓库地址。可用 offerId 查详情补充。</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>8.3 价格、营销、商家、发票</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>对象</th><th>字段</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>priceInfo</code></td><td><code>price</code></td><td>批发价。</td></tr>
+            <tr><td><code>priceInfo</code></td><td><code>jxhyPrice</code> / <code>pfJxhyPrice</code></td><td>代发精选货源价 / 批发精选货源价。</td></tr>
+            <tr><td><code>priceInfo</code></td><td><code>consignPrice</code></td><td>一件代发价。</td></tr>
+            <tr><td><code>priceInfo</code></td><td><code>promotionPrice</code></td><td>营销价。</td></tr>
+            <tr><td><code>promotionModel</code></td><td><code>hasPromotion</code> / <code>promotionType</code></td><td>是否有营销及营销类型。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>tradeMedalLevel</code></td><td>交易勋章等级。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>compositeServiceScore</code></td><td>综合服务体验分。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>logisticsExperienceScore</code></td><td>物流体验分。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>disputeComplaintScore</code></td><td>纠纷投诉处理分。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>offerExperienceScore</code></td><td>商品体验分。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>afterSalesExperienceScore</code></td><td>售后体验分。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>consultingExperienceScore</code></td><td>咨询体验分。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>repeatPurchasePercent</code></td><td>重复购买率；实测可能为 0~1 小数而非百分号字符串。</td></tr>
+            <tr><td><code>sellerDataInfo</code></td><td><code>tpYear</code></td><td>诚信通年限；与 Pro 经营年限能力相关。</td></tr>
+            <tr><td><code>invoiceInfo</code></td><td><code>supportOnlineInvoice</code></td><td>是否支持通过平台线上申请/处理发票；false 不等于完全不能线下开票。</td></tr>
+            <tr><td><code>invoiceInfo</code></td><td><code>supportFastInvoice</code></td><td>是否支持平台定义的极速开票能力。</td></tr>
+            <tr><td><code>invoiceInfo</code></td><td><code>invoiceTypes[]</code></td><td>通常为“普票”“专票”。普票用于报销入账；符合条件的专票可用于进项税抵扣。缺失不能直接解释为不支持开票。</td></tr>
+            <tr><td><code>invoiceInfo</code></td><td><code>taxpayerType</code></td><td>供应商纳税人类型，文档示例为“一般纳税人”“小规模纳税人”；用于采购合规和税务初筛，最终开票能力、税率仍需向商家确认。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout"><strong>搜索摘要与详情接口：</strong>搜索接口已经直接返回 <code>offerId</code>，无需等用户点击才能取得。可以立刻逐条查详情，但一页 20 条会产生最多 20 次额外调用。推荐将用户进入详情作为“按需查询”的触发时机；如果列表必须展示供应商名称，则在后端限并发补查并设置短期缓存。</div>
+      </section>
+
+      <section id="pro">
+        <h2>9. Pro 版能力</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>能力</th><th>Base</th><th>Pro</th><th>Pro+</th></tr></thead>
+          <tbody>
+            <tr><td>交易与服务字段</td><td>商家评分、包邮、退货、起批、先采后付、视频、证书、开票等</td><td>包含 Base</td><td>包含 Pro</td></tr>
+            <tr><td>跨境与履约</td><td>基础原子数据</td><td>白底图、发货地、履约/揽收/退货率、件重尺、经营年限、专利</td><td>包含 Pro</td></tr>
+            <tr><td>新品、价格、交易热度</td><td>无</td><td>无</td><td>涨降价、新品、同款数量、加购、支付买家和件数</td></tr>
+            <tr><td>经营货盘</td><td>无</td><td>1 个实际经营国家/地区</td><td>3 个实际经营国家/地区</td></tr>
+            <tr><td>搜索/推荐</td><td>标准召回，无个性化推荐</td><td>按国家/经营模式精准搜索，基于国别推荐</td><td>同 Pro</td></tr>
+            <tr><td>开放方式</td><td>免费开放</td><td>GMV 驱动解锁</td><td>GMV 驱动解锁</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>9.1 Pro 标签型筛选</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>tagKey</th><th>含义</th><th>注意</th></tr></thead>
+          <tbody>
+            <tr><td><code>whiteBgImage</code></td><td>商品有白底图</td><td>正向筛选。</td></tr>
+            <tr><td><code>hasPatent</code></td><td>拥有专利</td><td>正向筛选。</td></tr>
+            <tr><td><code>weightDimErrorLt10Pct</code></td><td>件重尺校准误差小于 10%</td><td>正向筛选。</td></tr>
+            <tr><td><code>fakeShip7d</code></td><td>近 7 天虚假发货</td><td rowspan="3">文档没有说明标签极性；从命名看像“发生过问题”。在生产用于“优质筛选”前必须在线测试确认。</td></tr>
+            <tr><td><code>shortShip7d</code></td><td>近 7 天漏发少发</td></tr>
+            <tr><td><code>poorFulfill7d</code></td><td>近 7 天不良履约</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>9.2 Pro 数值字段</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>FIELD 常量</th><th>响应字段</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>PERFECT_FULFILLMENT_RATE_30D</code></td><td><code>productSimpleShippingInfo.perfectFulfillmentRate30d</code></td><td>近 30 天完美履约率，越高越好。</td></tr>
+            <tr><td><code>PICKUP_WITHIN_24H_RATE_30D</code></td><td><code>pickupWithin24hRate30d</code></td><td>近 30 天 24h 揽收率，越高越好。</td></tr>
+            <tr><td><code>QUALITY_RETURN_RATE_30D</code></td><td><code>qualityReturnRate30d</code></td><td>近 30 天品质退货率，越低越好。</td></tr>
+            <tr><td><code>PERFECT_FULFILLMENT_RATE_7D</code></td><td><code>perfectFulfillmentRate7d</code></td><td>近 7 天完美履约率。</td></tr>
+            <tr><td><code>PICKUP_WITHIN_24H_RATE_7D</code></td><td><code>pickupWithin24hRate7d</code></td><td>近 7 天 24h 揽收率。</td></tr>
+            <tr><td><code>DELAYED_SHIPPING_RATE_7D</code></td><td><code>delayedShippingRate7d</code></td><td>近 7 天延迟发货率，越低越好。</td></tr>
+            <tr><td><code>QUALITY_RETURN_RATE_7D</code></td><td>预留</td><td>文档注明当前未填充，不应依赖。</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>9.3 Pro+（本次不作为目标版本，仅供边界识别）</h3>
+        <p><span class="tag">priceUp1d</span><span class="tag">priceDown1d</span><span class="tag">newProducts7d</span><span class="tag">newProducts30d</span><span class="tag">newSimilar5</span></p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>字段</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>productTradeInfo.addCartCount7d</code></td><td>近 7 天加购次数。</td></tr>
+            <tr><td><code>productTradeInfo.payBuyerCount7d</code></td><td>近 7 天支付买家数。</td></tr>
+            <tr><td><code>productTradeInfo.addCartCount30d</code></td><td>近 30 天加购次数。</td></tr>
+            <tr><td><code>productTradeInfo.payBuyerCount30d</code></td><td>近 30 天支付买家数。</td></tr>
+            <tr><td><code>sales7d</code></td><td>近 7 天支付商品件数。</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="regions">
+        <h2>10. 区域标签与经营货盘</h2>
+        <p>区域能力不是普通响应中的“日本 GMV 数值”。它主要表现为可用于 <code>filter</code> 的市场排名标签。每个市场固定 3 个：</p>
+        <pre>&lt;region&gt;GmvTop50
+&lt;region&gt;RepurchaseTop30
+&lt;region&gt;BuyersTop30</pre>
+        <div class="table-wrap"><table>
+          <thead><tr><th>前缀</th><th>市场</th><th>示例</th></tr></thead>
+          <tbody>
+            <tr><td><code>jp</code></td><td>日本</td><td><code>jpGmvTop50</code> / <code>jpRepurchaseTop30</code> / <code>jpBuyersTop30</code></td></tr>
+            <tr><td><code>kr</code></td><td>韩国</td><td><code>kr...</code></td></tr>
+            <tr><td><code>hk</code></td><td>港台</td><td><code>hk...</code></td></tr>
+            <tr><td><code>us</code></td><td>北美</td><td><code>us...</code></td></tr>
+            <tr><td><code>me</code></td><td>中东</td><td><code>me...</code></td></tr>
+            <tr><td><code>latam</code></td><td>拉美</td><td><code>latam...</code></td></tr>
+            <tr><td><code>sea</code></td><td>东南亚</td><td><code>sea...</code></td></tr>
+            <tr><td><code>ru</code></td><td>俄罗斯</td><td><code>ru...</code></td></tr>
+            <tr><td><code>eu</code></td><td>欧洲</td><td><code>eu...</code></td></tr>
+            <tr><td><code>au</code></td><td>澳新</td><td><code>au...</code></td></tr>
+            <tr><td><code>af</code></td><td>非洲</td><td><code>af...</code></td></tr>
+          </tbody>
+        </table></div>
+        <p>例如 <code>jpGmvTop50</code> 表示该商品在日本市场近 365 天 GMV 排名前 50%。Pro 限 1 个实际经营市场，Pro+ 限 3 个。</p>
+      </section>
+
+      <section id="permissions">
+        <h2>11. 权限、失败方式与数据空值</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>场景</th><th>表现</th><th>处理建议</th></tr></thead>
+          <tbody>
+            <tr><td>filter 使用无权的 Pro / Pro+ / 区域 tag</td><td>整次请求失败，业务错误 <code>PARAMS_ILLEGAL_FILTER_IS_UNAUTHORIZED</code>。</td><td>按 AppKey 权限生成可用标签白名单。</td></tr>
+            <tr><td>无权读取 Pro/Pro+ field</td><td>HTTP 仍可为 200，搜索仍成功，但相关字段为 <code>null</code> 或被省略。</td><td>判断业务 success；字段使用 optional 类型。</td></tr>
+            <tr><td>AppKey 未登记在控制配置</td><td>视为没有任何 Pro/Pro+ 权限；受控 tag 被拒，增值字段为空。</td><td>上线前确认 AppKey 已录入并完成权益配置。</td></tr>
+            <tr><td><code>monthSold</code> / <code>repurchaseRate</code></td><td>文档说明始终使用 30 天精确值，所有 AppKey 一致。</td><td>仍应兼容实际响应省略或空值。</td></tr>
+            <tr><td>categoryId 传中文占位符</td><td><code>NumberFormatException: Character 类...</code></td><td>删除字段、传 null（仅限工具兼容时）或传真实 Long 数字。</td></tr>
+          </tbody>
+        </table></div>
+        <p>Pro 升级：单月 GMV 达到更高梯度门槛。降级：连续 2 个月 GMV 未达标，提前 30 天预警，运营确认后执行。文档没有给出具体 GMV 数值。</p>
+      </section>
+
+      <section id="observed">
+        <h2>12. 当前实测结果</h2>
+        <div class="cards">
+          <div class="card"><strong>图片搜索</strong><div class="kpi">17 条</div><div>16 条相似坐垫结果使用三级类目 <code>1046964</code>。</div></div>
+          <div class="card"><strong>关键词搜索</strong><div class="kpi">2000</div><div>“人体工学椅”总记录 2000、总页 667；本次 pageSize=3。</div></div>
+          <div class="card"><strong>关键词类目</strong><div class="kpi">1045585</div><div>3 条样本的三级类目一致，对应椅类搜索结果。</div></div>
+        </div>
+        <h3>图片搜索观察</h3>
+        <ul>
+          <li>业务成功：<code>success=true</code>、<code>code=200</code>。</li>
+          <li>17 条结果中 10 条出现 <code>productSimpleShippingInfo</code>，字段填充程度不一。</li>
+          <li><code>sales7d</code>、<code>productTradeInfo</code>、<code>whiteImage</code> 均未出现。</li>
+          <li><code>isPatentProduct</code> 全部有字段；<code>companyAddress</code> 14/17 有值。</li>
+          <li><code>totalRecords=17</code> 但 <code>totalPage=0</code>，不能完全依赖 totalPage 判断是否有结果。</li>
+        </ul>
+        <h3>关键词搜索观察</h3>
+        <ul>
+          <li>3 条样本均返回标题、多语言标题、价格、复购率、类目、商家评分、发票信息和推广链接。</li>
+          <li><code>monthSold</code>、<code>sales7d</code>、<code>productTradeInfo</code>、<code>whiteImage</code>、<code>aigcImageUrl</code> 未出现。</li>
+          <li>只有 1/3 出现 <code>productSimpleShippingInfo</code>，且仅有 <code>shippingTimeGuarantee=shipIn48Hours</code>。</li>
+          <li>关键词搜索可能召回配件等噪声；可结合 <code>categoryId</code>、关键词和结果后处理提升准确度。</li>
+        </ul>
+      </section>
+
+      <section id="implementation">
+        <h2>13. Pro 版实施建议</h2>
+        <ol class="checklist">
+          <li>后端统一封装 AOP 签名、token、表单编码和错误解析。</li>
+          <li>为关键词和图搜分别定义强类型请求 DTO，必填字段在调用前校验。</li>
+          <li>所有响应字段按 optional 处理；区分“0、null、缺失、空字符串”。</li>
+          <li>百分数字符串去掉 <code>%</code> 后再计算；<code>repeatPurchasePercent</code> 还可能是 0~1 小数。</li>
+          <li>维护 AppKey 可用 tag 白名单，避免无权标签导致整次请求失败。</li>
+          <li>Pro 履约字段设置数据时间、缺失状态和来源标记，不把缺失当 0。</li>
+          <li>图搜主链路使用 image upload → imageId；仅对 1688 图片链接尝试 imageAddress。</li>
+          <li>类目 ID 优先来自商品详情或搜索结果的 thirdCategoryId；不要使用 offerId 和店铺分类。</li>
+          <li>商品卡片至少保留 offerId、标题、图片、价格、promotionURL、类目和 traceInfo。</li>
+          <li>对负向履约 tag（fakeShip7d 等）先进行小流量测试，确认其筛选极性。</li>
+          <li>上线前让 1688 运营确认 Pro 权益、经营市场、AppKey 控制配置和 GMV 升降级门槛。</li>
+          <li>监控业务 code、字段缺失率、空结果率、类目分布和异常 totalPage。</li>
+        </ol>
+        <div class="callout success"><strong>推荐第一阶段：</strong>先接入关键词搜索、图搜、图片上传和商详；使用 Pro 履约字段做展示与排序辅助；只开放已确认权限且语义明确的标签。区域经营标签在运营确定目标市场后再开启。</div>
+      </section>
+
+      <section id="faq">
+        <h2>14. 常见问题速查</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>问题</th><th>结论</th></tr></thead>
+          <tbody>
+            <tr><td>国家或区域是不是必传？</td><td><code>country</code> 必传，但它实际表示返回语言；关键词的 <code>regionOpp</code> 和图搜的 <code>region</code> 都是可选字段，且两者含义完全不同。</td></tr>
+            <tr><td>不传区域是不是就没有区域数据？</td><td>不传 <code>regionOpp</code> 只表示不按区域商机场景限制搜索；Pro 区域经营能力主要通过有权限的市场标签筛选，并不是普通响应自动返回一组各国 GMV 数据。</td></tr>
+            <tr><td>没有 1688 图片，imageId 怎么来？</td><td>把本地/外部图片转为纯 Base64，调用 <code>product.image.upload</code>，读取上传响应的 <code>result.result</code> 作为 imageId，再调用图搜。</td></tr>
+            <tr><td>categoryId 可选，但测试工具删不掉怎么办？</td><td>不能填写“类目id”等文字占位符，因为它是 Long。可传搜索/详情中的 <code>thirdCategoryId</code>；工具确实无法删除时，尝试清空或填真实数字，不能用中文占位。</td></tr>
+            <tr><td>搜索后还要等用户点击才能拿 offerId 吗？</td><td>不需要，搜索结果已经有 offerId。用户点击只是推荐的按需查详情触发点，用来减少 N+1 调用；业务需要时也可以搜索后立即补查。</td></tr>
+            <tr><td>搜索结果为什么没有供应商名称？</td><td>搜索是摘要接口，字段可能缺失。本次 offerId 1084127309764 的详情成功补出 <code>companyName=苍南县新敏百货商行</code>；完整工商档案仍可能需要供应商/会员接口。</td></tr>
+            <tr><td>promotionURL 是商品详情页吗？</td><td>是，而且通常包含来源归因参数。优先保留搜索返回的 promotionURL；详情接口对应字段写作 <code>promotionUrl</code>，大小写不同。</td></tr>
+            <tr><td>AIGC 图能当真实商品图吗？</td><td>不建议。它是 AI 处理的备选展示图，具体处理方式不固定且经常缺失；真实商品展示默认使用 imageUrl。</td></tr>
+            <tr><td>普票、专票和纳税人类型有什么用？</td><td>用于企业采购报销、抵扣与合规初筛。接口值不构成正式开票承诺，缺失或线上开票为 false 时仍应向供应商确认。</td></tr>
+            <tr><td>详情里的重量尺寸能直接计算运费吗？</td><td>不能无条件使用。本次坐垫返回 5 克、长宽高为 0 且来源“商家自填”，明显异常；跨境报价前必须校验并向供应商确认包装后毛重和尺寸。</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+
+  <footer>本说明依据本地保存的 1688 官方接口文档、寻源通 API Pro 介绍和当前实测响应整理。接口字段与权限以后续官方配置和实际调用结果为准。</footer>
+</body>
+</html>
