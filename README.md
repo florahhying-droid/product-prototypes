@@ -15,6 +15,8 @@
 - `asin-selection/`：ASIN选品与开发任务完整交互
 - `1688-sourcing-demo/`：1688 Pro ASIN 商品溯源演示套件
   - `index.html`：寻源通 API Pro 接口与字段说明
+  - `sourcing-design-v1.html`：一期简化产品方案
+  - `prototype-v1.html`：一期简化交互原型
   - `sourcing-design.html`：Amazon ASIN → 1688 商品溯源方案
   - `prototype.html`：开发任务详情及 1688 备选货源交互原型
 
@@ -60,6 +62,8 @@ product-prototypes/
 │   └── index.html
 ├── 1688-sourcing-demo/
 │   ├── index.html
+│   ├── sourcing-design-v1.html
+│   ├── prototype-v1.html
 │   ├── sourcing-design.html
 │   ├── prototype.html
 │   └── assets/
