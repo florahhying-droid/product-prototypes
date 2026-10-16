@@ -15,10 +15,12 @@
 - `asin-selection/`：ASIN选品与开发任务完整交互
 - `1688-sourcing-demo/`：1688 Pro ASIN 商品溯源演示套件
   - `index.html`：寻源通 API Pro 接口与字段说明
-  - `sourcing-design-v1.html`：一期简化产品方案
-  - `prototype-v1.html`：一期简化交互原型
-  - `sourcing-design.html`：Amazon ASIN → 1688 商品溯源方案
-  - `prototype.html`：开发任务详情及 1688 备选货源交互原型
+  - `phase1-plan.html`：一期产品方案
+  - `phase1-prototype.html`：一期交互原型（默认导航版）
+  - `phase1-prototype-flat.html`：一期交互原型（平铺版）
+  - `phase1-prototype-workbench.html`：一期交互原型（独立溯源版）
+  - `reference-plan.html`：扩展产品方案参考
+  - `reference-prototype.html`：扩展交互原型参考
 
 ## 新增一个需求原型
 
@@ -62,10 +64,12 @@ product-prototypes/
 │   └── index.html
 ├── 1688-sourcing-demo/
 │   ├── index.html
-│   ├── sourcing-design-v1.html
-│   ├── prototype-v1.html
-│   ├── sourcing-design.html
-│   ├── prototype.html
+│   ├── phase1-plan.html
+│   ├── phase1-prototype.html
+│   ├── phase1-prototype-flat.html
+│   ├── phase1-prototype-workbench.html
+│   ├── reference-plan.html
+│   ├── reference-prototype.html
 │   └── assets/
 └── README.md
 ```

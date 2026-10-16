@@ -122,7 +122,7 @@
 </style>
 </head>
 <body>
-<nav class="demo-suite-switch" aria-label="演示资料切换"><span class="switch-label">演示资料</span><a class="active" href="index.html">接口说明</a><a href="sourcing-design-v1.html">一期方案</a><span class="switch-label">一期原型</span><a href="prototype-v1.html">1、平铺版</a><a href="prototype-v1-optimized.html">2、导航版</a><a href="prototype-v1-workbench.html">3、独立溯源版</a></nav>
+<nav class="demo-suite-switch" aria-label="演示资料切换"><a class="active" href="index.html">接口说明</a><a href="phase1-plan.html">一期方案</a><a href="phase1-prototype.html">一期原型</a></nav>
   <header class="hero">
     <div class="hero-inner">
       <div class="eyebrow">INTEGRATION REFERENCE</div>
@@ -445,11 +445,12 @@ result.result.thirdCategoryId</pre>
             <tr><td><code>whiteBgImage</code></td><td>商品有白底图</td><td>正向筛选。</td></tr>
             <tr><td><code>hasPatent</code></td><td>拥有专利</td><td>正向筛选。</td></tr>
             <tr><td><code>weightDimErrorLt10Pct</code></td><td>件重尺校准误差小于 10%</td><td>正向筛选。</td></tr>
-            <tr><td><code>fakeShip7d</code></td><td>近 7 天虚假发货</td><td rowspan="3">文档没有说明标签极性；从命名看像“发生过问题”。在生产用于“优质筛选”前必须在线测试确认。</td></tr>
+            <tr><td><code>fakeShip7d</code></td><td>近 7 天虚假发货</td><td rowspan="3">资料说明为是否型标签，指标基于相应异常订单占比；未明确标签极性及触发阈值，需核实后使用。</td></tr>
             <tr><td><code>shortShip7d</code></td><td>近 7 天漏发少发</td></tr>
             <tr><td><code>poorFulfill7d</code></td><td>近 7 天不良履约</td></tr>
           </tbody>
         </table></div>
+        <div class="callout"><strong>异常标签的使用方式：</strong>在核实标签是否表示“存在异常”或“无异常”、以及订单占比转换为是否标签的阈值之前，不依据字段名称推断筛选方向。</div>
 
         <h3>9.2 Pro 数值字段</h3>
         <div class="table-wrap"><table>
