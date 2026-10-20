@@ -208,8 +208,8 @@
             <tr><td><code>pageSize</code></td><td><span class="required">必填</span></td><td>Integer</td><td>每页数量。</td><td><code>20</code></td></tr>
             <tr><td><code>country</code></td><td><span class="required">必填</span></td><td>String</td><td><strong>语言代码</strong>，不是经营国家。</td><td><code>en</code></td></tr>
             <tr><td><code>filter</code></td><td><span class="optional">可选</span></td><td>String</td><td>筛选标签，多个 tagKey 用英文逗号分隔。</td><td><code>whiteBgImage,hasPatent</code></td></tr>
-            <tr><td><code>sort</code></td><td><span class="optional">可选</span></td><td>String(JSON)</td><td>排序配置。</td><td><code>{"price":"asc"}</code></td></tr>
-            <tr><td><code>outMemberId</code></td><td><span class="optional">可选</span></td><td>String</td><td>调用方自己的终端用户标识，用于链路识别或分析；不是 1688 会员 ID，也不能代替鉴权。</td><td>建议传匿名内部 ID，如 <code>user-123</code>；不需要区分终端用户时不传</td></tr>
+            <tr><td><code>sort</code></td><td><span class="optional">可选</span></td><td>String(JSON)</td><td>仅对当前页排序，支持price、rePurchaseRate、monthSold的asc/desc；开发任务溯源保留默认相关性顺序。</td><td><code>{"price":"asc"}</code></td></tr>
+            <tr><td><code>outMemberId</code></td><td><span class="optional">可选</span></td><td>String</td><td>通过平台注册模块登记的下游用户标识；不是任意内部用户ID，也不能代替鉴权。</td><td>使用平台注册流程返回的标识；未接入该流程时不传</td></tr>
             <tr><td><code>priceStart</code> / <code>priceEnd</code></td><td><span class="optional">可选</span></td><td>String</td><td>批发价范围。</td><td><code>10</code> / <code>100</code></td></tr>
             <tr><td><code>categoryId</code></td><td><span class="optional">可选</span></td><td>Long</td><td>单个数字类目 ID；不得填写“类目id”等占位文字。</td><td><code>1045585</code></td></tr>
             <tr><td><code>categoryIdList</code></td><td><span class="optional">可选</span></td><td>String</td><td>多个类目取并集，用英文逗号分隔。</td><td><code>2,45</code></td></tr>
@@ -244,8 +244,8 @@
             <tr><td><code>country</code></td><td><span class="required">必填</span></td><td>String</td><td>语言代码。</td><td><code>en</code></td></tr>
             <tr><td><code>region</code></td><td><span class="optional">可选</span></td><td>String</td><td>图片中参与图搜的主体裁剪区域，不是国家、市场或 <code>regionOpp</code>。</td><td>4 个整数的坐标字符串；官方保存页未明确坐标顺序，优先沿用平台返回的区域格式，不要猜测拼接</td></tr>
             <tr><td><code>filter</code></td><td><span class="optional">可选</span></td><td>String</td><td>筛选标签，多个用英文逗号分隔。</td><td><code>whiteBgImage,hasPatent</code></td></tr>
-            <tr><td><code>sort</code></td><td><span class="optional">可选</span></td><td>String(JSON)</td><td>排序配置。</td><td><code>{"price":"asc"}</code></td></tr>
-            <tr><td><code>outMemberId</code></td><td><span class="optional">可选</span></td><td>String</td><td>你们系统里的终端用户标识，不是 1688 账号；可用于链路区分或分析。</td><td>建议匿名化；不需要区分用户时不传</td></tr>
+            <tr><td><code>sort</code></td><td><span class="optional">可选</span></td><td>String(JSON)</td><td>仅对当前页排序，支持price、rePurchaseRate、monthSold的asc/desc；开发任务溯源保留默认相关性顺序。</td><td><code>{"price":"asc"}</code></td></tr>
+            <tr><td><code>outMemberId</code></td><td><span class="optional">可选</span></td><td>String</td><td>通过平台注册模块登记的下游用户标识。</td><td>未接入平台注册流程时不传</td></tr>
             <tr><td><code>priceStart</code> / <code>priceEnd</code></td><td><span class="optional">可选</span></td><td>String</td><td>批发价范围。</td><td><code>10</code> / <code>20</code></td></tr>
             <tr><td><code>categoryId</code></td><td><span class="optional">可选</span></td><td>Long</td><td>数字类目 ID；建议用相似结果的 <code>thirdCategoryId</code>。</td><td>坐垫实测：<code>1046964</code></td></tr>
             <tr><td><code>imageAddress</code></td><td><span class="optional">可选</span></td><td>String</td><td>直接图片地址；官方仅保证 1688 图片链接场景。</td><td>外部图片优先上传换取 imageId</td></tr>
@@ -279,7 +279,7 @@
           <tbody>
             <tr><td><code>uploadImageParam</code></td><td><span class="required">必填</span></td><td>上传业务参数对象。</td></tr>
             <tr><td><code>uploadImageParam.imageBase64</code></td><td><span class="required">必填</span></td><td>纯 Base64 内容，通常不要包含 <code>data:image/png;base64,</code> 前缀。</td></tr>
-            <tr><td><code>uploadImageParam.outMemberId</code></td><td><span class="optional">可选</span></td><td>外部用户 ID。</td></tr>
+            <tr><td><code>uploadImageParam.outMemberId</code></td><td><span class="optional">可选</span></td><td>通过平台注册模块登记的下游用户标识；未接入时不传。</td></tr>
           </tbody>
         </table></div>
         <pre>{
@@ -365,7 +365,7 @@ result.result.thirdCategoryId</pre>
             <tr><td><code>result.success</code></td><td>业务是否成功；必须判断，不能只看 HTTP 200。</td></tr>
             <tr><td><code>result.code</code></td><td>业务状态码。</td></tr>
             <tr><td><code>result.message</code></td><td>提示或错误信息。</td></tr>
-            <tr><td><code>result.result.totalRecords</code></td><td>结果条数；关键词搜索实测出现 2000，可能是平台上限而非全量。</td></tr>
+            <tr><td><code>result.result.totalRecords</code></td><td>搜索查询最多支持2000条；图搜总条数及总页数为估计值，翻页以实际返回结果为准。</td></tr>
             <tr><td><code>totalPage / pageSize / currentPage</code></td><td>总页数、每页数量、当前页。</td></tr>
             <tr><td><code>data[]</code></td><td>商品列表。</td></tr>
             <tr><td><code>picRegionInfo</code></td><td>仅图搜：图片当前主体区域和 YOLO 裁剪候选区域；不是海外市场。</td></tr>
@@ -421,7 +421,11 @@ result.result.thirdCategoryId</pre>
             <tr><td><code>invoiceInfo</code></td><td><code>taxpayerType</code></td><td>供应商纳税人类型，文档示例为“一般纳税人”“小规模纳税人”；用于采购合规和税务初筛，最终开票能力、税率仍需向商家确认。</td></tr>
           </tbody>
         </table></div>
-        <div class="callout"><strong>搜索摘要与详情接口：</strong>搜索接口已经直接返回 <code>offerId</code>，无需等用户点击才能取得。可以立刻逐条查详情，但一页 20 条会产生最多 20 次额外调用。推荐将用户进入详情作为“按需查询”的触发时机；如果列表必须展示供应商名称，则在后端限并发补查并设置短期缓存。</div>
+        <div class="callout"><strong>开发任务接口口径：</strong>图搜每页50条、最多4页；关键词每页50条、最多2页。同一ASIN多页排名连续保留，合并去重、AC过滤后统一评分并取前10条。接口侧默认启用 <code>totalEpScoreLv2</code>（综合服务体验分≥4.5）、<code>1688Selection</code>（严选）、<code>isSelect</code>（跨境Choice）；多个筛选标签组合为AND关系。AC侧核验诚信通会员、商品体验分＞4.0、有效跨境推广链接及起批量条件。</div>
+        <div class="callout"><strong>商家身份与商品身份：</strong><code>sellerIdentities</code> 的 <code>tp_member</code>、<code>super_factory</code>、<code>powerful_merchants</code> 分别为诚信通会员、超级工厂、实力商家；诚信通年限取 <code>sellerDataInfo.tpYear</code>。<code>offerIdentities</code> 的 <code>yx</code> 为严选，商详可核对 <code>tagInfoList</code> 中 <code>1688_yx</code>。跨境Choice独立核对 <code>isSelect</code>，不能与严选混用；<code>isJxhy</code> 的精选货源语义单独核验。</div>
+        <div class="callout"><strong>商详价格版本：</strong>搜索摘要中的 <code>priceInfo.consignPrice</code> 与商详报价结构需分别处理。商详按 <code>productSaleInfo.quoteType</code> 区分阶梯或SKU报价，代发报价读取 <code>productSaleInfo.fenxiaoSaleInfo</code> 或 <code>productSkuInfos.fenxiaoPriceInfo</code>，旧商详 <code>consignPrice</code> 已弃用。代发起订量读取 <code>fenxiaoSaleInfo.startQuantity</code>。代发价格非空不等于支持一件代发，能力另行核对。生成待开发SKU时读取对应SKU批发价，以CNY保存。</div>
+        <div class="callout"><strong>调用与样本边界：</strong>图片上传使用不带data URL前缀的纯Base64，建议压缩至约100KB；外部图片地址不稳定时先上传。商详使用搜索实际召回的offerId，其他商品可能返回P0048。以下实测结果只说明样本情况，不代表接口必返字段或稳定分页总数。</div>
+        <div class="callout"><strong>搜索摘要与详情接口：</strong>搜索接口已经直接返回 <code>offerId</code>，无需等用户点击才能取得。可以立刻逐条查详情，但一页 20 条会产生最多 20 次额外调用。开发任务需在评分前获取合格候选所需的供应商匹配及资质资料，优先复用搜索字段与缓存，缺失时按需补查；选出每个ASIN最多10条结果后补齐SKU与展示详情。用户打开抽屉时复用已有详情或按需刷新，后端限并发并设置缓存。</div>
       </section>
 
       <section id="pro">
@@ -556,11 +560,11 @@ result.result.thirdCategoryId</pre>
           <li>图搜主链路使用 image upload → imageId；仅对 1688 图片链接尝试 imageAddress。</li>
           <li>类目 ID 优先来自商品详情或搜索结果的 thirdCategoryId；不要使用 offerId 和店铺分类。</li>
           <li>商品卡片至少保留 offerId、标题、图片、价格、promotionURL、类目和 traceInfo。</li>
-          <li>对负向履约 tag（fakeShip7d 等）先进行小流量测试，确认其筛选极性。</li>
+          <li>对 fakeShip7d、shortShip7d、poorFulfill7d 等标签核实布尔值含义与筛选极性，不凭名称或“是否”类型推断其正负向。</li>
           <li>上线前让 1688 运营确认 Pro 权益、经营市场、AppKey 控制配置和 GMV 升降级门槛。</li>
           <li>监控业务 code、字段缺失率、空结果率、类目分布和异常 totalPage。</li>
         </ol>
-        <div class="callout success"><strong>推荐第一阶段：</strong>先接入关键词搜索、图搜、图片上传和商详；使用 Pro 履约字段做展示与排序辅助；只开放已确认权限且语义明确的标签。区域经营标签在运营确定目标市场后再开启。</div>
+        <div class="callout success"><strong>推荐第一阶段：</strong>接入关键词搜索、图搜、图片上传和商详。开发任务按接口默认相关性、内部供应商状态和付款类型、商家资质进行综合评分；Pro履约数据用于展示参考。过滤与评分的具体规则见一期方案。区域经营标签在运营确定目标市场后再开启。</div>
       </section>
 
       <section id="faq">
@@ -572,7 +576,7 @@ result.result.thirdCategoryId</pre>
             <tr><td>不传区域是不是就没有区域数据？</td><td>不传 <code>regionOpp</code> 只表示不按区域商机场景限制搜索；Pro 区域经营能力主要通过有权限的市场标签筛选，并不是普通响应自动返回一组各国 GMV 数据。</td></tr>
             <tr><td>没有 1688 图片，imageId 怎么来？</td><td>把本地/外部图片转为纯 Base64，调用 <code>product.image.upload</code>，读取上传响应的 <code>result.result</code> 作为 imageId，再调用图搜。</td></tr>
             <tr><td>categoryId 可选，但测试工具删不掉怎么办？</td><td>不能填写“类目id”等文字占位符，因为它是 Long。可传搜索/详情中的 <code>thirdCategoryId</code>；工具确实无法删除时，尝试清空或填真实数字，不能用中文占位。</td></tr>
-            <tr><td>搜索后还要等用户点击才能拿 offerId 吗？</td><td>不需要，搜索结果已经有 offerId。用户点击只是推荐的按需查详情触发点，用来减少 N+1 调用；业务需要时也可以搜索后立即补查。</td></tr>
+            <tr><td>搜索后还要等用户点击才能拿 offerId 吗？</td><td>不需要，搜索结果已经有 offerId。开发任务评分前按需补取供应商匹配和资质信息，最终候选补齐SKU详情；抽屉复用缓存或按需刷新。</td></tr>
             <tr><td>搜索结果为什么没有供应商名称？</td><td>搜索是摘要接口，字段可能缺失。本次 offerId 1084127309764 的详情成功补出 <code>companyName=苍南县新敏百货商行</code>；完整工商档案仍可能需要供应商/会员接口。</td></tr>
             <tr><td>promotionURL 是商品详情页吗？</td><td>是，而且通常包含来源归因参数。优先保留搜索返回的 promotionURL；详情接口对应字段写作 <code>promotionUrl</code>，大小写不同。</td></tr>
             <tr><td>AIGC 图能当真实商品图吗？</td><td>不建议。它是 AI 处理的备选展示图，具体处理方式不固定且经常缺失；真实商品展示默认使用 imageUrl。</td></tr>
