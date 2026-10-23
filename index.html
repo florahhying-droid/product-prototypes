@@ -3,320 +3,122 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>产品原型目录</title>
+  <title>产品工作台</title>
   <style>
-    :root {
-      --teal: #12b8ad;
-      --teal-dark: #078f86;
-      --ink: #1f2937;
-      --muted: #667085;
-      --line: #e5e7eb;
-      --bg: #f5f7fa;
-      --panel: #ffffff;
-      --soft: #ecfdfa;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      background: var(--bg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-      letter-spacing: 0;
-    }
-
-    .page {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 48px 24px 64px;
-    }
-
-    .header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-      line-height: 1.2;
-      font-weight: 700;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      height: 32px;
-      padding: 0 12px;
-      color: var(--teal-dark);
-      background: var(--soft);
-      border: 1px solid #bcefe8;
-      border-radius: 999px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .section-title {
-      margin: 28px 0 0;
-      color: #111827;
-      font-size: 22px;
-      line-height: 1.35;
-    }
-
-    .tools-section {
-      margin-top: 40px;
-    }
-
-    .tools-section .grid {
-      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-    }
-
-    .tool-icon {
-      width: 24px;
-      height: 24px;
-      margin-right: 8px;
-      color: var(--teal-dark);
-      vertical-align: -5px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-      gap: 18px;
-      margin-top: 28px;
-    }
-
-    .card {
-      display: flex;
-      flex-direction: column;
-      min-height: 188px;
-      padding: 20px;
-      color: inherit;
-      text-decoration: none;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
-      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      border-color: #9de5dd;
-      box-shadow: 0 12px 30px rgba(16, 24, 40, 0.1);
-    }
-
-    .card-title {
-      margin: 0 0 10px;
-      color: #111827;
-      font-size: 19px;
-      line-height: 1.35;
-      font-weight: 700;
-    }
-
-    .card-desc {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: auto;
-      padding-top: 22px;
-      color: #98a2b3;
-      font-size: 13px;
-    }
-
-    .open {
-      color: var(--teal-dark);
-      font-weight: 600;
-    }
-
-    .guide {
-      margin-top: 28px;
-      padding: 18px 20px;
-      color: #475467;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      line-height: 1.8;
-    }
-
-    .guide h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      color: #111827;
-    }
-
-    .guide p {
-      margin: 0;
-    }
-
-    code {
-      padding: 2px 6px;
-      background: #f2f4f7;
-      border-radius: 4px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.95em;
-    }
-
-    @media (max-width: 720px) {
-      .page {
-        padding: 32px 16px 48px;
-      }
-
-      .header {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-    }
+    :root { --ink:#24292f; --muted:#73777f; --line:#e7e8eb; --accent:#078f86; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:#f8f9fb; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; }
+    .page { max-width:980px; margin:48px auto; padding:24px; background:#fff; border:1px solid #dedfe3; border-radius:20px; }
+    .header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding-bottom:24px; border-bottom:1px solid var(--line); }
+    h1 { margin:0 0 6px; font-size:22px; line-height:1.4; font-weight:650; }
+    .subtitle { margin:0; color:var(--muted); font-size:14px; }
+    .workspace-icon { width:22px; height:22px; color:#676d75; flex-shrink:0; }
+    svg { display:block; width:20px; height:20px; }
+    .section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:24px 0 14px; }
+    .section-title { margin:0; font-size:15px; font-weight:650; line-height:1.5; }
+    .section-note { margin:0; color:var(--muted); font-size:13px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 24px; }
+    .card { display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; padding:14px 12px; color:inherit; text-decoration:none; border-radius:10px; transition:background .15s,color .15s; }
+    .card:hover { background:#f5f8f8; }
+    .card:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+    .entry-icon { display:block; color:#343a40; }
+    .card-title { margin:0; font-size:15px; line-height:1.5; font-weight:500; }
+    .card-desc { margin:0; color:var(--muted); font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+    .tools-section { margin-top:22px; padding-top:0; border-top:1px solid var(--line); }
+    .tools-section .grid { gap:12px; }
+    .tools-section .card { border:1px solid #dedfe3; padding:16px; border-radius:12px; }
+    .placeholder { color:#969ba2; background:#fcfcfd; }
+    .placeholder .entry-icon,.placeholder .card-title { color:#8a8f97; }
+    @media(max-width:1028px) { .page { margin:32px 24px; } }
+    @media(max-width:600px) { .page { margin:16px 12px; padding:18px 14px; border-radius:16px; } h1 { font-size:20px; } .grid { gap:4px 10px; } .card { padding:12px 8px; } .section-note { font-size:12px; } }
+    @media(max-width:420px) { .grid { grid-template-columns:1fr; } .section-heading { gap:8px; } }
+    @media(prefers-reduced-motion:reduce) { .card { transition:none; } }
   </style>
 </head>
 <body>
   <main class="page">
     <header class="header">
       <div>
-        <h1>产品原型目录</h1>
-        <p class="subtitle">集中管理每个需求的交互设计稿和可访问页面。</p>
+        <h1>产品工作台</h1>
+        <p class="subtitle">产品原型 · 效率工具</p>
       </div>
-      <span class="badge">product-prototypes</span>
+      <span class="workspace-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>
     </header>
 
     <section aria-labelledby="prototypes-title">
-      <h2 class="section-title" id="prototypes-title">产品原型</h2>
+      <div class="section-heading"><h2 class="section-title" id="prototypes-title">产品原型</h2><p class="section-note">需求设计与交互演示</p></div>
       <div class="grid" aria-label="原型列表">
       <a class="card" href="./competitor-ai/">
-        <h2 class="card-title">AI 推荐竞品链接功能</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg></span>
+        <h3 class="card-title">AI 推荐竞品链接功能</h3>
         <p class="card-desc">产品详情、编辑页和批量设置场景下的 AI 推荐竞品交互设计稿。</p>
-        <div class="meta">
-          <span>交互原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./accessory-log/">
-        <h2 class="card-title">配件产品尺寸重量日志</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16v12H4zM8 8V4h8v4M8 12v4M12 12v4M16 12v4"/></svg></span>
+        <h3 class="card-title">配件产品尺寸重量日志</h3>
         <p class="card-desc">配件产品详情页新增尺寸重量详情入口，以及系统尺寸修改记录弹窗。</p>
-        <div class="meta">
-          <span>交互原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./accessory-optimization/">
-        <h2 class="card-title">配件产品添加与关联优化</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path d="M7 10v7h7"/></svg></span>
+        <h3 class="card-title">配件产品添加与关联优化</h3>
         <p class="card-desc">配件/非配件产品详情页、添加配件弹窗、新增/编辑配件页、外箱默认联动与 SKU/SPU 多选下拉。</p>
-        <div class="meta">
-          <span>新原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./season-recommendation/">
-        <h2 class="card-title">AI 推荐季节标签</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/><circle cx="12" cy="12" r="4"/></svg></span>
+        <h3 class="card-title">AI 推荐季节标签</h3>
         <p class="card-desc">销售信息运营填写区新增季节字段，支持 AI 推荐提示、重新获取推荐、应用推荐和保存校验。</p>
-        <div class="meta">
-          <span>交互原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./sales-attribute-config/">
-        <h2 class="card-title">销售属性配置与SKU自定义属性</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="white"/><circle cx="16" cy="12" r="2" fill="white"/><circle cx="10" cy="18" r="2" fill="white"/></svg></span>
+        <h3 class="card-title">销售属性配置与SKU自定义属性</h3>
         <p class="card-desc">品线销售属性配置、SKU 基础信息属性合并展示，以及 SKU 维度自定义属性新增、编辑、删除。</p>
-        <div class="meta">
-          <span>交互原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./spu-category-confirmation/">
-        <h2 class="card-title">运营编辑SPU品类确认</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 17l2 2 5-5"/></svg></span>
+        <h3 class="card-title">运营编辑SPU品类确认</h3>
         <p class="card-desc">销售信息 tab 顶部新增 SPU 品类确认，支持当前品类、竞品建议品类、本次确认品类、保存校验和确认/修改日志。</p>
-        <div class="meta">
-          <span>新原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./qc-image-import/">
-        <h2 class="card-title">从大货质检导入图片</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 5-5 4 3 3-5 4 6"/></svg></span>
+        <h3 class="card-title">从大货质检导入图片</h3>
         <p class="card-desc">编辑 SPU 产品资料图片页新增质检图片导入入口，支持按 SKU 查看、选择、导入到 SPU 或选中 SKU 图片。</p>
-        <div class="meta">
-          <span>交互原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./product-data-permission/">
-        <h2 class="card-title">选品数据权限配置</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6zM9 12l2 2 4-4"/></svg></span>
+        <h3 class="card-title">选品数据权限配置</h3>
         <p class="card-desc">按用户、公司与三级品类配置选品数据权限，支持角色范围、公司品类联动、超范围保留与重复配置校验。</p>
-        <div class="meta">
-          <span>新原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./asin-selection/">
-        <h2 class="card-title">ASIN选品与开发任务</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h12v16H4V8zM8 4v4H4M8 12h8M8 16h5"/></svg></span>
+        <h3 class="card-title">ASIN选品与开发任务</h3>
         <p class="card-desc">以 ASIN 维度完成筛选、开发情况查看、人工标记、创建开发任务，并贯通任务列表与详情。</p>
-        <div class="meta">
-          <span>新原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
 
       <a class="card" href="./1688-sourcing-demo/">
-        <h2 class="card-title">1688 Pro ASIN 商品溯源</h2>
+        <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 8 4v10l-8 4-8-4V7zM4 7l8 4 8-4M12 11v10M8 5l8 4"/></svg></span>
+        <h3 class="card-title">1688 Pro ASIN 商品溯源</h3>
         <p class="card-desc">集中查看 1688 Pro 接口说明、ASIN 溯源方案设计与任务详情交互原型。</p>
-        <div class="meta">
-          <span>方案与交互原型</span>
-          <span class="open">打开 →</span>
-        </div>
       </a>
       </div>
     </section>
 
     <section class="tools-section" aria-labelledby="tools-title">
-      <h2 class="section-title" id="tools-title">效率工具</h2>
+      <div class="section-heading"><h2 class="section-title" id="tools-title">效率工具</h2><p class="section-note">日常办公辅助</p></div>
       <div class="grid">
         <a class="card" href="./tools/feishu-word-converter/" target="_blank" rel="noopener noreferrer">
-          <h3 class="card-title"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 3H5v18h14V8z"/><path d="M14 3v5h5M8 12h8v6H8zM8 15h8M11 12v6"/></svg>飞书 Word 表格转换</h3>
+          <span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9h16M10 4v16"/></svg></span><h3 class="card-title">飞书 Word 表格转换</h3>
           <p class="card-desc">将飞书导出的嵌入式 Excel 对象转换为可编辑 Word 表格</p>
-          <div class="meta">
-            <span>效率工具 · 本地处理</span>
-            <span class="open">新标签页打开 →</span>
-          </div>
         </a>
+      <div class="card placeholder"><span class="entry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><h3 class="card-title">后续工具</h3><p class="card-desc">按实际需要扩展</p></div>
       </div>
-    </section>
-
-    <section class="guide">
-      <h2>后续新增需求</h2>
-      <p>每个需求新建一个文件夹，例如 <code>new-feature/</code>，里面放自己的 <code>index.html</code> 和 <code>assets/</code>，再在这个目录页新增一张卡片。Demo 制作规则统一参考 <code>DEMO_WORK_RULES.md</code>。</p>
     </section>
   </main>
 </body>
