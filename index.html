@@ -70,9 +70,32 @@
       white-space: nowrap;
     }
 
+    .section-title {
+      margin: 28px 0 0;
+      color: #111827;
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .tools-section {
+      margin-top: 40px;
+    }
+
+    .tools-section .grid {
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    }
+
+    .tool-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      color: var(--teal-dark);
+      vertical-align: -5px;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
       gap: 18px;
       margin-top: 28px;
     }
@@ -182,7 +205,9 @@
       <span class="badge">product-prototypes</span>
     </header>
 
-    <section class="grid" aria-label="原型列表">
+    <section aria-labelledby="prototypes-title">
+      <h2 class="section-title" id="prototypes-title">产品原型</h2>
+      <div class="grid" aria-label="原型列表">
       <a class="card" href="./competitor-ai/">
         <h2 class="card-title">AI 推荐竞品链接功能</h2>
         <p class="card-desc">产品详情、编辑页和批量设置场景下的 AI 推荐竞品交互设计稿。</p>
@@ -272,6 +297,21 @@
           <span class="open">打开 →</span>
         </div>
       </a>
+      </div>
+    </section>
+
+    <section class="tools-section" aria-labelledby="tools-title">
+      <h2 class="section-title" id="tools-title">效率工具</h2>
+      <div class="grid">
+        <a class="card" href="./tools/feishu-word-converter/" target="_blank" rel="noopener noreferrer">
+          <h3 class="card-title"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 3H5v18h14V8z"/><path d="M14 3v5h5M8 12h8v6H8zM8 15h8M11 12v6"/></svg>飞书 Word 表格转换</h3>
+          <p class="card-desc">将飞书导出的嵌入式 Excel 对象转换为可编辑 Word 表格</p>
+          <div class="meta">
+            <span>效率工具 · 本地处理</span>
+            <span class="open">新标签页打开 →</span>
+          </div>
+        </a>
+      </div>
     </section>
 
     <section class="guide">
