@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AC开发任务与预立项整合方案</title>
+  <style>
+    :root{--bg:#f5f7fb;--ink:#172033;--muted:#647089;--line:#dfe5ef;--brand:#18b7ad;--brand-dark:#0e8f87;--brand-soft:#eaf9f7}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;padding-bottom:62px;color:var(--ink);background:var(--bg);font:14px/1.8 "Microsoft YaHei","PingFang SC",Arial,sans-serif}a{color:var(--brand-dark);text-decoration:none}a:hover{text-decoration:underline}h1,h2,h3,h4{line-height:1.5}p{margin:9px 0}ul,ol{padding-left:22px;margin:10px 0}li{margin:4px 0}h2{font-size:23px;margin:0 0 18px}h3{font-size:18px;margin:0 0 14px}h4{font-size:15px;margin:22px 0 10px}strong{font-weight:600}
+    .hero{padding:42px 28px 36px;color:white;background:linear-gradient(125deg,#172033,#293a63 65%,#176c69)}.hero-inner{max-width:1240px;margin:auto}.eyebrow{color:#c8d6e4;font-size:13px;letter-spacing:.05em}.hero h1{margin:10px 0 12px;font-size:clamp(26px,3vw,38px)}.hero p{color:#d7e1ed;max-width:960px}.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.hero-tags span{border:1px solid #ffffff36;background:#ffffff0d;border-radius:20px;padding:3px 11px;font-size:12px}
+    .layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:22px;max-width:1420px;margin:auto;padding:24px}.toc{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 42px);overflow:auto;border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;padding:5px 7px;color:#42506a;border-radius:5px;font-size:13px}.toc a:hover{background:var(--brand-soft);text-decoration:none}.toc .toc-group{margin-top:12px;padding:0 7px;color:#929daf;font-size:11px}.toc .sub{padding-left:16px;font-size:12px}main{min-width:0}section{padding:26px;margin-bottom:20px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 8px 24px #1e305008;scroll-margin-top:24px}.chapter-label{margin:34px 0 20px;padding:5px 0 5px 16px;border-left:5px solid var(--brand);color:#172b46;font-size:28px;font-weight:700;line-height:1.5;letter-spacing:.01em}main>.chapter-label:first-child{margin-top:4px}.toc .toc-group{color:#34455f;font-size:12px;font-weight:700}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;margin:12px 0 16px}table{border-collapse:collapse;width:100%;table-layout:fixed;min-width:660px}th,td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;overflow-wrap:anywhere}th{background:#f3f6fb;color:#3b4860;font-size:13px}tr:last-child td{border-bottom:0}.roadmap th:first-child{width:100px}.roadmap th:nth-child(2){width:225px}.field-map th:first-child{width:120px}.field-map th:nth-child(2){width:42%}.sheet-map th:first-child{width:185px}.sheet-map th:nth-child(2){width:230px}.current td{background:#f0faf8}.callout{padding:13px 16px;background:#eef8f6;border-left:3px solid var(--brand);border-radius:3px;margin:14px 0}.callout.neutral{background:#f5f7fa;border-color:#a9b6c8}.tag{display:inline-block;padding:1px 8px;border-radius:12px;background:#e7f6f3;color:#0e8f87;font-size:11px;white-space:nowrap}.flow{display:flex;align-items:center;gap:8px;margin:16px 0;overflow:auto}.flow span{min-width:130px;flex:1;padding:12px 8px;background:#f5faf9;border:1px solid #d4e8e3;border-radius:5px;text-align:center;font-size:12px}.flow b{color:#9aa5b5;font-weight:400}.muted{color:var(--muted)}footer{text-align:center;padding:5px 24px 20px;color:#8895a7;font-size:12px}.back-to-prototype{display:inline-block;margin-top:10px;padding:7px 12px;border:1px solid #9fd9d2;border-radius:4px;background:var(--brand-soft)}
+    .demo-suite-switch{position:fixed;left:66px;bottom:14px;z-index:9999;display:flex;align-items:center;gap:3px;padding:5px;border:1px solid #d9e2e8;border-radius:7px;background:rgba(255,255,255,.97);box-shadow:0 6px 20px rgba(28,45,61,.16);font-size:12px}.demo-suite-switch .switch-label{padding:0 7px;color:#788694}.demo-suite-switch a{padding:7px 9px;border-radius:4px;color:#536273;text-decoration:none;white-space:nowrap}.demo-suite-switch a:hover{color:#07998f;background:#edf9f7}.demo-suite-switch a.active{color:#fff;background:#18b7ad;font-weight:600}
+    @media(max-width:950px){.layout{grid-template-columns:185px minmax(0,1fr);gap:14px;padding:16px}section{padding:20px}.roadmap th:nth-child(2){width:180px}}@media(max-width:720px){.layout{display:block;padding:12px}.toc{position:static;max-height:none;margin-bottom:16px}.hero{padding:28px 18px}.toc a{display:inline-block}section{padding:18px}h2{font-size:21px}.demo-suite-switch{left:12px;bottom:10px}}
+    @media print{body{padding:0;background:#fff;font-size:11px}.demo-suite-switch,.toc{display:none}.hero{background:#fff;color:#172033;padding:0 0 18px}.hero p,.eyebrow{color:#647089}.hero-tags{display:none}.layout{display:block;max-width:none;padding:0}section{box-shadow:none;border:0;border-top:1px solid #ccc;border-radius:0;padding:18px 0;margin:0;break-inside:auto}table{min-width:0;font-size:10px}thead{display:table-header-group}tr{break-inside:avoid}h2,h3,h4{break-after:avoid}.table-wrap{overflow:visible}footer{padding:16px 0}}
+
+    .goal-diagram{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr);align-items:center;gap:10px;margin:24px 0 16px}.goal-node{align-self:stretch;padding:20px 14px;border:1px solid #dce5ed;border-radius:8px;background:#f7f9fc;text-align:center}.goal-node.primary{border-color:#97d8d1;background:#edf9f6}.goal-step{display:block;margin-bottom:8px;color:#647089;font-size:12px}.goal-node.primary .goal-step{color:#0e8f87}.goal-node h3{margin:0 0 10px;color:#223953;font-size:17px}.goal-node p{margin:0;color:#59677c;font-size:13px;line-height:1.9}.goal-arrow{color:#8da6b8;font-size:26px;text-align:center}.goal-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 20px}.goal-benefits span{padding:7px 10px;border-radius:4px;color:#126d66;background:#eef7f5;text-align:center;font-size:13px;font-weight:600}
+    @media(max-width:720px){.chapter-label{font-size:23px;padding-left:12px}.goal-diagram{grid-template-columns:1fr;gap:8px}.goal-arrow{transform:rotate(90deg);line-height:1}.goal-node{padding:16px}.goal-benefits{gap:5px}.goal-benefits span{font-size:12px;padding:7px 4px}}
+    .hero-subtitle{margin:0 0 16px;color:#e4eef5;font-size:22px;font-weight:500;line-height:1.5;letter-spacing:.03em}@media(max-width:720px){.hero-subtitle{font-size:18px}}@media print{.hero-subtitle{color:#42506a;font-size:18px}}
+    .hero-meta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:16px}.hero-meta>p{margin:0;white-space:nowrap}.hero-meta .hero-tags{margin-top:0}
+  </style>
+</head>
+<body>
+  <nav class="demo-suite-switch" aria-label="方案与原型导航"><span class="switch-label">市场分析</span><a class="active" aria-current="page" href="plan.html">整合方案</a><a href="市场分析报告交互原型.html">交互原型</a></nav>
+  <header class="hero"><div class="hero-inner"><h1>AC开发任务与预立项整合方案</h1><div class="hero-subtitle">整体规划 · 第一阶段：市场分析前置与结构化</div><div class="hero-meta"><p>2026年10月 &nbsp;|&nbsp; 黄红英</p><div class="hero-tags"><span>适用业务：星渠</span><span>本次范围：第一阶段</span><span>保留两端审核流程</span><span>结构化报告直接引用</span></div></div></div></header>
+  <div class="layout">
+    <nav class="toc" aria-label="方案目录"><strong>方案目录</strong><div class="toc-group">一、整体改造规划</div><a href="#goal">1.1 改造目标</a><a href="#roadmap">1.2 四阶段规划</a><div class="toc-group">二、第一阶段方案</div><a href="#scope">2.1 适用范围</a><a href="#solution">2.2 整体方案</a><a href="#modules">2.3 市场分析各模块方案</a><a class="sub" href="#category">类目市场分析</a><a class="sub" href="#competitor">竞品市场分析</a><a class="sub" href="#product">产品开发信息</a><a href="#field-mapping">2.4 原报告字段处理</a><a class="sub" href="#sheet1">附表一：类目市场分析</a><a class="sub" href="#sheet2">附表二：竞品市场分析</a><a class="sub" href="#sheet3">附表三：产品开发信息</a><a class="back-to-prototype" href="市场分析报告交互原型.html">打开交互原型 →</a></nav>
+    <main>
+      <h2 class="chapter-label">一、整体改造规划</h2>
+      <section id="goal"><h2>1.1 改造目标</h2><p>针对星渠业务，以<strong>AC开发任务</strong>为产品开发调研的主要入口，逐步整合开发任务与预立项，提升开品效率。</p>
+        <div class="goal-diagram" aria-label="整体改造目标：开发任务统一调研，审核通过后进入预立项，产品信息传递至SPU/SKU草稿">
+          <div class="goal-node primary"><span class="goal-step">主要入口</span><h3>AC开发任务</h3><p>市场分析线上维护<br>待开发产品集中完善</p></div>
+          <span class="goal-arrow" aria-hidden="true">→</span>
+          <div class="goal-node"><span class="goal-step">审核通过后进入</span><h3>预立项</h3><p>直接引用审核通过的报告<br>逐步整合供应商与审核流程</p></div>
+          <span class="goal-arrow" aria-hidden="true">→</span>
+          <div class="goal-node"><span class="goal-step">信息衔接</span><h3>项目及SPU/SKU草稿</h3><p>承接前期产品信息<br>减少后续重复录入</p></div>
+        </div>
+        <div class="goal-benefits"><span>减少线下维护</span><span>减少重复审核</span><span>减少重复录入</span></div>
+        <p class="muted">分四阶段推进：本次优先完成市场分析前置，后续逐步优化供应商引入、审核流程及产品信息衔接。</p></section>
+      <section id="roadmap"><h2>1.2 四阶段规划</h2><div class="table-wrap"><table class="roadmap"><thead><tr><th>阶段</th><th>改造方向</th><th>主要内容</th></tr></thead><tbody>
+        <tr class="current"><td><strong>第一阶段</strong><br><span class="tag">本次重点</span></td><td>市场分析报告前置与线上结构化</td><td>在开发任务中完成类目市场分析、竞品市场分析，并优化现有待开发产品信息；预立项直接引用结构化报告。</td></tr>
+        <tr><td><strong>第二阶段</strong></td><td>供应商引入及审核流程整合</td><td>渠道供应商引入与开发任务调研并行推进；前置必要项目基础信息，推动开发任务审核通过即完成预立项审核，减少重复操作。</td></tr>
+        <tr><td><strong>第三阶段</strong><br><span class="muted">待评估</span></td><td>SPU/SKU信息进一步前置</td><td>在开发任务中完善更多产品草稿信息，优化任务向项目、SPU/SKU草稿的数据传递。</td></tr>
+        <tr><td><strong>第四阶段</strong><br><span class="muted">远期方向</span></td><td>类目市场分析能力扩展</td><td>结合卖家精灵等数据，在选品阶段提供更完整的类目市场分析能力，辅助前期选品判断。</td></tr>
+      </tbody></table></div><div class="callout"><strong>阶段边界：</strong>本次重点实施第一阶段；第二阶段后续专项设计，第三、四阶段暂作为规划方向。</div></section>
+      <h2 class="chapter-label">二、第一阶段：市场分析报告前置与线上结构化</h2>
+      <section id="scope"><h2>2.1 适用范围</h2><ul>
+        <li><strong>适用业务：</strong>星渠渠道开发任务，依据开发人所属部门识别，不限制任务来源。</li>
+        <li><strong>其他业务：</strong>精品、泛精品暂沿用原有市场分析及预立项流程。</li>
+        <li><strong>任务状态：</strong>调研中支持开发人维护；提交审核后保留数据快照，驳回后可继续编辑。</li>
+        <li><strong>模块展示：</strong>待分配时不展示；调研中随开发人部门变化更新展示，隐藏时保留数据；审核中、已完成、已终止沿用调研结束时的展示快照。</li>
+        <li><strong>流程边界：</strong>第一阶段保留开发任务与预立项各自的审核流程，暂不合并；开发任务审核通过后才进入预立项阶段，报告锁定为审核通过时的内容。</li>
+      </ul></section>
+      <section id="solution"><h2>2.2 整体方案</h2><p>原市场分析报告包含三个Sheet，分别由AC不同模块承接：</p><div class="table-wrap"><table class="sheet-map"><thead><tr><th>原报告内容</th><th>AC承接位置</th><th>处理方案</th></tr></thead><tbody>
+        <tr><td><strong>Sheet 1：类目市场分析</strong></td><td>开发任务新增【市场分析—类目市场分析】</td><td>图文结构化维护，支持同部门历史报告复用。</td></tr>
+        <tr><td><strong>Sheet 2：竞品市场分析</strong></td><td>开发任务新增【市场分析—竞品市场分析】</td><td>以ASIN为分析对象，系统数据预填与人工分析结合。</td></tr>
+        <tr><td><strong>Sheet 3：产品开发信息</strong></td><td>现有【待开发产品】</td><td>复用已有SPU/SKU字段，仅调整、补充必要信息。</td></tr>
+      </tbody></table></div><h4>主要流程调整</h4><div class="flow" aria-label="第一阶段主要流程"><span>开发任务调研<br>市场分析＋待开发产品</span><b>→</b><span>提交任务审核<br>必填校验＋报告预览</span><b>→</b><span>任务审核通过<br>保留结构化内容</span><b>→</b><span>预立项引用报告<br>产品信息传递至草稿</span></div><ol>
+        <li>开发人员在开发任务调研阶段完成市场分析，并维护待开发产品。</li>
+        <li>提交任务审核时校验必填内容，支持在线预览市场分析报告。校验失败时Toast提示、自动定位，并展示红框及内联红字。</li>
+        <li>任务审核通过后，后续预立项直接引用已有市场分析内容，无需重新整理、上传Excel。</li>
+        <li>待开发产品的信息继续沿用现有流程，传递至后续项目及SPU/SKU草稿。</li>
+      </ol><p>报告按类目市场分析、竞品市场分析、待开发产品三个章节只读展示，支持图片放大。待开发产品直接关联现有数据，按SPU概要及SKU明细分层展示；必填缺失显示“待完善”，选填缺失显示“无”。</p><div class="callout neutral"><strong>报告引用规则：</strong>开发任务审核通过后才进入预立项阶段；预立项直接引用审核通过时的报告，报告在审核通过后不再修改。</div></section>
+      <section id="modules"><h2>2.3 市场分析各模块方案</h2>
+        <h3 id="category">① 类目市场分析</h3><ul>
+          <li>支持选择站点、Amazon三级／四级／五级品类和调研品类；调研品类可搜索现有品类、自定义输入，也可从当前任务参考ASIN带入。</li>
+          <li>未选择调研品类时，历史复用入口置灰，悬浮提示“请先选择调研品类”。站点或品类等级变化且已有调研品类时，确认后清空当前品类选择，保留分析内容。</li>
+          <li>保留新品TOP10、小类近30天TOP及原报告8项类目分析。两个榜单均支持单图上传，新品TOP10必填，小类近30天TOP选填。</li>
+          <li>前6项采用单张分析图片＋文字结论，图片、结论均必填；后2项“消费者画像”“使用场景”采用纯文字，结论必填。</li>
+          <li>支持单项及全部展开／收起；全部操作包含类目榜单参考。</li>
+          <li>历史复用按站点、品类等级、调研品类及开发人部门匹配已审核通过的结构化分析。预填榜单图片及8项分析图文，允许继续编辑；已有内容时需确认覆盖。</li>
+          <li>历史列表展示任务编号、品线、开发人及审核时间，按审核时间倒序；任务编号跳转任务详情，无权限时提示无权限。</li>
+        </ul>
+        <h3 id="competitor">② 竞品市场分析</h3><ul>
+          <li>“竞品市场定位”为任务内所有竞品共用信息，包括节日周期／流量时段、核心消费场景、目标客群；从类目分析预填后可修改并独立保存，不随竞品切换或后续类目修改而覆盖。</li>
+          <li>支持从当前任务参考产品中搜索、多选竞品，也支持直接录入ASIN。直接新增时关联当前任务参考产品，并同步至ASIN选品池；已有数据直接复用，不重复创建。</li>
+          <li>选品池仍按现有权限展示；任务内已关联ASIN不受选品池查看权限限制。</li>
+          <li>左侧竞品列表切换ASIN，展示图片、名称、售价、评分、月销量及填写进度；右侧纵向维护竞品基础及市场数据、关键词及搜索数据、产品卖点与用户反馈、开发建议四个模块。</li>
+          <li>ASIN已有数据自动预填，产品名称生成中文关键词，市场数据允许修改；以当前任务保存值为准，不回写ASIN原始数据，也不被后续抓取自动覆盖。</li>
+          <li>展示竞品实际品类完整路径，与所选等级的调研品类不一致时给出橙色提示；不另建调研品类字段。</li>
+          <li>关键词采用动态明细，数量字段允许10000+、约5000等文本表达。至少一组关键词、搜索竞品数量、月搜索量完整填写即可，额外空行不增加必填进度。</li>
+          <li>核心差评文字必填，用户反馈图片选填、最多3张；备注选填，其余保留的可编辑分析字段按必填处理。商品图片优先引用系统数据，无图时支持补传。</li>
+          <li>市场定位及四个模块展示必填填写进度；支持展开／收起及全部操作。删除竞品分析不删除参考产品，不提供个人历史分析复用。</li>
+        </ul>
+        <h3 id="product">③ 产品开发信息</h3><ul>
+          <li>不新增独立的报告填写模块，继续使用现有【待开发产品】，复用已有产品、供应商、采购、售价及SKU变体信息。</li>
+          <li>SPU维度补充采购备注、采购链接及海运-多渠道利润测算（OP）截图。采购备注和测算截图必填，采购链接选填、单行输入，可从已选货源预填并修改。</li>
+          <li>采购备注通过多行文本维护采购交期、是否支持阿里月结等信息；字段旁提供悬浮／点击提示，不拆分独立字段。</li>
+          <li>利润测算独占一行，支持多张图片上传、预览、删除及继续新增；一期仅维护图片，不对接计算器。</li>
+          <li>SKU维度将原“友商销售材料”列改为“配件搭配清单”，复用行内文本框，设为必填，并按SKU传递至SPU草稿的包装清单。</li>
+          <li>采购价按CNY、预计售价区间按USD展示；采购价说明为“含包材，不含税费及运费”。采购价、包装长宽高及重量为非负数字、最多两位小数，起订量为非负整数。</li>
+          <li>基础信息仍采用紧凑网格：第一行系统品类、产品标题、产品图片；第二行供应商名称、采购备注、采购链接；第三行利润测算。产品及SKU图片点击上传框即可上传或更换。</li>
+          <li>相关信息后续按SPU/SKU维度传递至品牌中心；本次不大改已有SPU/SKU草稿结构。</li>
+        </ul><div class="callout neutral"><strong>保存与审核：</strong>市场分析文本及数字字段失焦保存，图片上传／删除即时保存，日常允许分析内容不完整，提交审核时统一校验。待开发产品沿用弹窗确认保存，并校验本次明确的必填字段。</div>
+      </section>
+      <section id="field-mapping"><h2>2.4 原市场分析报告字段处理</h2><p class="muted">附表按原Excel的字段口径分组归纳；具体输入方式和必填范围与当前交互原型保持一致。</p>
+        <h3 id="sheet1">附表一：Sheet 1——类目市场分析（10项）</h3><div class="table-wrap"><table class="field-map"><thead><tr><th>处理方式</th><th>涉及字段</th><th>处理说明</th></tr></thead><tbody>
+          <tr><td><strong>调整</strong></td><td>亚马逊品类／站点</td><td>站点、品类等级、调研品类必填；支持品类搜索、自定义输入及从参考ASIN带入。</td></tr>
+          <tr><td><strong>保留</strong></td><td>新品TOP10、小类近30天TOP</td><td>均采用单图上传；新品TOP10必填，小类近30天TOP选填。</td></tr>
+          <tr><td><strong>保留并结构化</strong></td><td>市场规模与概况、市场趋势／流量周期、商品集中度、上架时间分布、价格分布、卖家分布</td><td>每项分析结论必填，并上传1张必填分析图片。</td></tr>
+          <tr><td><strong>保留并结构化</strong></td><td>消费者画像、使用场景</td><td>纯文本填写，结论必填，不需要图片。</td></tr>
+          <tr><td><strong>新增能力</strong></td><td>历史类目分析复用</td><td>按站点、品类等级、品类及部门匹配审核通过的历史结构化分析。</td></tr>
+        </tbody></table></div>
+        <h3 id="sheet2">附表二：Sheet 2——竞品市场分析（32项）</h3><div class="table-wrap"><table class="field-map"><thead><tr><th>处理方式</th><th>涉及字段</th><th>处理说明</th></tr></thead><tbody>
+          <tr><td><strong>不重复维护</strong></td><td>亚马逊品类</td><td>引用类目市场分析的调研口径，竞品实际品类用于一致性提示。</td></tr>
+          <tr><td><strong>调整为共用字段</strong></td><td>节日周期／流量时段、核心消费场景、目标客群</td><td>统一放在“竞品市场定位”，从类目分析预填文本，可修改；三项均必填。</td></tr>
+          <tr><td><strong>调整为系统预填</strong></td><td>产品名称、图片、亚马逊链接、上架时间、评分、Review数量、售价、规格尺寸、BSR排名、近30天销量</td><td>ASIN数据优先预填；名称生成中文关键词，市场数据可修改；评分统一星级，BSR统一小类排名，规格／尺寸注明单位。ASIN可跳转Amazon商品页。</td></tr>
+          <tr><td><strong>合并调整</strong></td><td>精准关键词、搜索竞品数量、核心关键词搜索量</td><td>按关键词维护动态明细，每组对应搜索竞品数量（核心词下）和核心关键词搜索量（月）；数量支持10000+等文本表达，至少一组完整填写。</td></tr>
+          <tr><td><strong>合并</strong></td><td>核心差评点、用户图片反馈</td><td>核心差评点（高频问题）文字必填，图片选填且最多3张。</td></tr>
+          <tr><td><strong>保留</strong></td><td>核心卖点、差异化开发方向、采购注意事项／利润优化建议等</td><td>保留人工分析：核心卖点（功能／场景／设计）、差异化开发方向（设计／功能／组合）必填；最后一项作为备注选填。</td></tr>
+          <tr><td><strong>删除</strong></td><td>品线名称、供应链成熟度、预估采购成本区间、竞品利润测算、MOQ、合规／认证要求、专利风险、同品类关联产品点、搭配场景／逻辑、产品线角色</td><td>已同业务确认可删除，共10项。</td></tr>
+        </tbody></table></div>
+        <h3 id="sheet3">附表三：Sheet 3——产品开发信息（25项）</h3><div class="table-wrap"><table class="field-map"><thead><tr><th>处理方式</th><th>涉及字段</th><th>处理说明</th></tr></thead><tbody>
+          <tr><td><strong>已有字段承接</strong></td><td>星商SPU/SKU、星商品类、产品标题、产品图片、供应商名称、采购单价、MOQ、定价、限价</td><td>复用现有待开发产品及变体字段；采购价补充CNY及“含包材，不含税费及运费”的口径说明。</td></tr>
+          <tr><td><strong>调整</strong></td><td>设计方案要点（差异化方向）</td><td>调整为SKU维度“配件搭配清单”，替换现有友商销售材料控件；必填，按SKU同步至SPU草稿包装清单。</td></tr>
+          <tr><td><strong>调整</strong></td><td>采购注意事项／现货情况／定制需求等备注</td><td>以SPU维度“采购备注”合并维护，必填；明确采购交期、是否支持阿里月结等。</td></tr>
+          <tr><td><strong>新增</strong></td><td>采购链接</td><td>SPU维度、选填，单行文本，支持1688／国际站链接；可从已选货源预填，允许修改并传递至SPU草稿。</td></tr>
+          <tr><td><strong>新增</strong></td><td>海运-多渠道利润测算（OP）</td><td>SPU维度，至少上传1张测算截图，支持多张、预览、删除及继续新增；后续考虑计算器对接。</td></tr>
+          <tr><td><strong>不再额外维护</strong></td><td>原报告产品品类、开发进度、样品状态、合规／认证进度、计划上线时间、备货仓、其他采购杂费、FBA配送费用、海运FBA、空运FBA、月预计销量、月预计毛利</td><td>不纳入本次待开发产品补充范围；已有业务流程不受影响。</td></tr>
+        </tbody></table></div>
+      </section>
+    </main>
+  </div>
+  <footer>AC开发任务与预立项整合方案 · 第一阶段实施范围</footer>
+</body>
+</html>

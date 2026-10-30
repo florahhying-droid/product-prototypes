@@ -13,6 +13,7 @@
 - `qc-image-import/`：产品信息支持从大货质检导入图片
 - `product-data-permission/`：选品数据权限配置
 - `asin-selection/`：ASIN选品与开发任务完整交互
+- `market-analysis/`：市场分析报告前置与结构化，含可离线打开的单文件HTML与分离版源码
 - `1688-sourcing-demo/`：1688 Pro ASIN 商品溯源演示套件
   - `index.html`：寻源通 API Pro 接口与字段说明
   - `phase1-plan.html`：一期产品方案
