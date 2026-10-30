@@ -128,5 +128,19 @@
   });
   enhance();
   fold(document.getElementById('basicSection'), true);
-  new MutationObserver(() => enhance()).observe(main, {childList: true, subtree: true});
+  // Collapse many render mutations into a single scan on the next frame.
+  let enhancementScheduled = false;
+  function scheduleEnhancement() {
+    if (enhancementScheduled) return;
+    enhancementScheduled = true;
+    const schedule = window.requestAnimationFrame ? callback => window.requestAnimationFrame(callback) : callback => setTimeout(callback, 16);
+    schedule(() => { enhancementScheduled = false; enhance(); });
+  }
+  new MutationObserver(scheduleEnhancement).observe(main, {childList: true, subtree: true});
+  // Keep the self-contained download for file://; web visitors use cacheable assets.
+  if (/^https?:$/.test(window.location.protocol)) {
+    document.querySelectorAll('.demo-suite-switch a').forEach(link => {
+      if (link.getAttribute('href') === '市场分析报告交互原型.html') link.setAttribute('href', 'index.html');
+    });
+  }
 })();

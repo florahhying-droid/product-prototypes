@@ -121,5 +121,10 @@
     </main>
   </div>
   <footer>AC开发任务与预立项整合方案 · 第一阶段实施范围</footer>
+  <script>
+    if (/^https?:$/.test(window.location.protocol)) {
+      document.querySelectorAll('a[href="市场分析报告交互原型.html"]').forEach(link => link.setAttribute('href', 'index.html'));
+    }
+  </script>
 </body>
 </html>
