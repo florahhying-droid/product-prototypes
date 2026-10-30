@@ -190,3 +190,14 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 .report-english-name{margin-top:7px;color:#8592a2;font-size:11px;line-height:1.7}
 
 .pending-purchase-note{margin-top:5px;color:#929baa;font-size:11px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Product-list cards: full-height image on the left, completion in the corner. */
+#competitors .competitor-list-item{display:grid;grid-template-columns:78px minmax(0,1fr);align-items:stretch;gap:10px;padding:0;min-height:104px;overflow:hidden}
+#competitors .competitor-list-item.is-active{padding-left:0}
+#competitors .comp-list-image{width:78px;height:auto;min-height:104px;border:0;border-right:1px solid #e5ecee;background:#fff;align-self:stretch}
+#competitors .comp-list-image img{display:block;width:100%;height:100%;min-height:104px;object-fit:contain}
+#competitors .comp-list-copy{padding:25px 7px 10px 0;min-width:0}
+#competitors .comp-list-name{max-width:none;margin-top:4px}
+#competitors .comp-completion{position:absolute;top:0;right:0;padding:1px 7px;border-bottom-left-radius:4px;background:#22b8ad;color:#fff;font-size:10px;font-weight:400;line-height:18px;white-space:nowrap}
+#competitors .comp-completion.incomplete{background:#fff1db;color:#b47b24}
+#competitors .comp-list-delete{top:3px;left:3px;right:auto;width:18px;height:18px;padding:0;border-radius:2px;background:rgba(255,255,255,.93);line-height:17px}

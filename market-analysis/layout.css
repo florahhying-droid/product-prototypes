@@ -173,3 +173,11 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .reference-category-asin{display:inline;padding:0;border:0;border-radius:0;background:transparent;color:inherit;font-size:inherit;line-height:inherit;white-space:nowrap}
 .reference-asin-status{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
 .reference-data-loading{color:#de5663;font-size:11px;font-weight:400;white-space:nowrap}
+
+#categorySaved{flex:none;min-width:16px;color:#15966b;font-size:16px;font-weight:600;line-height:1}
+.asin-link-icon{display:inline-block;width:12px;height:12px;vertical-align:-1px;color:#15988f;flex:none}
+#referenceBody .external-link{color:#24415b}
+.reference-asin-status{flex-direction:column;gap:4px}
+.reference-identity-tags{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.reference-company-code{display:inline-block;padding:1px 5px;border:1px solid #bde4df;border-radius:2px;color:#20a59c;background:#f5fcfb;font-size:11px;line-height:1.4}
+.reference-data-loading{padding:1px 5px;border:1px solid #ffd9dd;border-radius:2px;background:#fff4f5;line-height:1.4}
