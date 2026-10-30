@@ -207,3 +207,27 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 #editModal .pending-profit-field{min-height:30px}#editModal .pending-op-control{align-items:center;min-height:30px}.pending-op-state{font-size:12px;color:#8a97a8;line-height:30px}.pending-op-state[data-state="done"]{color:#15966b}.pending-op-state[data-state="error"],.op-missing-fields{color:#d16b38}.pending-op-actions{display:flex;gap:10px}.pending-op-summary{margin-top:5px;color:#8a97a8;font-size:11px}.op-sku-result{margin:16px 0;padding-bottom:16px;border-bottom:1px solid #e1e5ea}.op-sku-result .report-facts{width:100%;min-width:0;table-layout:fixed}.op-sku-result .report-facts th,.op-sku-result .report-facts td{white-space:normal;padding:8px;border:1px solid #e1e5ea;overflow-wrap:anywhere}.op-channel-table{min-width:0;width:100%}.op-channel-table th{position:static}
 
 .pending-carton-summary{font-size:11px;line-height:1.7;white-space:normal}.pending-table{min-width:1600px}#editModal .variant-edit-table{min-width:2640px}.report-paper .report-skus{min-width:1850px}#editModal [data-field="saleSeason"]{min-width:110px}@media(max-width:700px){#editModal .pending-basic-grid{grid-template-columns:1fr;gap:12px}#editModal .pending-basic-field{grid-column:1/-1;min-width:0}#editModal .pending-basic-field>label{flex:0 0 100px;width:100px}#editModal .pending-basic-control{min-width:0}#editModal .pending-profit-field>label{flex-basis:132px;width:132px}#editModal .pending-op-control{flex-wrap:wrap}}
+
+/* Grouped carton editor and pinned profit / action columns. */
+#editModal .variant-edit-table{min-width:2260px}#editModal .variant-edit-table>thead th{text-align:center;vertical-align:middle}
+#editModal .pending-packing-input:disabled{background:#f3f5f7;color:#95a0ad;cursor:not-allowed}
+#editModal .split-carton-cell{vertical-align:top;padding:7px!important}
+#editModal .split-carton-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;color:#64748b;font-size:11px}
+#editModal .split-carton-table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}
+#editModal .split-carton-table th,#editModal .split-carton-table td{padding:4px;border:1px solid #e1e5ea}
+#editModal .split-carton-table th:first-child{width:35px}#editModal .split-carton-table th:last-child{width:38px}
+#editModal .split-carton-table .control{min-width:52px;padding:0 4px}
+#editModal .split-carton-table .link:disabled{opacity:.4;cursor:not-allowed}
+.pending-table{--pending-operation-width:76px;--pending-profit-width:124px;min-width:1640px}
+.pending-table .pending-profit-fixed{position:sticky;right:0;z-index:4;min-width:var(--pending-profit-width);width:var(--pending-profit-width);max-width:var(--pending-profit-width);background:#fff;box-shadow:-6px 0 8px -8px #536173}
+.pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-width)}
+.pending-table .pending-operation-fixed{position:sticky;right:0;z-index:5;min-width:var(--pending-operation-width);width:var(--pending-operation-width);max-width:var(--pending-operation-width);background:#fff}
+.pending-table thead .pending-profit-fixed,.pending-table thead .pending-operation-fixed{z-index:8;background:#f6f7f9;white-space:nowrap}
+.pending-profit-result.pass{color:#15966b}.pending-profit-result.fail,.negative-profit{color:#de5663!important}.pending-profit-result.running,.pending-profit-result.idle,.pending-profit-result.incomplete{color:#8a97a8}.pending-profit-result.error{color:#cf4d58}
+.op-detail-dialog{width:min(1040px,94vw)}.op-profit-details{width:100%;min-width:620px;table-layout:fixed;border-collapse:collapse}
+.op-profit-details th,.op-profit-details td{position:static;white-space:normal;overflow-wrap:anywhere;text-align:left;border:1px solid #e1e5ea;padding:10px}
+.op-profit-details th{background:#f6f8fa;font-weight:500}.op-profit-details th:nth-child(3){width:27%}.op-profit-details th:last-child{width:100px}.op-rule-note{padding:10px 12px;background:#f3faf8;color:#64748b;line-height:1.8}.op-example-note{margin-top:16px;font-size:11px}.op-sku-result h3{font-size:14px;color:#415269}.op-sku-result h3 .pending-profit-result{margin-left:10px;font-weight:400}
+
+.pending-table{--pending-profit-width:200px}.pending-table thead .pending-profit-fixed{white-space:normal;line-height:1.6}
+
+.pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-offset,var(--pending-operation-width))}
