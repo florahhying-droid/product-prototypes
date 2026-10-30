@@ -167,3 +167,9 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .reference-category-grouped tbody tr:hover{background:#f3faf8}
 .reference-category-asins{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto;align-content:flex-start}
 .reference-category-asin{display:inline-block;padding:2px 6px;border:1px solid #dbe6e8;border-radius:3px;background:#f7fafb;color:#526b80;font-size:11px;line-height:1.6;white-space:nowrap}
+
+/* Associated ASINs are plain text; only whole ASIN tokens stay on one line. */
+.reference-category-asins{display:block;max-height:none;overflow:visible;white-space:normal;line-height:1.8;overflow-wrap:normal}
+.reference-category-asin{display:inline;padding:0;border:0;border-radius:0;background:transparent;color:inherit;font-size:inherit;line-height:inherit;white-space:nowrap}
+.reference-asin-status{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.reference-data-loading{color:#de5663;font-size:11px;font-weight:400;white-space:nowrap}
