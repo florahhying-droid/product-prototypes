@@ -159,3 +159,11 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .category-meta #fromAsin{color:#15988f;border-color:#22b8ad;background:transparent}
 .category-meta #fromAsin:hover{color:#0e8179;border-color:#15988f;background:transparent}
 @media(max-width:850px){.category-scope-controls{margin-left:0;gap:10px}.category-scope-controls #marketSite{width:100px}.category-scope-controls #marketLevel{width:145px}}
+
+.reference-category-table.reference-category-grouped{min-width:0;table-layout:fixed}
+.reference-category-grouped th,.reference-category-grouped td{white-space:normal;overflow-wrap:anywhere}
+.reference-category-grouped td:nth-child(2){text-align:left}
+.reference-category-grouped tbody tr{cursor:pointer}
+.reference-category-grouped tbody tr:hover{background:#f3faf8}
+.reference-category-asins{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto;align-content:flex-start}
+.reference-category-asin{display:inline-block;padding:2px 6px;border:1px solid #dbe6e8;border-radius:3px;background:#f7fafb;color:#526b80;font-size:11px;line-height:1.6;white-space:nowrap}

@@ -407,6 +407,14 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .category-meta #fromAsin{color:#15988f;border-color:#22b8ad;background:transparent}
 .category-meta #fromAsin:hover{color:#0e8179;border-color:#15988f;background:transparent}
 @media(max-width:850px){.category-scope-controls{margin-left:0;gap:10px}.category-scope-controls #marketSite{width:100px}.category-scope-controls #marketLevel{width:145px}}
+
+.reference-category-table.reference-category-grouped{min-width:0;table-layout:fixed}
+.reference-category-grouped th,.reference-category-grouped td{white-space:normal;overflow-wrap:anywhere}
+.reference-category-grouped td:nth-child(2){text-align:left}
+.reference-category-grouped tbody tr{cursor:pointer}
+.reference-category-grouped tbody tr:hover{background:#f3faf8}
+.reference-category-asins{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto;align-content:flex-start}
+.reference-category-asin{display:inline-block;padding:2px 6px;border:1px solid #dbe6e8;border-radius:3px;background:#f7fafb;color:#526b80;font-size:11px;line-height:1.6;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1083,14 +1091,15 @@ $('#marketCategory').onblur=()=>{if(readOnly)return;chooseResearchCategory($('#m
 $('#marketCategory').onkeydown=event=>{const list=$('#categorySuggestions'),buttons=[...list.querySelectorAll('[data-category-choice]')];if(event.key==='Escape'){closeCategorySuggestions();return;}if(['ArrowDown','ArrowUp'].includes(event.key)){event.preventDefault();if(list.hidden){showCategorySuggestions();return;}if(!buttons.length)return;categorySearchIndex=(categorySearchIndex+(event.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length;buttons.forEach((button,i)=>button.setAttribute('aria-selected',String(i===categorySearchIndex)));}if(event.key==='Enter'){event.preventDefault();if(!list.hidden&&categorySearchIndex>=0)buttons[categorySearchIndex]?.click();else chooseResearchCategory($('#marketCategory').value.trim());}};
 $('#fromAsin').onclick=()=>{
  if(readOnly)return;
- const level=m.categoryLevel;
- const rows=refs.map(ref=>({ref,category:referenceCategories[ref.asin]})).filter(row=>row.category?.site===m.site&&row.category.paths[level]);
- let selected=null;
- const dlg=openDialog('使用参考ASIN品类',`<div class="category-dialog-context">${esc(m.site)} · Amazon${categoryLevelText(level)}</div>${rows.length?`<table class="reference-category-table"><thead><tr><th>选择</th><th>ASIN</th><th>产品标题</th><th>品类完整路径</th></tr></thead><tbody>${rows.map(({ref,category})=>`<tr><td><input type="radio" name="referenceCategory" value="${esc(ref.asin)}"></td><td>${esc(ref.asin)}</td><td>${esc(ref.title)}</td><td class="reference-category-path"><span>${esc(category.paths[level])}</span></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂无符合当前站点和品类等级的参考产品</div>'}`, '<button type="button" class="btn" data-cancel-reference>取消</button><button type="button" class="btn primary" data-use-reference disabled>确定使用</button>');
+ const level=m.categoryLevel,grouped=new Map();
+ refs.forEach(ref=>{const category=referenceCategories[ref.asin],path=category?.paths[level];if(category?.site!==m.site||!path)return;if(!grouped.has(path))grouped.set(path,{path,refs:[]});const row=grouped.get(path);if(!row.refs.some(item=>item.asin===ref.asin))row.refs.push(ref);});
+ const rows=[...grouped.values()];let selected=null;
+ const dlg=openDialog('使用参考ASIN品类',`<div class="category-dialog-context">${esc(m.site)} · Amazon${categoryLevelText(level)}</div>${rows.length?`<table class="reference-category-table reference-category-grouped"><colgroup><col style="width:54px"><col style="width:60%"><col></colgroup><thead><tr><th>选择</th><th>${categoryLevelText(level)}品类</th><th>参考ASIN</th></tr></thead><tbody>${rows.map(({path,refs},index)=>`<tr><td><input type="radio" name="referenceCategory" value="${index}" aria-label="选择${esc(path)}"></td><td class="reference-category-path"><span>${esc(path)}</span></td><td><div class="reference-category-asins">${refs.map(ref=>`<span class="reference-category-asin" title="${esc(ref.title||ref.asin)}">${esc(ref.asin)}</span>`).join('')}</div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂无符合当前站点和品类等级的参考产品</div>'}`, '<button type="button" class="btn" data-cancel-reference>取消</button><button type="button" class="btn primary" data-use-reference disabled>确定使用</button>');
  dlg.querySelector('[data-cancel-reference]').onclick=()=>close(dlg);
- dlg.querySelector('[data-use-reference]').onclick=()=>{if(!selected)return;m.categoryLevel=level;$('#marketLevel').value=level;chooseResearchCategory(selected.paths[level]);close(dlg);};
- dlg.querySelectorAll('[name=referenceCategory]').forEach(radio=>{radio.onchange=()=>{if(!radio.checked)return;dlg.querySelectorAll('[name=referenceCategory]').forEach(other=>other.checked=other===radio);selected=referenceCategories[radio.value];dlg.querySelector('[data-use-reference]').disabled=false;};radio.closest('tr').addEventListener('click',e=>{if(e.target===radio)return;radio.checked=true;radio.onchange();});});
+ dlg.querySelector('[data-use-reference]').onclick=()=>{if(!selected)return;m.categoryLevel=level;$('#marketLevel').value=level;chooseResearchCategory(selected.path);close(dlg);};
+ dlg.querySelectorAll('[name=referenceCategory]').forEach(radio=>{radio.onchange=()=>{if(!radio.checked)return;dlg.querySelectorAll('[name=referenceCategory]').forEach(other=>other.checked=other===radio);selected=rows[Number(radio.value)];dlg.querySelector('[data-use-reference]').disabled=false;};radio.closest('tr').addEventListener('click',e=>{if(e.target===radio)return;radio.checked=true;radio.onchange();});});
 };
+
 const categoryHistoryRecords=categoryPaths.filter((_,i)=>[0,1,2,5,6].includes(i)).flatMap((path,i)=>[
  {id:'DT20261025000'+(i+1),site:'US',level:String(path.length),path:path.join(' / '),dept:'xingqu',status:'approved',line:'美妆个护 > 工具与配件 > 旅行分装瓶',name:'旅行分装瓶开发',canViewTask:true,developer:'林悦',reviewedAt:'2026-10-25 16:30:00',dimensions:source.dimensions.map((d,i)=>normalizeSingleCategoryImage(d.html,i)),rankings:{newTop:{src:'assets/image10.png',alt:'新品TOP10'},monthTop:{src:'assets/image10.png',alt:'小类近30天TOP'}}},
  {id:'DT20260918000'+(i+1),site:'US',level:String(path.length),path:path.join(' / '),dept:'xingqu',status:'approved',line:'美妆个护 > 工具与配件 > 旅行分装瓶',name:'旅行分装瓶开发',canViewTask:false,developer:'张宁',reviewedAt:'2026-09-18 10:15:00',dimensions:source.dimensions.map((d,i)=>normalizeSingleCategoryImage(d.html,i)),rankings:{newTop:{src:'assets/image10.png',alt:'新品TOP10'},monthTop:{src:'assets/image10.png',alt:'小类近30天TOP'}}}
