@@ -138,3 +138,13 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 #competitors .comp-product-empty-upload svg{width:23px;height:23px}
 #competitors .comp-product-empty-upload:hover{border-color:var(--teal);color:var(--teal-dark);background:#f2fbf9}
 @media(max-width:850px){.category-meta-bottom{flex-wrap:wrap}.category-meta-bottom>.category-entry{flex-basis:100%}.category-meta-bottom>.category-meta-actions{margin-left:auto}}
+
+/* Compact research scope: wider selectors and actions next to the category path. */
+.category-meta-top #marketSite{width:112px}.category-meta-top #marketLevel{width:160px}
+.category-meta-bottom{justify-content:flex-start;gap:10px}
+.category-meta-bottom>.category-entry{flex:0 1 1120px;width:1120px;max-width:calc(100% - 260px)}
+.category-meta-bottom>.category-meta-actions{margin-left:0;justify-content:flex-start}
+#rankingRequiredProgress{font-size:14px;font-weight:400;color:#8c97a6}
+#rankingRequiredProgress.is-complete{color:#15966b}
+#rankingRequiredProgress[data-state="error"]{color:#cf4d58}
+@media(max-width:850px){.category-meta-bottom>.category-entry{flex:1 1 100%;width:100%;max-width:100%}.category-meta-bottom>.category-meta-actions{margin-left:0}.category-meta-top #marketSite{width:100px}.category-meta-top #marketLevel{width:145px}}
