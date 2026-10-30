@@ -148,3 +148,14 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 #rankingRequiredProgress.is-complete{color:#15966b}
 #rankingRequiredProgress[data-state="error"]{color:#cf4d58}
 @media(max-width:850px){.category-meta-bottom>.category-entry{flex:1 1 100%;width:100%;max-width:100%}.category-meta-bottom>.category-meta-actions{margin-left:0}.category-meta-top #marketSite{width:100px}.category-meta-top #marketLevel{width:145px}}
+
+/* Keep editable scope selectors alongside the category heading. */
+#categoryAnalysisBlock>.sub-head{justify-content:flex-start}
+.category-scope-controls{display:flex;align-items:center;flex:0 1 auto;width:auto;gap:16px;margin-left:14px;font-size:12px;font-weight:400;color:#69768a}
+.category-scope-controls>label{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.category-scope-controls select{height:30px;padding:0 9px;border:1px solid #ccd3dc;background:#fff;color:#536173;font:inherit}
+.category-scope-controls #marketSite{width:112px}.category-scope-controls #marketLevel{width:160px}
+.category-scope-controls .invalid select{border-color:#e6656e}
+.category-meta #fromAsin{color:#15988f;border-color:#22b8ad;background:transparent}
+.category-meta #fromAsin:hover{color:#0e8179;border-color:#15988f;background:transparent}
+@media(max-width:850px){.category-scope-controls{margin-left:0;gap:10px}.category-scope-controls #marketSite{width:100px}.category-scope-controls #marketLevel{width:145px}}
