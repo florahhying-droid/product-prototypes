@@ -166,7 +166,7 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 #editModal .pending-sku-image-button.has-image{border-style:solid}
 #editModal .pending-sku-image-button.has-image>.pending-sku-image-placeholder{display:none}
 #editModal .pending-sku-image-button.has-image:hover:after{content:'点击更换';position:absolute;bottom:0;left:0;right:0;color:#fff;background:#273346b3;font-size:10px;line-height:18px}
-#editModal .pending-help-icon{display:inline-grid;place-items:center;vertical-align:middle;width:15px;height:15px;padding:0;margin-left:3px;border:1px solid #aeb7c2;border-radius:50%;background:#fff;color:#7f8997;font-size:10px;font-weight:600;line-height:1;cursor:help}
+.pending-help-icon{display:inline-grid;place-items:center;vertical-align:middle;width:15px;height:15px;padding:0;margin-left:3px;border:1px solid #aeb7c2;border-radius:50%;background:#fff;color:#7f8997;font-size:10px;font-weight:600;line-height:1;cursor:help}
 .pending-help-popover{position:fixed;z-index:20000;max-width:320px;width:max-content;padding:9px 11px;border-radius:3px;color:#fff;background:#344054;font-size:12px;font-weight:400;line-height:1.55;white-space:normal;box-shadow:0 5px 18px #0000003d}
 .comp-add-dialog .comp-add-search{display:block;width:100%;height:32px;margin:0 0 12px;padding:5px 10px;border:1px solid var(--line-dark);border-radius:2px;background:#fff;color:var(--text);font:inherit;outline:0}
 .comp-add-dialog .comp-add-search:focus{border-color:var(--teal)}
@@ -211,13 +211,6 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 /* Grouped carton editor and pinned profit / action columns. */
 #editModal .variant-edit-table{min-width:2260px}#editModal .variant-edit-table>thead th{text-align:center;vertical-align:middle}
 #editModal .pending-packing-input:disabled{background:#f3f5f7;color:#95a0ad;cursor:not-allowed}
-#editModal .split-carton-cell{vertical-align:top;padding:7px!important}
-#editModal .split-carton-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;color:#64748b;font-size:11px}
-#editModal .split-carton-table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}
-#editModal .split-carton-table th,#editModal .split-carton-table td{padding:4px;border:1px solid #e1e5ea}
-#editModal .split-carton-table th:first-child{width:35px}#editModal .split-carton-table th:last-child{width:38px}
-#editModal .split-carton-table .control{min-width:52px;padding:0 4px}
-#editModal .split-carton-table .link:disabled{opacity:.4;cursor:not-allowed}
 .pending-table{--pending-operation-width:76px;--pending-profit-width:124px;min-width:1640px}
 .pending-table .pending-profit-fixed{position:sticky;right:0;z-index:4;min-width:var(--pending-profit-width);width:var(--pending-profit-width);max-width:var(--pending-profit-width);background:#fff;box-shadow:-6px 0 8px -8px #536173}
 .pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-width)}
@@ -231,3 +224,5 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 .pending-table{--pending-profit-width:200px}.pending-table thead .pending-profit-fixed{white-space:normal;line-height:1.6}
 
 .pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-offset,var(--pending-operation-width))}
+
+.pending-table{min-width:1380px}.report-paper .report-skus{min-width:1100px}
