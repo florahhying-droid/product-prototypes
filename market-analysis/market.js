@@ -36,11 +36,12 @@ if(pendingExamplesUpgraded){
  products.forEach(p=>{
   p.title ||= '4件套硅胶旅行分装瓶 · 90ml';p.category ||= '美容和个人护理 / 工具和配件 / 分装瓶';p.img ||= 'image11.jpeg';p.supplier ||= '广州安行汽车用品有限公司';p.asin ||= 'B0FKB9CYXY';
   p.purchaseNotes ||= '现货采购交期7天；支持阿里月结，账期30天。';
-  if(!p.opImages?.length)p.opImages=[{src:'assets/op-profit-example.svg',alt:'海运-多渠道利润测算（OP）示例'}];
   p.skus.forEach(s=>{s.variantTitle ||= p.title;s.img ||= p.img;s.referenceType ||= '相同款';if(s.price==null||s.price==='')s.price=29.10;if(s.moq==null||s.moq==='')s.moq=100;s.sale ||= '19.99 ～ 23.99 USD';s.accessoryList=s.accessoryList||s.packagingList||s.competitor||'分装瓶×4、漏斗×1、标签贴×1、透明收纳袋×1';s.packagingList=s.accessoryList;s.competitor=s.accessoryList;s.needsMaintenance=false;});
  });
  m.pendingRequiredExampleVersion=1;
 }
+const pendingPackingExamplesUpgraded=!m.pendingPackingExampleVersion;
+if(pendingPackingExamplesUpgraded){const example=products.find(product=>product.spu==='SPU26090001');if(example)example.skus.forEach(sku=>{const defaults={cartonMode:'multiple',cartonQuantity:24,cartonLength:'42.00',cartonWidth:'32.00',cartonHeight:'28.00',cartonWeight:'8.00',productLength:'9.00',productWidth:'6.00',productHeight:'6.00',saleSeason:'全年'};for(const [key,value]of Object.entries(defaults))if(sku[key]===undefined)sku[key]=value;});m.pendingPackingExampleVersion=1;}
 $('#workflowState').value=m.stage;$('#developerDept').value=m.dept;$('#taskOrigin').value=m.origin;
 const main=document.querySelector('.main');
 main.querySelector('.detail-section').id='basicSection';
@@ -363,8 +364,8 @@ function competitorReportHtml(){const c=ensureCompetitorState();return `<section
  }).join(''):`<p>${reportValue('')}</p>`}`;}
 function pendingProductsReportHtml(){return products.length?products.map((p,i)=>{
  const offer=candidates.find(c=>c.id===p.offerId),link=p.purchaseLink??(p.url||offer?.promotionURL||(p.offerId?offerUrl(p.offerId):''));
- const fields=[['SPU',reportValue(p.spu)],['产品标题',reportValue(p.title)],['系统品类',reportValue(p.category)],['供应商名称',reportValue(p.supplier)],['产品图片',reportImageHtml(p.img,true,'SPU产品图片')],['采购链接',reportValue(link,false)],['采购备注',reportValue(p.purchaseNotes)],['海运-多渠道利润测算（OP）',reportImageList(p.opImages,true,'利润测算截图')]];
- return `<article class="report-product"><h3>${i+1}. ${esc(p.spu||'待完善')} · ${esc(p.title||'待完善')}</h3><h4>SPU概要</h4>${reportPairs(fields)}<h4>SKU明细（${p.skus?.length||0}个）</h4><div class="report-table-wrap"><table class="report-skus"><thead><tr>${['SKU','产品标题','产品图片','参考产品','采购价 (CNY)','预计售价区间 (USD)','起订量','包装尺寸长×宽×高 (cm)','包装重量 (kg)','配件搭配清单'].map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${p.skus?.length?p.skus.map(sku=>`<tr><td>${reportValue(sku.sku)}</td><td>${reportValue(sku.variantTitle||p.title)}</td><td>${reportImageHtml(sku.img||p.img,true,'SKU产品图片')}</td><td>${reportValue(sku.reference||p.asin)}<br>${reportValue(sku.referenceType)}</td><td>${reportValue(sku.price===null||sku.price===undefined||sku.price===''?'':Number.isFinite(Number(sku.price))?Number(sku.price).toFixed(2):sku.price)}</td><td>${reportValue(String(sku.sale||'').replace(/\s*USD/gi,''))}</td><td>${reportValue(sku.moq)}</td><td>${reportValue(sku.pack,false)}</td><td>${reportValue(sku.weight,false)}</td><td>${reportValue(sku.accessoryList??sku.packagingList??sku.competitor)}</td></tr>`).join(''):'<tr><td colspan="10">'+reportValue('')+'</td></tr>'}</tbody></table></div></article>`;
+ const fields=[['SPU',reportValue(p.spu)],['产品标题',reportValue(p.title)],['系统品类',reportValue(p.category)],['供应商名称',reportValue(p.supplier)],['产品图片',reportImageHtml(p.img,true,'SPU产品图片')],['采购链接',reportValue(link,false)],['采购备注',reportValue(p.purchaseNotes)],['海运-多渠道利润测算（OP）',esc(opSummary(p))]];
+ return `<article class="report-product"><h3>${i+1}. ${esc(p.spu||'待完善')} · ${esc(p.title||'待完善')}</h3><h4>SPU概要</h4>${reportPairs(fields)}<h4>SKU明细（${p.skus?.length||0}个）</h4><div class="report-table-wrap"><table class="report-skus"><thead><tr>${['SKU','产品标题','产品图片','参考产品','采购价 (CNY)','预计售价区间 (USD)','起订量','包装尺寸长×宽×高 (cm)','包装重量 (kg)','装箱方式','装箱数量','外箱长×宽×高 (cm)','外箱重量 (kg)','产品长×宽×高 (cm)','售卖季节','配件搭配清单'].map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${p.skus?.length?p.skus.map(sku=>`<tr><td>${reportValue(sku.sku)}</td><td>${reportValue(sku.variantTitle||p.title)}</td><td>${reportImageHtml(sku.img||p.img,true,'SKU产品图片')}</td><td>${reportValue(sku.reference||p.asin)}<br>${reportValue(sku.referenceType)}</td><td>${reportValue(sku.price===null||sku.price===undefined||sku.price===''?'':Number.isFinite(Number(sku.price))?Number(sku.price).toFixed(2):sku.price)}</td><td>${reportValue(String(sku.sale||'').replace(/\s*USD/gi,''))}</td><td>${reportValue(sku.moq)}</td><td>${reportValue(sku.pack,false)}</td><td>${reportValue(sku.weight,false)}</td><td>${sku.cartonMode==='single'?'一件一箱':'一箱多件'}</td><td>${reportValue(sku.cartonMode==='single'?1:sku.cartonQuantity,false)}</td><td>${[sku.cartonLength,sku.cartonWidth,sku.cartonHeight].some(value=>String(value??'').trim())?[sku.cartonLength,sku.cartonWidth,sku.cartonHeight].map(value=>reportValue(value,false)).join(' × '):reportValue('',false)}</td><td>${reportValue(sku.cartonWeight,false)}</td><td>${[sku.productLength,sku.productWidth,sku.productHeight].some(value=>String(value??'').trim())?[sku.productLength,sku.productWidth,sku.productHeight].map(value=>reportValue(value,false)).join(' × '):reportValue('',false)}</td><td>${reportValue(sku.saleSeason,false)}</td><td>${reportValue(sku.accessoryList??sku.packagingList??sku.competitor)}</td></tr>`).join(''):'<tr><td colspan="16">'+reportValue('')+'</td></tr>'}</tbody></table></div></article>`;
  }).join(''):`<p>${reportValue('')}</p>`;}
 
 
@@ -391,16 +392,33 @@ renderRefs=function(){$('#referenceSection thead').innerHTML='<tr><th><input id=
 $('#referenceBody').innerHTML=refs.map(r=>`<tr><td><input type="checkbox" class="ref-check" ${canWrite()?'':'disabled'}></td><td><a class="external-link" href="${amazonUrl(r.asin)}" target="_blank" rel="noopener">${esc(r.asin)} ${asinLinkIcon}</a>${r.companyCode||m.selected.includes(r.asin)||r.dataStatus==='loading'||(!r.dataStatus&&!r.title&&!r.img)?`<div class="reference-asin-status"><div class="reference-identity-tags">${r.companyCode?`<span class="reference-company-code">${esc(r.companyCode)}</span>`:''}${m.selected.includes(r.asin)?'<span class="tag teal">竞品分析</span>':''}</div>${r.dataStatus==='loading'||(!r.dataStatus&&!r.title&&!r.img)?'<span class="reference-data-loading">数据获取中</span>':''}</div>`:''}</td><td><div class="thumb">${r.img?`<img loading="lazy" decoding="async" src="${asset(r.img)}" alt="${esc(r.title)}">`:'<span class="subtle">暂无图片</span>'}</div></td><td class="left">${esc(r.title)}</td><td>Amazon / ${esc(m.site)}</td><td>${esc(r.category)}</td><td>$${esc(r.price||'--')}</td><td>${esc(r.sales||'--')}</td><td>${esc(r.rating||'--')} / ${esc(r.reviews||'--')}</td><td>${r.targetQty||200}</td><td>${targetText(r)}</td><td><span class="tag ${statusClass(r)}">${statusText(r)}</span><br>${countFor(r.asin)} 条</td><td><button class="link" data-view-source="${r.asin}">查看货源</button>${canWrite()?`<br><button class="link danger" data-delete-ref="${r.asin}">删除</button>`:''}</td></tr>`).join('');$('#refTotal').textContent=`共 ${refs.length} 条`;$('#refPages').innerHTML='<button class="page-btn active">1</button>';$('#refPrev').disabled=true;$('#refNext').disabled=true;$('#refAll').disabled=!canWrite();$('#refAll').onchange=e=>$$('.ref-check').forEach(c=>c.checked=e.target.checked);};
 const originalDeleteRef=deleteReference;
 deleteReference=function(a){if(m.selected.includes(a))return showToast('该ASIN正在进行竞品分析，请先从市场分析中移除','error');originalDeleteRef(a);persist();};
-const origRenderProducts=renderProducts;renderProducts=function(){origRenderProducts();renderChannels();};
+const origRenderProducts=renderProducts;renderProducts=function(){origRenderProducts();renderChannels();products.forEach(product=>{if(!product.opCalculation)return;const row=$$('#pendingBody .tree-toggle').find(button=>button.dataset.spu===product.spu)?.closest('tr'),cell=row?.children[2];if(cell)cell.insertAdjacentHTML('beforeend',`<div class="pending-op-summary">${esc(opSummary(product))} <button type="button" class="link" data-view-op="${esc(product.spu)}">查看测算</button></div>`);});};
 // Additional SPU fields remain staged in the existing product dialog until confirmation.
-let pendingOpImages=[],pendingEditSession=0;
-function renderPendingOpImages(){
- $('#editOpImages').innerHTML=pendingOpImages.map((img,i)=>`<div class="pending-op-thumb"><img loading="lazy" decoding="async" src="${esc(img.src.startsWith('assets/')?asset(img.src.slice(7)):img.src)}" alt="海运-多渠道利润测算（OP）截图"><button type="button" class="pending-op-delete" data-op-delete="${i}" aria-label="删除测算截图">×</button></div>`).join('');
+let pendingEditSession=0,pendingOpDirty=false;
+// The prototype simulates the calculator boundary; no production request is sent.
+const OP_CHANNELS=[{platform:'eBay',shop:'preptable'},{platform:'Amazon - FBM',shop:'Chihe_US'},{platform:'Amazon - FBM',shop:'Meiyao_US'},{platform:'SHEIN-半托管',shop:'Shein-Reenman-USBTG'},{platform:'SHEIN-半托管',shop:'SHEIN-Queena Zz'},{platform:'Target',shop:'Target-GAOMON'},{platform:'Temu',shop:'CultivatedStyle'},{platform:'Walmart',shop:'Walmart-Hiketata'},{platform:'Wayfair',shop:'WF-NINGXIN'}];
+function opSummary(product){const calculation=product?.opCalculation;if(!calculation)return '保存待开发产品后自动测算';if(calculation.status==='running')return '测算中';if(calculation.status==='done')return '测算完成';if(calculation.status==='error')return '测算失败，可重试';return '待补充测算参数';}
+function renderPendingOpState(product){$('#pendingOpState').textContent=pendingOpDirty?'保存后自动重新测算':opSummary(product);$('#pendingOpState').dataset.state=product?.opCalculation?.status||'idle';$('#pendingOpActions').innerHTML=!pendingOpDirty&&product?.opCalculation?`<button type="button" class="link" data-view-op="${esc(product.spu)}">查看测算</button>${product.opCalculation.status==='error'?`<button type="button" class="link" data-retry-op="${esc(product.spu)}">重新测算</button>`:''}`:'';}
+function buildOpRequest(product,sku){const sale=String(sku.sale||'').match(/([\d.]+)\s*[～~-]\s*([\d.]+)/);return {template:'无产品模板',transport:'海运',spu:product.spu,sku:sku.sku,spuTitle:product.title,systemCategory:product.category,purchasePrice:{value:sku.price,currency:'CNY'},expectedSalePrice:{min:sale?Number(sale[1]):null,max:sale?Number(sale[2]):null,currency:'USD'},cartonMode:sku.cartonMode||'multiple',cartonQuantity:sku.cartonMode==='single'?1:sku.cartonQuantity,carton:{length:sku.cartonLength,width:sku.cartonWidth,height:sku.cartonHeight,weight:sku.cartonWeight,lengthUnit:'cm',weightUnit:'kg'},product:{length:sku.productLength,width:sku.productWidth,height:sku.productHeight,lengthUnit:'cm'},saleSeason:sku.saleSeason||product.saleSeason||'',targets:structuredClone(OP_CHANNELS)};}
+function missingOpFields(request){const missing=[];if(!request.spuTitle)missing.push('SPU标题');if(!request.systemCategory)missing.push('系统品类');if(request.purchasePrice.value==null||request.purchasePrice.value===''||!Number.isFinite(Number(request.purchasePrice.value))||Number(request.purchasePrice.value)<0)missing.push('采购价');if(request.expectedSalePrice.min===null||request.expectedSalePrice.max===null||request.expectedSalePrice.min<0||request.expectedSalePrice.max<request.expectedSalePrice.min)missing.push('预计售价');if(!Number.isInteger(Number(request.cartonQuantity))||Number(request.cartonQuantity)<1)missing.push('装箱数量');for(const [key,label]of [['length','外箱长'],['width','外箱宽'],['height','外箱高'],['weight','外箱重量']])if(!(Number(request.carton[key])>0))missing.push(label);for(const [key,label]of [['length','产品长'],['width','产品宽'],['height','产品高']])if(!(Number(request.product[key])>0))missing.push(label);if(!request.saleSeason)missing.push('售卖季节');if(!request.targets.length)missing.push('平台店铺配置');return missing;}
+function refreshOpViews(product){renderProducts();if($('#editModal').classList.contains('open')&&editingSpu===product.spu)renderPendingOpState(product);}
+function startOpCalculation(product){
+ const requestVersion=(product.opCalculation?.version||0)+1;
+ const runs=product.skus.map(sku=>{const request=buildOpRequest(product,sku),missing=missingOpFields(request);return {sku:sku.sku,request,missing,status:missing.length?'incomplete':'running'};});
+ product.opCalculation={version:requestVersion,status:runs.some(run=>run.status==='running')?'running':'incomplete',runs,updatedAt:new Date().toISOString()};persist();refreshOpViews(product);
+ for(const run of runs){if(run.status!=='running')continue;const activeProduct=product;
+  const promise=window.opPrototypeService?Promise.resolve().then(()=>window.opPrototypeService(structuredClone(run.request))):new Promise(resolve=>setTimeout(()=>resolve({planId:'OP-'+Date.now()+'-'+run.sku,status:'done'}),800));
+  promise.then(result=>{if(activeProduct.opCalculation?.version!==requestVersion||!products.includes(activeProduct))return;if(!result?.planId)throw new Error('测算未返回方案');run.status='done';run.planId=result.planId;finish();}).catch(()=>{if(activeProduct.opCalculation?.version!==requestVersion||!products.includes(activeProduct))return;run.status='error';finish();});
+  function finish(){const statuses=runs.map(row=>row.status);activeProduct.opCalculation.status=statuses.includes('running')?'running':statuses.includes('error')?'error':statuses.includes('incomplete')?'incomplete':'done';activeProduct.opCalculation.updatedAt=new Date().toISOString();persist();refreshOpViews(activeProduct);}
+ }
 }
+function openOpCalculation(spu){const product=products.find(row=>row.spu===spu);if(!product)return;const calculation=product.opCalculation;openDialog('海运-多渠道利润测算（OP）',`<div class="op-plan-summary">${esc(product.title)} · ${esc(opSummary(product))}</div>${calculation?.runs.map(run=>`<section class="op-sku-result"><h3>${esc(run.sku)} · ${run.status==='done'?'测算完成':run.status==='running'?'测算中':run.status==='error'?'测算失败':'待补充参数'}</h3>${run.missing.length?`<p class="op-missing-fields">待补充：${run.missing.map(esc).join('、')}</p>`:''}${run.planId?`<p class="subtle">测算方案：${esc(run.planId)}</p>`:''}${reportPairs([['模板',esc(run.request.template)],['SPU标题',reportValue(run.request.spuTitle)],['系统品类',reportValue(run.request.systemCategory)],['采购价 (CNY)',reportValue(run.request.purchasePrice.value)],['预计售价区间 (USD)',reportValue(run.request.expectedSalePrice.min===null?'':run.request.expectedSalePrice.min+' ～ '+run.request.expectedSalePrice.max)],['装箱方式',run.request.cartonMode==='single'?'一件一箱':'一箱多件'],['装箱数量',reportValue(run.request.cartonQuantity)],['外箱长×宽×高 (cm)',[run.request.carton.length,run.request.carton.width,run.request.carton.height].map(value=>reportValue(value)).join(' × ')],['外箱重量 (kg)',reportValue(run.request.carton.weight)],['产品长×宽×高 (cm)',[run.request.product.length,run.request.product.width,run.request.product.height].map(value=>reportValue(value)).join(' × ')],['售卖季节',reportValue(run.request.saleSeason)]])}</section>`).join('')||'<p>保存待开发产品后自动发起测算。</p>'}<h3>测算平台及店铺</h3><div class="report-table-wrap"><table class="op-channel-table"><thead><tr><th>平台</th><th>店铺</th></tr></thead><tbody>${OP_CHANNELS.map(target=>`<tr><td>${esc(target.platform)}</td><td>${esc(target.shop)}</td></tr>`).join('')}</tbody></table></div>`);}
+document.addEventListener('click',event=>{const view=event.target.closest('[data-view-op]'),retry=event.target.closest('[data-retry-op]');if(view)openOpCalculation(view.dataset.viewOp);if(retry&&canWrite()){const product=products.find(row=>row.spu===retry.dataset.retryOp);if(product)startOpCalculation(product);}});
 function clearPendingRequiredError(field){if(!field)return;field.classList.remove('pending-field-invalid');field.querySelectorAll('.pending-required-error').forEach(el=>el.remove());field.querySelectorAll('[aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));}
 function pendingNumberError(input){
  const value=input.value.trim(),integer=input.dataset.pendingNumber==='integer';
  if(input.validity?.badInput)return integer?'请输入非负整数':'请输入非负数字，最多保留两位小数';
+ if(input.dataset.field==='cartonQuantity'&&value&&Number(value)<1)return '装箱数量须为正整数';
  if(!value)return ['price','moq'].includes(input.dataset.field)?(input.dataset.field==='price'?'请填写采购价':'请填写起订量'):'';
  return (integer?/^\d+$/:/^\d+(?:\.\d{1,2})?$/).test(value)&&Number.isFinite(Number(value))?'':integer?'请输入非负整数':'请输入非负数字，最多保留两位小数';
 }
@@ -410,13 +428,18 @@ function checkPendingNumber(input,format=false){
  if(format&&input.value.trim())input.value=input.dataset.pendingNumber==='integer'?String(Number(input.value)):Number(input.value).toFixed(2);
  return true;
 }
+$('#editVariantBody').addEventListener('change',e=>{
+ if(!e.target.matches('[data-field="cartonMode"]'))return;
+ const row=e.target.closest('tr'),quantity=row.querySelector('[data-field="cartonQuantity"]'),single=e.target.value==='single';
+ if(single){quantity.dataset.multipleQuantity=quantity.value;quantity.value='1';}else quantity.value=quantity.dataset.multipleQuantity||'';
+ quantity.disabled=single;quantity.readOnly=single;clearPendingRequiredError(quantity.closest('td'));
+});
 $('#editVariantBody').addEventListener('focusout',e=>{if(e.target.matches('[data-pending-number]')&&(e.target.value.trim()||e.target.validity?.badInput))checkPendingNumber(e.target,true);});
 $('#editVariantBody').addEventListener('input',e=>{if(e.target.matches('[data-pending-number]')&&e.target.closest('td').classList.contains('pending-field-invalid'))checkPendingNumber(e.target);});
 function validatePendingRequiredFields(){
  $$('#editModal .pending-field-invalid').forEach(clearPendingRequiredError);const errors=[];
  const flag=(field,control,message)=>{field.classList.add('pending-field-invalid');control?.setAttribute('aria-invalid','true');field.insertAdjacentHTML('beforeend',`<div class="inline-error pending-required-error">${esc(message)}</div>`);errors.push(control||field);};
  if(!$('#editPurchaseNotes').value.trim())flag($('#editPurchaseNotes').closest('.pending-basic-field'),$('#editPurchaseNotes'),'请填写采购备注');
- if(!pendingOpImages.length)flag($('#uploadOpImage').closest('.pending-basic-field'),$('#uploadOpImage'),'请上传海运-多渠道利润测算（OP）截图');
  $$('#editVariantBody [data-field="competitor"]').forEach(input=>{if(!input.value.trim())flag(input.closest('td'),input,'请填写配件搭配清单');});
  $$('#editVariantBody [data-pending-number]').forEach(input=>{const message=pendingNumberError(input);if(message)flag(input.closest('td'),input,message);});
  if(errors.length){showToast('请补全待开发产品必填信息','error');errors[0].scrollIntoView({behavior:'smooth',block:'center'});errors[0].focus();return false;}return true;
@@ -425,7 +448,7 @@ $('#editPurchaseNotes').addEventListener('input',e=>{if(e.target.value.trim())cl
 $('#editVariantBody').addEventListener('input',e=>{if(e.target.matches('[data-field="competitor"]')&&e.target.value.trim())clearPendingRequiredError(e.target.closest('td'));});
 const originalOpenPendingProduct=openEdit;
 openEdit=function(id){
- pendingEditSession++;$$('#editModal .pending-field-invalid').forEach(clearPendingRequiredError);
+ pendingEditSession++;pendingOpDirty=false;$$('#editModal .pending-field-invalid').forEach(clearPendingRequiredError);
  if(products.some(p=>p.spu===id||p.skus.some(s=>s.sku===id)))newPendingProduct=null;
  originalOpenPendingProduct(id);
  const p=products.find(p=>p.spu===editingSpu)||newPendingProduct;if(!p)return;
@@ -433,10 +456,12 @@ openEdit=function(id){
  $('#editModal .modal-title').textContent=p===newPendingProduct?'新增待开发产品':'编辑待开发产品';
  $('#editPurchaseLink').value=p.purchaseLink??(p.url||offer?.promotionURL||(p.offerId?offerUrl(p.offerId):''));
  $('#editPurchaseNotes').value=p.purchaseNotes||'';
- pendingOpImages=structuredClone(p.opImages||[]);renderPendingOpImages();$('#editOpImageFile').value='';
+ renderPendingOpState(p);
  $('#editImage').hidden=!p.img;$('#changeImage').classList.toggle('has-image',!!p.img);
  $$('#editVariantBody .edit-variant-image').forEach(img=>img.hidden=!img.dataset.variantImage);
 };
+function markPendingOpDirty(event){if(!event.target.matches('input,select,textarea'))return;pendingOpDirty=true;renderPendingOpState(products.find(product=>product.spu===editingSpu)||newPendingProduct);}
+$('#editModal').addEventListener('input',markPendingOpDirty);$('#editModal').addEventListener('change',markPendingOpDirty);
 $('#addPendingProduct').onclick=()=>{
  if(!canWrite())return;
  let seq=products.length+1;while(products.some(p=>p.spu==='SPU2610'+String(seq).padStart(4,'0')))seq++;
@@ -444,21 +469,9 @@ $('#addPendingProduct').onclick=()=>{
  newPendingProduct={spu,pendingProductId:'PEND-'+spu,offerId:offer?.id||'',asin:offer?.asin||'',url:offer?.promotionURL||(offer?offerUrl(offer.id):''),img:offer?.img||'',title:offer?.title||'',supplier:offer?.supplier||suppliers[0]?.name||'',category:'',source:'手动添加',skus:[{sku:spu+'-01',variantTitle:offer?.title||'',variantSpec:'',img:offer?.img||'',referenceType:'',price:offer?.price||0,moq:offer?.moq||'',pack:offer?.pack||'',weight:offer?.weight||'',sale:'',competitor:'',needsMaintenance:true}]};
  openEdit(spu);
 };
-$('#uploadOpImage').onclick=()=>$('#editOpImageFile').click();
-$('#editOpImageFile').onchange=async e=>{
- const session=pendingEditSession;
- for(const file of [...e.target.files]){
-  if(!file.type.startsWith('image/')){showToast('请选择图片文件','error');continue;}
-  try{const src=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});if(session!==pendingEditSession||!$('#editModal').classList.contains('open'))return;pendingOpImages.push({src,alt:file.name});}
-  catch{showToast('图片上传失败，请重试','error');}
- }
- renderPendingOpImages();if(pendingOpImages.length)clearPendingRequiredError($('#uploadOpImage').closest('.pending-basic-field'));e.target.value='';
-};
-$('#editOpImages').onclick=e=>{const button=e.target.closest('[data-op-delete]');if(button){pendingOpImages.splice(Number(button.dataset.opDelete),1);renderPendingOpImages();}};
 const originalPendingImageChange=$('#editImageFile').onchange;
 $('#editImageFile').onchange=e=>{originalPendingImageChange(e);if(e.target.files?.length){$('#editImage').hidden=false;$('#changeImage').classList.add('has-image');$$('#editVariantBody .edit-variant-image').forEach(img=>img.hidden=false);}};
 // Reuse the AC question-mark badge; popovers work on hover, keyboard focus and click.
-$('#uploadOpImage').after($('#editOpImages'));
 const pendingHelpPopover=document.createElement('div');pendingHelpPopover.id='pendingHelpPopover';pendingHelpPopover.className='pending-help-popover';pendingHelpPopover.setAttribute('role','tooltip');pendingHelpPopover.hidden=true;document.body.append(pendingHelpPopover);
 let pendingHelpAnchor=null,pendingHelpPinned=false;
 function closePendingHelp(){pendingHelpPopover.hidden=true;pendingHelpAnchor?.setAttribute('aria-expanded','false');pendingHelpAnchor?.removeAttribute('aria-describedby');pendingHelpAnchor=null;pendingHelpPinned=false;}
@@ -491,10 +504,10 @@ const origSave=$('#saveProduct').onclick;
 $('#saveProduct').onclick=()=>{
  if(!validatePendingRequiredFields())return;
  const p=products.find(p=>p.spu===editingSpu)||newPendingProduct;if(!p)return;
- p.purchaseLink=$('#editPurchaseLink').value.trim();p.purchaseNotes=$('#editPurchaseNotes').value.trim();p.opImages=structuredClone(pendingOpImages);
+ p.purchaseLink=$('#editPurchaseLink').value.trim();p.purchaseNotes=$('#editPurchaseNotes').value.trim();
  origSave();
- p.spuDraft={...(p.spuDraft||{}),purchaseLink:p.purchaseLink,purchaseNotes:p.purchaseNotes,opImages:structuredClone(p.opImages),skus:p.skus.map(s=>({...p.spuDraft?.skus?.find(row=>row.sku===s.sku),sku:s.sku,packagingList:s.packagingList||''}))};
- persist();renderChannels();
+ p.spuDraft={...(p.spuDraft||{}),purchaseLink:p.purchaseLink,purchaseNotes:p.purchaseNotes,skus:p.skus.map(s=>({...p.spuDraft?.skus?.find(row=>row.sku===s.sku),sku:s.sku,packagingList:s.packagingList||'',saleSeason:s.saleSeason||'',cartonMode:s.cartonMode||'multiple',cartonQuantity:s.cartonMode==='single'?1:s.cartonQuantity??'',cartonLength:s.cartonLength??'',cartonWidth:s.cartonWidth??'',cartonHeight:s.cartonHeight??'',cartonWeight:s.cartonWeight??'',productLength:s.productLength??'',productWidth:s.productWidth??'',productHeight:s.productHeight??''}))};
+ persist();renderChannels();startOpCalculation(p);
 };
 
 function openDialog(title,body,foot='',cls=''){const id='m-dialog-'+(++dialogCounter);const node=document.createElement('div');node.className='modal-mask open';node.id=id;node.innerHTML=`<section class="modal m-dialog ${cls}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="modal-head"><div class="modal-title">${title}</div><button class="close" data-dismiss="${id}" aria-label="关闭">×</button></div><div class="modal-body ${cls==='report-dialog'?'report-body':''}">${body}</div><div class="modal-foot">${foot||`<button class="btn" data-dismiss="${id}">关闭</button>`}</div></section>`;document.body.append(node);node.addEventListener('click',e=>{if(e.target===node)node.remove();});node.querySelector('.close').focus();return node;}
@@ -644,5 +657,6 @@ if(requestedTaskMatch){
   renderDimensions();renderCompetitors();applyWorkflow();$('#preprojectLink').hidden=true;
  }
 }
-if(pendingExamplesUpgraded&&!activeHistoryTask)persist();
+if((pendingExamplesUpgraded||pendingPackingExamplesUpgraded)&&!activeHistoryTask)persist();
+if(!activeHistoryTask)products.filter(product=>product.opCalculation?.status==='running').forEach(startOpCalculation);
 })();

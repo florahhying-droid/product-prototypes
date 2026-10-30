@@ -83,14 +83,17 @@
         </ul>
         <h3 id="product">③ 产品开发信息</h3><ul>
           <li>不新增独立的报告填写模块，继续使用现有【待开发产品】，复用已有产品、供应商、采购、售价及SKU变体信息。</li>
-          <li>SPU维度补充采购备注、采购链接及海运-多渠道利润测算（OP）截图。采购备注和测算截图必填，采购链接选填、单行输入，可从已选货源预填并修改。</li>
+          <li>SPU维度补充采购备注、采购链接，并展示海运-多渠道利润测算（OP）状态。采购备注必填，采购链接选填、单行输入，可从已选货源预填并修改。</li>
           <li>采购备注通过多行文本维护采购交期、是否支持阿里月结等信息；字段旁提供悬浮／点击提示，不拆分独立字段。</li>
-          <li>利润测算独占一行，支持多张图片上传、预览、删除及继续新增；一期仅维护图片，不对接计算器。</li>
+          <li>利润测算独占一行，移除截图上传。保存待开发产品后，系统按SKU使用“无产品模板”发起海运-多渠道利润测算；展示测算中、测算完成、待补充参数或测算失败状态，失败后支持重试。</li>
           <li>SKU维度将原“友商销售材料”列改为“配件搭配清单”，复用行内文本框，设为必填，并按SKU传递至SPU草稿的包装清单。</li>
+          <li>SKU维度新增装箱方式、装箱数量、外箱长／宽／高（cm）、外箱重量（kg）、产品长／宽／高（cm）及售卖季节。装箱方式默认“一箱多件”；选择“一件一箱”时装箱数量固定为1且不可编辑，切回后恢复原数量。新增字段暂不增加必填星号，可先保存草稿；测算参数缺失时列出待补充项。</li>
+          <li>每个SKU的测算参数包含SPU标题、系统品类、采购价、预计售价区间、装箱方式与数量、外箱尺寸与重量、产品尺寸及售卖季节；固定使用下表7个平台、9个店铺。预计售价沿用当前最低价、最高价及USD币种，不丢弃区间信息。</li>
+          <li>装箱方式、装箱数量、外箱尺寸与重量、产品尺寸、售卖季节及配件清单按SKU同步至SPU草稿，复用当前字段值，避免后续重复录入。</li>
           <li>采购价按CNY、预计售价区间按USD展示；采购价说明为“含包材，不含税费及运费”。采购价、包装长宽高及重量为非负数字、最多两位小数，起订量为非负整数。</li>
           <li>基础信息仍采用紧凑网格：第一行系统品类、产品标题、产品图片；第二行供应商名称、采购备注、采购链接；第三行利润测算。产品及SKU图片点击上传框即可上传或更换。</li>
           <li>相关信息后续按SPU/SKU维度传递至品牌中心；本次不大改已有SPU/SKU草稿结构。</li>
-        </ul><div class="callout neutral"><strong>保存与审核：</strong>市场分析文本及数字字段失焦保存，图片上传／删除即时保存，日常允许分析内容不完整，提交审核时统一校验。待开发产品沿用弹窗确认保存，并校验本次明确的必填字段。</div>
+        </ul><h4>固定测算平台与店铺</h4><div class="table-wrap"><table><thead><tr><th>平台</th><th>店铺</th></tr></thead><tbody><tr><td>eBay</td><td>preptable</td></tr><tr><td>Amazon - FBM</td><td>Chihe_US</td></tr><tr><td>Amazon - FBM</td><td>Meiyao_US</td></tr><tr><td>SHEIN-半托管</td><td>Shein-Reenman-USBTG</td></tr><tr><td>SHEIN-半托管</td><td>SHEIN-Queena Zz</td></tr><tr><td>Target</td><td>Target-GAOMON</td></tr><tr><td>Temu</td><td>CultivatedStyle</td></tr><tr><td>Walmart</td><td>Walmart-Hiketata</td></tr><tr><td>Wayfair</td><td>WF-NINGXIN</td></tr></tbody></table></div><div class="callout neutral"><strong>保存与审核：</strong>市场分析文本及数字字段失焦保存，图片上传／删除即时保存，日常允许分析内容不完整，提交审核时统一校验。待开发产品沿用弹窗确认保存，并校验本次明确的必填字段。</div>
       </section>
       <section id="field-mapping"><h2>2.4 原市场分析报告字段处理</h2><p class="muted">附表按原Excel的字段口径分组归纳；具体输入方式和必填范围与当前交互原型保持一致。</p>
         <h3 id="sheet1">附表一：Sheet 1——类目市场分析（10项）</h3><div class="table-wrap"><table class="field-map"><thead><tr><th>处理方式</th><th>涉及字段</th><th>处理说明</th></tr></thead><tbody>
@@ -109,13 +112,13 @@
           <tr><td><strong>保留</strong></td><td>核心卖点、差异化开发方向、采购注意事项／利润优化建议等</td><td>保留人工分析：核心卖点（功能／场景／设计）、差异化开发方向（设计／功能／组合）必填；最后一项作为备注选填。</td></tr>
           <tr><td><strong>删除</strong></td><td>品线名称、供应链成熟度、预估采购成本区间、竞品利润测算、MOQ、合规／认证要求、专利风险、同品类关联产品点、搭配场景／逻辑、产品线角色</td><td>已同业务确认可删除，共10项。</td></tr>
         </tbody></table></div>
-        <h3 id="sheet3">附表三：Sheet 3——产品开发信息（25项）</h3><div class="table-wrap"><table class="field-map"><thead><tr><th>处理方式</th><th>涉及字段</th><th>处理说明</th></tr></thead><tbody>
+        <h3 id="sheet3">附表三：Sheet 3——产品开发信息（原报告25项及本次补充）</h3><div class="table-wrap"><table class="field-map"><thead><tr><th>处理方式</th><th>涉及字段</th><th>处理说明</th></tr></thead><tbody>
           <tr><td><strong>已有字段承接</strong></td><td>星商SPU/SKU、星商品类、产品标题、产品图片、供应商名称、采购单价、MOQ、定价、限价</td><td>复用现有待开发产品及变体字段；采购价补充CNY及“含包材，不含税费及运费”的口径说明。</td></tr>
           <tr><td><strong>调整</strong></td><td>设计方案要点（差异化方向）</td><td>调整为SKU维度“配件搭配清单”，替换现有友商销售材料控件；必填，按SKU同步至SPU草稿包装清单。</td></tr>
           <tr><td><strong>调整</strong></td><td>采购注意事项／现货情况／定制需求等备注</td><td>以SPU维度“采购备注”合并维护，必填；明确采购交期、是否支持阿里月结等。</td></tr>
           <tr><td><strong>新增</strong></td><td>采购链接</td><td>SPU维度、选填，单行文本，支持1688／国际站链接；可从已选货源预填，允许修改并传递至SPU草稿。</td></tr>
-          <tr><td><strong>新增</strong></td><td>海运-多渠道利润测算（OP）</td><td>SPU维度，至少上传1张测算截图，支持多张、预览、删除及继续新增；后续考虑计算器对接。</td></tr>
-          <tr><td><strong>不再额外维护</strong></td><td>原报告产品品类、开发进度、样品状态、合规／认证进度、计划上线时间、备货仓、其他采购杂费、FBA配送费用、海运FBA、空运FBA、月预计销量、月预计毛利</td><td>不纳入本次待开发产品补充范围；已有业务流程不受影响。</td></tr>
+          <tr><td><strong>新增</strong></td><td>海运-多渠道利润测算（OP）</td><td>保存待开发产品后，按SKU使用无产品模板自动发起测算；传入SPU标题、系统品类及当前SKU的采购、售价、装箱、产品尺寸、售卖季节参数，固定7平台9店铺，不再维护测算截图。</td></tr>
+          <tr><td><strong>新增</strong></td><td>装箱方式、装箱数量、外箱长／宽／高／重量、产品长／宽／高、售卖季节</td><td>SKU维度维护，装箱数量为正整数，尺寸与重量沿用数字控件；标题标注cm、kg单位。一件一箱的数量固定为1，相关数据同步至SPU草稿。</td></tr><tr><td><strong>不再额外维护</strong></td><td>原报告产品品类、开发进度、样品状态、合规／认证进度、计划上线时间、备货仓、其他采购杂费、FBA配送费用、海运FBA、空运FBA、月预计销量、月预计毛利</td><td>不纳入本次待开发产品补充范围；已有业务流程不受影响。</td></tr>
         </tbody></table></div>
       </section>
     </main>
