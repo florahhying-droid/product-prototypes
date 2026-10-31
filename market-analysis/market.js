@@ -452,7 +452,7 @@ openEdit=function(id){
  const offer=candidates.find(c=>c.id===p.offerId);
  $('#editModal .modal-title').textContent=p===newPendingProduct?'新增待开发产品':'编辑待开发产品';
  $('#editPurchaseLink').value=p.purchaseLink??(p.url||offer?.promotionURL||(p.offerId?offerUrl(p.offerId):''));
- $('#editPurchaseNotes').value=p.purchaseNotes||'';
+ $('#editPurchaseNotes').value=String(p.purchaseNotes||'').replace(/\r?\n/g,' ');
  $('#editImage').hidden=!p.img;$('#changeImage').classList.toggle('has-image',!!p.img);
  $$('#editVariantBody .edit-variant-image').forEach(img=>img.hidden=!img.dataset.variantImage);
 };
