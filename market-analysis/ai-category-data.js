@@ -63,7 +63,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "Sorftime · category_report",
       "sample": "Amazon US · Refillable Containers；Top 100估算与类目报告整体指标逐项注明",
-      "period": "截至2026-11-02；调用记录未注明该报告的统计月",
+      "period": "截至2026-11-02；来源未注明该报告的统计月",
       "conclusion": "这是一个需求体量较大的综合类目，但细分用途差异很大。旅行套装、家用喷瓶、精油瓶、DIY化妆品包装等消费者需求和竞品并不完全相同，选品时建议进一步锁定子类目，而不要直接按整个大类的均值定产品。",
       "preview": [
         0,
@@ -139,7 +139,7 @@ window.AI_CATEGORY_SAMPLE = {
           ],
           "source": "SellersSprite · market_product_demand_trend",
           "sample": "类目浏览量趋势，非Top 100月销量",
-          "period": "近一年（原记录未注明起止月）；截至2026-11-02"
+          "period": "近一年（来源未注明起止月）；截至2026-11-02"
         }
       ]
     },
@@ -293,7 +293,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "Sorftime · category_report",
       "sample": "Amazon US · Top 100商品；商品、品牌、卖家分别按销量聚合",
-      "period": "截至2026-11-02；调用记录未注明报告统计月",
+      "period": "截至2026-11-02；来源未注明报告统计月",
       "conclusion": "从大类集中度看，竞争并非完全被少数品牌锁定；但不同细分赛道的竞争结构可能差异很大。旅行分装套装与持续喷雾瓶应分别评估，不能用大类集中度直接代表某个细分类目的进入难度。",
       "preview": [
         0,
@@ -301,7 +301,7 @@ window.AI_CATEGORY_SAMPLE = {
         2,
         3
       ],
-      "notes": "Amazon自营0.31%取自调用记录后续“商品集中度｜Sorftime Top 100口径”补充。不同分布维度不可相加，也不与SellersSprite样本拼接。",
+      "notes": "Amazon自营0.31%取自来源后续“商品集中度｜Sorftime Top 100口径”补充。不同分布维度不可相加，也不与SellersSprite样本拼接。",
       "extra": []
     },
     {
@@ -340,7 +340,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "SellersSprite · market_listing_date_distribution",
       "sample": "63个样本商品；不是Sorftime Top 100类目榜单",
-      "period": "截至2026-11-02；调用记录未注明采样月",
+      "period": "截至2026-11-02；来源未注明采样月",
       "conclusion": "类目整体有较明显的成熟品基础，评价积累和老链接排名重要；但并非完全没有新品机会。新产品更适合通过细分用途、结构升级、配件组合或体验改善切入，而不是简单复制已有规格。",
       "preview": [
         0,
@@ -348,7 +348,7 @@ window.AI_CATEGORY_SAMPLE = {
         2,
         3
       ],
-      "notes": "销量占比保留原记录的约数，不重新归一化。下列补充来自另一来源，单独展示，不纳入63个商品分组。",
+      "notes": "销量占比保留来源提供的约数，不重新归一化。下列补充来自另一来源，单独展示，不纳入63个商品分组。",
       "extra": [
         {
           "title": "另一口径：最近3个月新品",
@@ -418,7 +418,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "SellersSprite · market_price_distribution",
       "sample": "63个样本商品；样本销量占比，非整个类目普查",
-      "period": "截至2026-11-02；调用记录未注明采样月",
+      "period": "截至2026-11-02；来源未注明采样月",
       "conclusion": "若做大众旅行分装或基础喷瓶，优先研究US$5–10的主流带；若售价高于US$10，建议用防漏结构、精准喷雾、耐用材质、容量组合、收纳袋／漏斗／标签等明确的价值点支撑价格。",
       "preview": [
         0,
@@ -428,7 +428,7 @@ window.AI_CATEGORY_SAMPLE = {
         4,
         5
       ],
-      "notes": "商品数量与销量占比保留调用记录原值，不据此推算整个类目的商品数或销量。",
+      "notes": "商品数量与销量占比保留来源原值，不据此推算整个类目的商品数或销量。",
       "extra": []
     },
     {
@@ -473,7 +473,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "SellersSprite · market_seller_country_distribution / market_seller_type_concentration",
       "sample": "63个样本商品；卖家国别与履约方式是两个独立维度",
-      "period": "截至2026-11-02；调用记录未注明采样月",
+      "period": "截至2026-11-02；来源未注明采样月",
       "conclusion": "类目供应竞争国际化程度高，但中国卖家在样本销量中占主导。FBA覆盖率高，说明配送时效和库存可售能力是基本竞争条件。以上卖家国别和配送方式来自样本口径，并非整个类目所有商品的完整普查。",
       "preview": [
         0,
@@ -482,7 +482,7 @@ window.AI_CATEGORY_SAMPLE = {
         3,
         4
       ],
-      "notes": "国别与履约方式不可相加；不补齐原记录未覆盖的商品数量。此处Amazon自营约1.57%是SellersSprite样本口径，与Sorftime Top 100的0.31%不同。",
+      "notes": "国别与履约方式不可相加；不补齐来源未覆盖的商品数量。此处Amazon自营约1.57%是SellersSprite样本口径，与Sorftime Top 100的0.31%不同。",
       "extra": [
         {
           "title": "卖家国别销售额占比",
@@ -502,7 +502,7 @@ window.AI_CATEGORY_SAMPLE = {
           ],
           "source": "SellersSprite · market_seller_country_distribution",
           "sample": "63个样本商品；销售额维度",
-          "period": "截至2026-11-02；调用记录未注明采样月"
+          "period": "截至2026-11-02；来源未注明采样月"
         }
       ]
     }

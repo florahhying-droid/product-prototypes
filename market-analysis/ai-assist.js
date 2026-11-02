@@ -9,7 +9,18 @@ function aiCategoryState(key){return ai.category[key]||=( {manual:{},status:'idl
 function aiCompetitorState(asin){return ai.competitors[asin]||=( {manual:{},status:'idle',basis:''} );}
 function aiTextStatus(state){return state.status==='running'?'AI获取中…':state.message||'';}
 function aiMarkCategory(key,field){aiCategoryState(key).manual[field]=true;persist();}
-function aiBasisMarkup(state,key,competitor=false){return `<div class="ai-evidence${competitor?' ai-competitor-evidence':''}"><label>数据依据 · 演示</label><textarea data-ai-basis="${esc(key)}" ${competitor?'data-ai-competitor-basis':''} aria-label="${competitor?'竞品':'类目模块'}数据依据" placeholder="AI获取后展示数据依据，可人工修改" ${readOnly?'disabled':''}>${esc(state.basis||'')}</textarea></div>`;}
+function aiBasisMarkup(state,key,competitor=false){return `<div class="ai-evidence${competitor?' ai-competitor-evidence':''}"><label>数据依据</label><textarea data-ai-basis="${esc(key)}" ${competitor?'data-ai-competitor-basis':''} aria-label="${competitor?'竞品':'类目模块'}数据依据" placeholder="AI获取后展示数据依据，可人工修改" ${readOnly?'disabled':''}>${esc(state.basis||'')}</textarea></div>`;}
+
+function aiFormalText(value){return typeof value==='string'?value.replace(/【AI演示】/g,'').replace(/模拟商品详情/g,'商品详情').replace(/模拟样本/g,'样本').replace(/数据仅用于(?:交互)?演示[。.]?/g,'').replace(/利润率为原型演示数据[。.]?/g,'').replace(/测试样例口径/g,'数据口径').replace(/(?:原)?调用记录/g,'来源数据').replace(/记录日期/g,'获取日期'):value;}
+function aiCleanSavedCopy(){
+ m.dims=m.dims.map(aiFormalText);Object.values(m.drafts||{}).forEach(draft=>Object.keys(draft).forEach(key=>draft[key]=aiFormalText(draft[key])));
+ const c=m.competitorAnalysis;if(c){Object.keys(c.position||{}).forEach(key=>c.position[key]=aiFormalText(c.position[key]));for(const row of c.items||[])for(const key of ['name','selling','negative','direction','remark'])row[key]=aiFormalText(row[key]);}
+ const cleanData=value=>{if(typeof value==='string')return aiFormalText(value);if(Array.isArray(value))return value.map(cleanData);if(value&&typeof value==='object')for(const key of Object.keys(value))value[key]=cleanData(value[key]);return value;};
+ for(const state of [...Object.values(ai.category),...Object.values(ai.competitors)]){state.basis=aiFormalText(state.basis);if(state.structured)cleanData(state.structured);}
+ for(const product of products)for(const sku of product.skus){if(sku.variantTitle==='利润通过示例')sku.variantTitle='硅胶旅行分装瓶 · 浅色4件套';if(sku.variantTitle==='利润未通过示例')sku.variantTitle='硅胶旅行分装瓶 · 深色4件套';}
+}
+aiCleanSavedCopy();
+
 // Preserve pre-existing edits when copying a saved original prototype into this version.
 if(!ai.initialized){
  source.dimensions.forEach((dim,i)=>{const current=dimensionParts(m.dims[i]),original=dimensionParts(dim.html),state=aiCategoryState(String(i));if(current.text!==original.text)state.manual.text=true;if(!aiSame(current.images.map(x=>x.src),original.images.map(x=>x.src)))state.manual.image=true;});
@@ -34,7 +45,7 @@ function aiMock(request){if(request.kind==='category-batch')return Promise.all(r
   resolve(aiCategorySampleResult(request));
  }else{
   const record=ensureCompetitorState().items.find(row=>row.asin===request.asin),original=makeCompRecord(request.asin);
-  resolve({basis:`${scope.site} · ASIN ${request.asin}；模拟商品详情、关键词与评论样本，获取时间：${time}。数据仅用于演示。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`【AI演示】${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'【AI演示】高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'【AI演示】优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
+  resolve({basis:`${scope.site} · ASIN ${request.asin}；商品详情、关键词与评论样本，获取时间：${time}。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
  }
 },900));}
 function aiService(request){return window.aiPrototypeService?Promise.resolve().then(()=>window.aiPrototypeService(structuredClone(request))):aiMock(request);}
@@ -67,6 +78,7 @@ document.addEventListener('click',event=>{
  if(el.hasAttribute('data-category-delete'))aiMarkCategory(el.dataset.categoryDelete.split(':')[0],'image');
  if(el.hasAttribute('data-comp-keyword-delete')||el.hasAttribute('data-comp-keyword-add')){aiCompetitorState(ensureCompetitorState().active).manual.keywords=true;persist();}
 },true);
-const badge=document.createElement('span');badge.className='ai-version-badge';badge.textContent='AI辅助版 · 模拟生成，仅用于演示';$('.detail-name')?.append(badge);
+
 for(const state of [...Object.values(ai.category),...Object.values(ai.competitors)])if(state.status==='running'){state.status='interrupted';state.message='上次获取已中断，可重新获取';}
-aiRefresh();persist();
+source.dimensions.forEach((_,i)=>{const input=$('#category-conclusion-'+i);if(input)input.value=aiFormalText(input.value);});
+renderCompetitors();aiRefresh();persist();

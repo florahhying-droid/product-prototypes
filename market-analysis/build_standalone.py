@@ -58,6 +58,8 @@ ai_controller = ai_controller.replace('JSON.parse(localStorage.getItem(KEY))', "
 ai_controller = ai_controller.replace("c.querySelector('textarea')?.value.trim()", "c.querySelector('.category-conclusion')?.value.trim()")
 ai_controller = ai_controller.replace("if(i<6&&!dimensionImages[i]?.length)", "if(i<6&&!aiCategoryHasEvidence(i))")
 ai_controller = ai_controller.replace("'请上传'+source.dimensions[i].title+'分析图片'", "'请获取'+source.dimensions[i].title+'AI数据或上传截图'")
+ai_controller = ai_controller.replace('<p class="subtle op-example-note">利润率为原型演示数据。</p>', '')
+ai_controller = ai_controller.replace('利润通过示例', '硅胶旅行分装瓶 · 浅色4件套').replace('利润未通过示例', '硅胶旅行分装瓶 · 深色4件套')
 cut = ai_controller.rindex('})();')
 ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 (root / 'ai-market.js').write_text(ai_controller, encoding='utf-8')
@@ -67,6 +69,7 @@ ai_source = ai_source.replace('<title>', '<title>AI辅助版 · ', 1)
 ai_source = ai_source.replace('href="layout.css">', 'href="layout.css"><link rel="stylesheet" href="ai.css">')
 old_nav = '<a class="active" aria-current="page" href="市场分析报告交互原型.html">原版原型</a>'
 ai_source = ai_source.replace(old_nav, '<a href="市场分析报告交互原型.html">原版原型</a>').replace('<a href="市场分析报告AI辅助原型.html">AI辅助版</a>', '<a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a>')
+ai_source = ai_source.replace('>原版原型</a>', '>标准版</a>').replace('方案与原型导航', '方案与版本导航')
 (root / 'ai-index.html').write_text(ai_source, encoding='utf-8')
 ai_offline = html.replace('<title>', '<title>AI辅助版 · ', 1)
 ai_offline = ai_offline.replace(old_nav, '<a href="市场分析报告交互原型.html">原版原型</a>').replace('<a href="市场分析报告AI辅助原型.html">AI辅助版</a>', '<a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a>')
@@ -80,5 +83,6 @@ ai_controller = ai_controller.replace('const hasText=html=>', compact_function)
 original_controller = original_controller.replace('const hasText=html=>', compact_function)
 assert original_controller in ai_offline
 ai_offline = ai_offline.replace(original_controller, ai_controller, 1).replace('</head>', '<style>' + (root / 'ai.css').read_text(encoding='utf-8') + '</style></head>')
+ai_offline = ai_offline.replace('>原版原型</a>', '>标准版</a>').replace('方案与原型导航', '方案与版本导航')
 (root / '市场分析报告AI辅助原型.html').write_text(ai_offline, encoding='utf-8')
 print('Created AI source copy and standalone prototype')

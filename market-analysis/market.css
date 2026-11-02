@@ -226,3 +226,5 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 .pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-offset,var(--pending-operation-width))}
 
 .pending-table{min-width:1380px}.report-paper .report-skus{min-width:1100px}
+
+.comp-position-head>[data-comp-sync-position]{margin-left:auto;white-space:nowrap;font-size:11px;font-weight:400}

@@ -281,6 +281,8 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 .pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-offset,var(--pending-operation-width))}
 
 .pending-table{min-width:1380px}.report-paper .report-skus{min-width:1100px}
+
+.comp-position-head>[data-comp-sync-position]{margin-left:auto;white-space:nowrap;font-size:11px;font-weight:400}
 </style>
 <style>    .module-anchor-bar{position:sticky;top:0;z-index:110;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 8px;padding:0 10px;border:1px solid #cfd7e0;background:rgba(255,255,255,.98);box-shadow:0 7px 20px rgba(38,54,74,.16);backdrop-filter:blur(8px)}
     .module-anchor-list{min-width:0;display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:thin;white-space:nowrap}
@@ -714,7 +716,7 @@ async function saveCategoryItem(i){
  const html=dimensionHtml(i);categorySaveStates[i]='saving';refreshCategoryStatus(i);
  await new Promise(resolve=>setTimeout(resolve,650));
  if(categorySaveVersions[i]!==version)return;
- m.dims[i]=html;
+ m.dims[i]=html;syncCompPositionFromCategory();
  categorySaveStates[i]=persist()?'saved':'error';refreshCategoryStatus(i);refreshCategoryControls();
  if(categorySaveStates[i]==='saved'){$('#dim-'+i).classList.remove('invalid');$('#dim-'+i+' .field-error')?.remove();}
 }
@@ -781,9 +783,27 @@ function makeCompRecord(asin,origin='reference'){
   keywords:(words.length?words.slice(0,3):['']).map((word,i)=>({word,count:i?'5000以上':clean(d.R||s?.R),volume:i?'3800+':clean(d.S||s?.S)})),
   feedback:s?.feedback?[{src:'assets/'+s.feedback,alt:'用户反馈图片'}]:[]};
 }
+function syncCompPositionFromCategory(force=false){
+ const c=m.competitorAnalysis;if(!c)return false;c.position||={};
+ const fresh=!c.positionSync;c.positionSync||={manual:{},last:{}};c.positionSync.manual||={};c.positionSync.last||={};let changed=fresh;
+ for(const [key,,dim]of compPositionDefinitions){
+  const incoming=plainCompText(m.dims[dim]),current=String(c.position[key]||'');
+  if(fresh&&current&&current!==incoming&&current!==plainCompText(source.dimensions[dim].html))c.positionSync.manual[key]=true;
+  if(force||!c.positionSync.manual[key]){if(current!==incoming){c.position[key]=incoming;changed=true;const input=$('#position-'+key);if(input)input.value=incoming;}c.positionSync.last[key]=incoming;if(force)c.positionSync.manual[key]=false;}
+ }
+ if(changed){persist();if($('#competitors [data-comp-progress="position"]'))refreshCompProgress();}return changed;
+}
+async function syncCompPositionWithConfirmation(){
+ if(readOnly)return;document.activeElement?.blur();
+ await Promise.all(compPositionDefinitions.map(([,,dim])=>['dirty','saving'].includes(categorySaveStates[dim])?saveCategoryItem(dim):Promise.resolve()));
+ if(readOnly)return;const c=ensureCompetitorState(),apply=()=>{if(readOnly)return;syncCompPositionFromCategory(true);persist();refreshCompProgress();showToast('竞品市场定位已同步');};
+ if(!Object.values(c.positionSync.manual).some(Boolean)){apply();return;}
+ const dialog=openDialog('同步类目分析','<p>竞品市场定位已有人工修改，是否使用类目分析覆盖节日周期／流量时段、核心消费场景和目标客群？</p>','<button type="button" class="btn" data-position-keep>取消</button><button type="button" class="btn primary" data-position-overwrite>确认覆盖并同步</button>');
+ dialog.querySelector('[data-position-keep]').onclick=()=>close(dialog);dialog.querySelector('[data-position-overwrite]').onclick=()=>{apply();close(dialog);};
+}
 function ensureCompetitorState(){
  if(!m.competitorAnalysis)m.competitorAnalysis={items:(m.selected||[]).map(a=>makeCompRecord(a)),active:m.selected?.[0]||'',position:Object.fromEntries(compPositionDefinitions.map(([key,,dim])=>[key,plainCompText(m.dims[dim])]))};
- const c=m.competitorAnalysis;m.selected=c.items.map(r=>r.asin);
+ const c=m.competitorAnalysis;syncCompPositionFromCategory();m.selected=c.items.map(r=>r.asin);
  c.items.forEach(r=>{if(!r.origin)r.origin=refs.some(ref=>ref.asin===r.asin)?'reference':'manual';});
  if(!c.items.some(r=>r.asin===c.active))c.active=c.items[0]?.asin||'';
  return c;
@@ -876,7 +896,7 @@ function refreshCompFoldControl(){
 }
 function renderCompetitors(){
  const c=ensureCompetitorState(),root=$('#competitors');
- root.innerHTML=`<section class="comp-position ${compFolded.has('position')?'is-collapsed':''}"><div class="comp-position-head"><h4><button type="button" class="analysis-fold-title" data-comp-position-toggle aria-expanded="${!compFolded.has('position')}"><span class="analysis-fold-chevron" aria-hidden="true">›</span>竞品市场定位</button></h4>${compProgressHtml('position')}</div><div class="comp-position-grid">${compPositionDefinitions.map(([key,label])=>`<div id="cp-${key}"><label for="position-${key}">${label} <span class="required">*</span></label><textarea id="position-${key}" placeholder="${esc(compPositionPlaceholders[key])}" data-comp-position="${key}" data-comp-group="position" aria-required="true" ${readOnly?'disabled':''}>${esc(c.position[key])}</textarea></div>`).join('')}</div></section><div class="comp-workspace"><aside class="comp-sidebar"><div class="comp-sidebar-head"><strong>竞品列表</strong><button class="btn primary market-write" id="selectCompetitors" ${readOnly?'hidden':''}>＋ 添加竞品</button></div><input id="compSearch" type="search" placeholder="搜索ASIN / 产品名称" value="${esc(compQuery)}" aria-label="搜索ASIN或产品名称"><div id="compList"></div></aside><div class="comp-detail" id="compDetail"></div></div>`;
+ root.innerHTML=`<section class="comp-position ${compFolded.has('position')?'is-collapsed':''}"><div class="comp-position-head"><h4><button type="button" class="analysis-fold-title" data-comp-position-toggle aria-expanded="${!compFolded.has('position')}"><span class="analysis-fold-chevron" aria-hidden="true">›</span>竞品市场定位</button></h4><button type="button" class="link market-write" data-comp-sync-position title="从类目分析同步节日周期、使用场景及消费者画像" ${readOnly?'hidden':''}>同步类目分析</button>${compProgressHtml('position')}</div><div class="comp-position-grid">${compPositionDefinitions.map(([key,label])=>`<div id="cp-${key}"><label for="position-${key}">${label} <span class="required">*</span></label><textarea id="position-${key}" placeholder="${esc(compPositionPlaceholders[key])}" data-comp-position="${key}" data-comp-group="position" aria-required="true" ${readOnly?'disabled':''}>${esc(c.position[key])}</textarea></div>`).join('')}</div></section><div class="comp-workspace"><aside class="comp-sidebar"><div class="comp-sidebar-head"><strong>竞品列表</strong><button class="btn primary market-write" id="selectCompetitors" ${readOnly?'hidden':''}>＋ 添加竞品</button></div><input id="compSearch" type="search" placeholder="搜索ASIN / 产品名称" value="${esc(compQuery)}" aria-label="搜索ASIN或产品名称"><div id="compList"></div></aside><div class="comp-detail" id="compDetail"></div></div>`;
  renderCompList();renderCompDetail();
  const head=$('#competitorCount').closest('.sub-head');
  if(!$('#toggleCompetitorItems'))head.insertAdjacentHTML('beforeend','<button type="button" class="btn" id="toggleCompetitorItems">全部收起</button>');
@@ -890,7 +910,7 @@ function renderCompetitors(){
 function selectComp(asin){ensureCompetitorState().active=asin;persist();renderCompList();renderCompDetail();}
 function compInput(e){
  const el=e.target,c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active);if(readOnly)return;
- if(el.dataset.compPosition)c.position[el.dataset.compPosition]=el.value;
+ if(el.dataset.compPosition){c.positionSync.manual[el.dataset.compPosition]=true;c.position[el.dataset.compPosition]=el.value;}
  else if(el.dataset.cfield&&r){r[el.dataset.cfield]=el.value;if(el.type==='date')el.classList.toggle('is-empty-date',!el.value);}
  else if(el.dataset.compKw&&r){const [i,k]=el.dataset.compKw.split(':');r.keywords[i][k]=el.value;}
  else return;
@@ -956,6 +976,7 @@ function uploadCompImages(r,product=false){
 function compClick(e){
  const el=e.target.closest('button,[data-comp-select]');if(!el)return;const c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active);
  if(e.target.closest('a'))return;
+ if(el.hasAttribute('data-comp-sync-position')){syncCompPositionWithConfirmation();return;}
  if(el.hasAttribute('data-comp-position-toggle')){setCompPositionCollapsed(!compFolded.has('position'));return;}
  if(el.dataset.compFold){const group=el.dataset.compFold;compFolded.has(group)?compFolded.delete(group):compFolded.add(group);renderCompDetail();return;}
  if(el.dataset.compSelect){selectComp(el.dataset.compSelect);return;}
@@ -1191,7 +1212,7 @@ function reuseCategoryAnalysis(){
  function applyHistory(){
   if(!selected)return;
   source.dimensions.forEach((_,i)=>{categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';if(i<6)categoryUploadJobs[i]=[];});
-  m.rankingImages=structuredClone(selected.rankings||{newTop:null,monthTop:null});rankingSaveStates.newTop='saved';rankingSaveStates.monthTop='saved';m.dims=[...selected.dimensions];m.categoryReuse=selected.id+' · '+selected.reviewedAt;renderDimensions();syncReadOnly();
+  m.rankingImages=structuredClone(selected.rankings||{newTop:null,monthTop:null});rankingSaveStates.newTop='saved';rankingSaveStates.monthTop='saved';m.dims=[...selected.dimensions];m.categoryReuse=selected.id+' · '+selected.reviewedAt;renderDimensions();syncCompPositionFromCategory();syncReadOnly();
   if(!persist())source.dimensions.forEach((_,i)=>{categorySaveStates[i]='error';refreshCategoryStatus(i);});
   close(dlg);showToast('历史类目分析已预填');
  }

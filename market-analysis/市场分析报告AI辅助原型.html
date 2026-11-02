@@ -281,6 +281,8 @@ html{scroll-behavior:smooth;scroll-padding-top:22px}body{padding-bottom:48px}.ma
 .pending-table.has-operations .pending-profit-fixed{right:var(--pending-operation-offset,var(--pending-operation-width))}
 
 .pending-table{min-width:1380px}.report-paper .report-skus{min-width:1100px}
+
+.comp-position-head>[data-comp-sync-position]{margin-left:auto;white-space:nowrap;font-size:11px;font-weight:400}
 </style>
 <style>    .module-anchor-bar{position:sticky;top:0;z-index:110;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 8px;padding:0 10px;border:1px solid #cfd7e0;background:rgba(255,255,255,.98);box-shadow:0 7px 20px rgba(38,54,74,.16);backdrop-filter:blur(8px)}
     .module-anchor-list{min-width:0;display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:thin;white-space:nowrap}
@@ -498,7 +500,7 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .ai-shot-status:not(:empty){margin-top:7px;color:#c67b35;font-size:11px}
 </style></head>
 <body>
-  <nav class="demo-suite-switch" aria-label="方案与原型导航"><span class="switch-label">市场分析</span><a href="plan.html">整合方案</a><a href="市场分析报告交互原型.html">原版原型</a><a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a></nav>
+  <nav class="demo-suite-switch" aria-label="方案与版本导航"><span class="switch-label">市场分析</span><a href="plan.html">整合方案</a><a href="市场分析报告交互原型.html">标准版</a><a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a></nav>
   <div class="demo-controls"><label>任务状态 <select id="workflowState"><option value="research">调研中</option><option value="unassigned">待分配</option><option value="review">审核中</option><option value="done">已完成</option><option value="terminated">已终止</option></select></label><label>开发人部门 <select id="developerDept"><option value="xingqu">星渠开发部</option><option value="other">其他开发部门</option></select></label><label>任务来源 <select id="taskOrigin"><option>ASIN选品</option><option>产品系列</option><option>手工创建</option></select></label><select id="currentUser" aria-label="登录身份"><option value="developer">开发人视图</option><option value="admin">管理员视图</option><option value="viewer">查看人视图</option></select></div>
   <div class="app" id="app">
     <div class="brand">AC</div>
@@ -719,7 +721,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "Sorftime · category_report",
       "sample": "Amazon US · Refillable Containers；Top 100估算与类目报告整体指标逐项注明",
-      "period": "截至2026-11-02；调用记录未注明该报告的统计月",
+      "period": "截至2026-11-02；来源未注明该报告的统计月",
       "conclusion": "这是一个需求体量较大的综合类目，但细分用途差异很大。旅行套装、家用喷瓶、精油瓶、DIY化妆品包装等消费者需求和竞品并不完全相同，选品时建议进一步锁定子类目，而不要直接按整个大类的均值定产品。",
       "preview": [
         0,
@@ -795,7 +797,7 @@ window.AI_CATEGORY_SAMPLE = {
           ],
           "source": "SellersSprite · market_product_demand_trend",
           "sample": "类目浏览量趋势，非Top 100月销量",
-          "period": "近一年（原记录未注明起止月）；截至2026-11-02"
+          "period": "近一年（来源未注明起止月）；截至2026-11-02"
         }
       ]
     },
@@ -949,7 +951,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "Sorftime · category_report",
       "sample": "Amazon US · Top 100商品；商品、品牌、卖家分别按销量聚合",
-      "period": "截至2026-11-02；调用记录未注明报告统计月",
+      "period": "截至2026-11-02；来源未注明报告统计月",
       "conclusion": "从大类集中度看，竞争并非完全被少数品牌锁定；但不同细分赛道的竞争结构可能差异很大。旅行分装套装与持续喷雾瓶应分别评估，不能用大类集中度直接代表某个细分类目的进入难度。",
       "preview": [
         0,
@@ -957,7 +959,7 @@ window.AI_CATEGORY_SAMPLE = {
         2,
         3
       ],
-      "notes": "Amazon自营0.31%取自调用记录后续“商品集中度｜Sorftime Top 100口径”补充。不同分布维度不可相加，也不与SellersSprite样本拼接。",
+      "notes": "Amazon自营0.31%取自来源后续“商品集中度｜Sorftime Top 100口径”补充。不同分布维度不可相加，也不与SellersSprite样本拼接。",
       "extra": []
     },
     {
@@ -996,7 +998,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "SellersSprite · market_listing_date_distribution",
       "sample": "63个样本商品；不是Sorftime Top 100类目榜单",
-      "period": "截至2026-11-02；调用记录未注明采样月",
+      "period": "截至2026-11-02；来源未注明采样月",
       "conclusion": "类目整体有较明显的成熟品基础，评价积累和老链接排名重要；但并非完全没有新品机会。新产品更适合通过细分用途、结构升级、配件组合或体验改善切入，而不是简单复制已有规格。",
       "preview": [
         0,
@@ -1004,7 +1006,7 @@ window.AI_CATEGORY_SAMPLE = {
         2,
         3
       ],
-      "notes": "销量占比保留原记录的约数，不重新归一化。下列补充来自另一来源，单独展示，不纳入63个商品分组。",
+      "notes": "销量占比保留来源提供的约数，不重新归一化。下列补充来自另一来源，单独展示，不纳入63个商品分组。",
       "extra": [
         {
           "title": "另一口径：最近3个月新品",
@@ -1074,7 +1076,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "SellersSprite · market_price_distribution",
       "sample": "63个样本商品；样本销量占比，非整个类目普查",
-      "period": "截至2026-11-02；调用记录未注明采样月",
+      "period": "截至2026-11-02；来源未注明采样月",
       "conclusion": "若做大众旅行分装或基础喷瓶，优先研究US$5–10的主流带；若售价高于US$10，建议用防漏结构、精准喷雾、耐用材质、容量组合、收纳袋／漏斗／标签等明确的价值点支撑价格。",
       "preview": [
         0,
@@ -1084,7 +1086,7 @@ window.AI_CATEGORY_SAMPLE = {
         4,
         5
       ],
-      "notes": "商品数量与销量占比保留调用记录原值，不据此推算整个类目的商品数或销量。",
+      "notes": "商品数量与销量占比保留来源原值，不据此推算整个类目的商品数或销量。",
       "extra": []
     },
     {
@@ -1129,7 +1131,7 @@ window.AI_CATEGORY_SAMPLE = {
       ],
       "source": "SellersSprite · market_seller_country_distribution / market_seller_type_concentration",
       "sample": "63个样本商品；卖家国别与履约方式是两个独立维度",
-      "period": "截至2026-11-02；调用记录未注明采样月",
+      "period": "截至2026-11-02；来源未注明采样月",
       "conclusion": "类目供应竞争国际化程度高，但中国卖家在样本销量中占主导。FBA覆盖率高，说明配送时效和库存可售能力是基本竞争条件。以上卖家国别和配送方式来自样本口径，并非整个类目所有商品的完整普查。",
       "preview": [
         0,
@@ -1138,7 +1140,7 @@ window.AI_CATEGORY_SAMPLE = {
         3,
         4
       ],
-      "notes": "国别与履约方式不可相加；不补齐原记录未覆盖的商品数量。此处Amazon自营约1.57%是SellersSprite样本口径，与Sorftime Top 100的0.31%不同。",
+      "notes": "国别与履约方式不可相加；不补齐来源未覆盖的商品数量。此处Amazon自营约1.57%是SellersSprite样本口径，与Sorftime Top 100的0.31%不同。",
       "extra": [
         {
           "title": "卖家国别销售额占比",
@@ -1158,7 +1160,7 @@ window.AI_CATEGORY_SAMPLE = {
           ],
           "source": "SellersSprite · market_seller_country_distribution",
           "sample": "63个样本商品；销售额维度",
-          "period": "截至2026-11-02；调用记录未注明采样月"
+          "period": "截至2026-11-02；来源未注明采样月"
         }
       ]
     }
@@ -1258,7 +1260,7 @@ async function saveCategoryItem(i){
  const html=dimensionHtml(i);categorySaveStates[i]='saving';refreshCategoryStatus(i);
  await new Promise(resolve=>setTimeout(resolve,650));
  if(categorySaveVersions[i]!==version)return;
- m.dims[i]=html;
+ m.dims[i]=html;syncCompPositionFromCategory();
  categorySaveStates[i]=persist()?'saved':'error';refreshCategoryStatus(i);refreshCategoryControls();
  if(categorySaveStates[i]==='saved'){$('#dim-'+i).classList.remove('invalid');$('#dim-'+i+' .field-error')?.remove();}
 }
@@ -1325,9 +1327,27 @@ function makeCompRecord(asin,origin='reference'){
   keywords:(words.length?words.slice(0,3):['']).map((word,i)=>({word,count:i?'5000以上':clean(d.R||s?.R),volume:i?'3800+':clean(d.S||s?.S)})),
   feedback:s?.feedback?[{src:'assets/'+s.feedback,alt:'用户反馈图片'}]:[]};
 }
+function syncCompPositionFromCategory(force=false){
+ const c=m.competitorAnalysis;if(!c)return false;c.position||={};
+ const fresh=!c.positionSync;c.positionSync||={manual:{},last:{}};c.positionSync.manual||={};c.positionSync.last||={};let changed=fresh;
+ for(const [key,,dim]of compPositionDefinitions){
+  const incoming=plainCompText(m.dims[dim]),current=String(c.position[key]||'');
+  if(fresh&&current&&current!==incoming&&current!==plainCompText(source.dimensions[dim].html))c.positionSync.manual[key]=true;
+  if(force||!c.positionSync.manual[key]){if(current!==incoming){c.position[key]=incoming;changed=true;const input=$('#position-'+key);if(input)input.value=incoming;}c.positionSync.last[key]=incoming;if(force)c.positionSync.manual[key]=false;}
+ }
+ if(changed){persist();if($('#competitors [data-comp-progress="position"]'))refreshCompProgress();}return changed;
+}
+async function syncCompPositionWithConfirmation(){
+ if(readOnly)return;document.activeElement?.blur();
+ await Promise.all(compPositionDefinitions.map(([,,dim])=>['dirty','saving'].includes(categorySaveStates[dim])?saveCategoryItem(dim):Promise.resolve()));
+ if(readOnly)return;const c=ensureCompetitorState(),apply=()=>{if(readOnly)return;syncCompPositionFromCategory(true);persist();refreshCompProgress();showToast('竞品市场定位已同步');};
+ if(!Object.values(c.positionSync.manual).some(Boolean)){apply();return;}
+ const dialog=openDialog('同步类目分析','<p>竞品市场定位已有人工修改，是否使用类目分析覆盖节日周期／流量时段、核心消费场景和目标客群？</p>','<button type="button" class="btn" data-position-keep>取消</button><button type="button" class="btn primary" data-position-overwrite>确认覆盖并同步</button>');
+ dialog.querySelector('[data-position-keep]').onclick=()=>close(dialog);dialog.querySelector('[data-position-overwrite]').onclick=()=>{apply();close(dialog);};
+}
 function ensureCompetitorState(){
  if(!m.competitorAnalysis)m.competitorAnalysis={items:(m.selected||[]).map(a=>makeCompRecord(a)),active:m.selected?.[0]||'',position:Object.fromEntries(compPositionDefinitions.map(([key,,dim])=>[key,plainCompText(m.dims[dim])]))};
- const c=m.competitorAnalysis;m.selected=c.items.map(r=>r.asin);
+ const c=m.competitorAnalysis;syncCompPositionFromCategory();m.selected=c.items.map(r=>r.asin);
  c.items.forEach(r=>{if(!r.origin)r.origin=refs.some(ref=>ref.asin===r.asin)?'reference':'manual';});
  if(!c.items.some(r=>r.asin===c.active))c.active=c.items[0]?.asin||'';
  return c;
@@ -1420,7 +1440,7 @@ function refreshCompFoldControl(){
 }
 function renderCompetitors(){
  const c=ensureCompetitorState(),root=$('#competitors');
- root.innerHTML=`<section class="comp-position ${compFolded.has('position')?'is-collapsed':''}"><div class="comp-position-head"><h4><button type="button" class="analysis-fold-title" data-comp-position-toggle aria-expanded="${!compFolded.has('position')}"><span class="analysis-fold-chevron" aria-hidden="true">›</span>竞品市场定位</button></h4>${compProgressHtml('position')}</div><div class="comp-position-grid">${compPositionDefinitions.map(([key,label])=>`<div id="cp-${key}"><label for="position-${key}">${label} <span class="required">*</span></label><textarea id="position-${key}" placeholder="${esc(compPositionPlaceholders[key])}" data-comp-position="${key}" data-comp-group="position" aria-required="true" ${readOnly?'disabled':''}>${esc(c.position[key])}</textarea></div>`).join('')}</div></section><div class="comp-workspace"><aside class="comp-sidebar"><div class="comp-sidebar-head"><strong>竞品列表</strong><button class="btn primary market-write" id="selectCompetitors" ${readOnly?'hidden':''}>＋ 添加竞品</button></div><input id="compSearch" type="search" placeholder="搜索ASIN / 产品名称" value="${esc(compQuery)}" aria-label="搜索ASIN或产品名称"><div id="compList"></div></aside><div class="comp-detail" id="compDetail"></div></div>`;
+ root.innerHTML=`<section class="comp-position ${compFolded.has('position')?'is-collapsed':''}"><div class="comp-position-head"><h4><button type="button" class="analysis-fold-title" data-comp-position-toggle aria-expanded="${!compFolded.has('position')}"><span class="analysis-fold-chevron" aria-hidden="true">›</span>竞品市场定位</button></h4><button type="button" class="link market-write" data-comp-sync-position title="从类目分析同步节日周期、使用场景及消费者画像" ${readOnly?'hidden':''}>同步类目分析</button>${compProgressHtml('position')}</div><div class="comp-position-grid">${compPositionDefinitions.map(([key,label])=>`<div id="cp-${key}"><label for="position-${key}">${label} <span class="required">*</span></label><textarea id="position-${key}" placeholder="${esc(compPositionPlaceholders[key])}" data-comp-position="${key}" data-comp-group="position" aria-required="true" ${readOnly?'disabled':''}>${esc(c.position[key])}</textarea></div>`).join('')}</div></section><div class="comp-workspace"><aside class="comp-sidebar"><div class="comp-sidebar-head"><strong>竞品列表</strong><button class="btn primary market-write" id="selectCompetitors" ${readOnly?'hidden':''}>＋ 添加竞品</button></div><input id="compSearch" type="search" placeholder="搜索ASIN / 产品名称" value="${esc(compQuery)}" aria-label="搜索ASIN或产品名称"><div id="compList"></div></aside><div class="comp-detail" id="compDetail"></div></div>`;
  renderCompList();renderCompDetail();
  const head=$('#competitorCount').closest('.sub-head');
  if(!$('#toggleCompetitorItems'))head.insertAdjacentHTML('beforeend','<button type="button" class="btn" id="toggleCompetitorItems">全部收起</button>');
@@ -1434,7 +1454,7 @@ function renderCompetitors(){
 function selectComp(asin){ensureCompetitorState().active=asin;persist();renderCompList();renderCompDetail();}
 function compInput(e){
  const el=e.target,c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active);if(readOnly)return;
- if(el.dataset.compPosition)c.position[el.dataset.compPosition]=el.value;
+ if(el.dataset.compPosition){c.positionSync.manual[el.dataset.compPosition]=true;c.position[el.dataset.compPosition]=el.value;}
  else if(el.dataset.cfield&&r){r[el.dataset.cfield]=el.value;if(el.type==='date')el.classList.toggle('is-empty-date',!el.value);}
  else if(el.dataset.compKw&&r){const [i,k]=el.dataset.compKw.split(':');r.keywords[i][k]=el.value;}
  else return;
@@ -1500,6 +1520,7 @@ function uploadCompImages(r,product=false){
 function compClick(e){
  const el=e.target.closest('button,[data-comp-select]');if(!el)return;const c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active);
  if(e.target.closest('a'))return;
+ if(el.hasAttribute('data-comp-sync-position')){syncCompPositionWithConfirmation();return;}
  if(el.hasAttribute('data-comp-position-toggle')){setCompPositionCollapsed(!compFolded.has('position'));return;}
  if(el.dataset.compFold){const group=el.dataset.compFold;compFolded.has(group)?compFolded.delete(group):compFolded.add(group);renderCompDetail();return;}
  if(el.dataset.compSelect){selectComp(el.dataset.compSelect);return;}
@@ -1569,7 +1590,7 @@ window.pendingProfitMarkup=(product,sku)=>{if(!sku)return '';const result=opAsse
 function buildOpRequest(product,sku){const packing=pendingPackingData(sku);return {template:'无产品模板',transport:'海运',spu:product.spu,sku:sku.sku,spuTitle:product.title,systemCategory:product.category,purchasePrice:{value:sku.price,currency:'CNY'},expectedSalePrice:{value:pendingSalePrice(sku),currency:'USD'},cartonMode:packing.cartonMode,cartonQuantity:packing.cartonMode==='multiple'?packing.cartonQuantity:1,carton:{length:packing.cartonLength,width:packing.cartonWidth,height:packing.cartonHeight,weight:packing.cartonWeight,lengthUnit:'cm',weightUnit:'kg'},product:packing.cartonMode==='multiple'?{length:packing.productLength,width:packing.productWidth,height:packing.productHeight,weight:packing.productWeight,lengthUnit:'cm',weightUnit:'kg'}:null,saleSeason:'旺季',targets:structuredClone(OP_CHANNELS)};}
 function missingOpFields(request){const missing=[];if(!request.spuTitle)missing.push('SPU标题');if(!request.systemCategory)missing.push('系统品类');if(request.purchasePrice.value==null||request.purchasePrice.value===''||!Number.isFinite(Number(request.purchasePrice.value))||Number(request.purchasePrice.value)<0)missing.push('采购价');if(request.expectedSalePrice.value===null||!Number.isFinite(request.expectedSalePrice.value)||request.expectedSalePrice.value<0)missing.push('预计售价');if(!Number.isInteger(Number(request.cartonQuantity))||Number(request.cartonQuantity)<1)missing.push('整箱数量');for(const [key,label]of [['length','外箱长'],['width','外箱宽'],['height','外箱高'],['weight','外箱重量']])if(!(Number(request.carton[key])>0))missing.push(label);if(request.cartonMode==='multiple')for(const [key,label]of [['length','单套包装长'],['width','单套包装宽'],['height','单套包装高'],['weight','单套重量']])if(!(Number(request.product?.[key])>0))missing.push(label);if(!request.targets.length)missing.push('平台店铺配置');return missing;}
 function opDateText(value){if(!value)return '待测算';const date=new Date(value);return Number.isNaN(date.getTime())?esc(value):esc(date.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}));}
-function opDetailsHtml(product,skuId=''){const runs=(product.opCalculation?.runs||[]).filter(run=>!skuId||run.sku===skuId);return `<div class="op-plan-summary">${esc(product.title)}</div><p class="op-rule-note">${OP_PASS_RULE}</p>${runs.length?runs.map(run=>{const sku=product.skus.find(row=>row.sku===run.sku),assessment=opAssessment(product,sku);return `<section class="op-sku-result"><h3>${esc(run.sku)} <span class="pending-profit-result ${assessment.state}">${assessment.label}</span></h3>${run.missing?.length?`<p class="op-missing-fields">待补充：${run.missing.map(esc).join('、')}</p>`:''}${run.status==='error'?'<p class="field-error">测算失败，请关闭明细后重试。</p>':''}<div class="report-table-wrap"><table class="op-profit-details"><thead><tr><th>平台</th><th>店铺</th><th>测算时间</th><th>利润率</th></tr></thead><tbody>${OP_CHANNELS.map(target=>{const result=run.results?.find(row=>row.platform===target.platform&&row.shop===target.shop);return `<tr><td>${esc(target.platform)}</td><td>${esc(target.shop)}</td><td>${result?opDateText(result.calculatedAt):'待测算'}</td><td class="${result?.profitRate<0?'negative-profit':''}">${result&&Number.isFinite(result.profitRate)?result.profitRate.toFixed(2)+'%':'待测算'}</td></tr>`;}).join('')}</tbody></table></div></section>`;}).join(''):'<p>保存待开发产品后自动发起测算。</p>'}<p class="subtle op-example-note">利润率为原型演示数据。</p>`;}
+function opDetailsHtml(product,skuId=''){const runs=(product.opCalculation?.runs||[]).filter(run=>!skuId||run.sku===skuId);return `<div class="op-plan-summary">${esc(product.title)}</div><p class="op-rule-note">${OP_PASS_RULE}</p>${runs.length?runs.map(run=>{const sku=product.skus.find(row=>row.sku===run.sku),assessment=opAssessment(product,sku);return `<section class="op-sku-result"><h3>${esc(run.sku)} <span class="pending-profit-result ${assessment.state}">${assessment.label}</span></h3>${run.missing?.length?`<p class="op-missing-fields">待补充：${run.missing.map(esc).join('、')}</p>`:''}${run.status==='error'?'<p class="field-error">测算失败，请关闭明细后重试。</p>':''}<div class="report-table-wrap"><table class="op-profit-details"><thead><tr><th>平台</th><th>店铺</th><th>测算时间</th><th>利润率</th></tr></thead><tbody>${OP_CHANNELS.map(target=>{const result=run.results?.find(row=>row.platform===target.platform&&row.shop===target.shop);return `<tr><td>${esc(target.platform)}</td><td>${esc(target.shop)}</td><td>${result?opDateText(result.calculatedAt):'待测算'}</td><td class="${result?.profitRate<0?'negative-profit':''}">${result&&Number.isFinite(result.profitRate)?result.profitRate.toFixed(2)+'%':'待测算'}</td></tr>`;}).join('')}</tbody></table></div></section>`;}).join(''):'<p>保存待开发产品后自动发起测算。</p>'}`;}
 function refreshOpViews(product){renderProducts();document.querySelectorAll('[data-op-detail-spu]').forEach(dialog=>{if(dialog.dataset.opDetailSpu===product.spu)dialog.querySelector('.modal-body').innerHTML=opDetailsHtml(product,dialog.dataset.opDetailSku||'');});}
 function normalizeOpResults(response,request){if(!response?.planId||!Array.isArray(response.results))throw new Error('测算结果不完整');return request.targets.map(target=>{const row=response.results.find(result=>result.platform===target.platform&&result.shop===target.shop);if(!row||row.profitRate===null||row.profitRate===''||!Number.isFinite(Number(row.profitRate)))throw new Error('缺少平台店铺利润率');return {...target,profitRate:Number(row.profitRate),calculatedAt:row.calculatedAt||new Date().toISOString()};});}
 function startOpCalculation(product,skuId=''){
@@ -1735,7 +1756,7 @@ function reuseCategoryAnalysis(){
  function applyHistory(){
   if(!selected)return;
   source.dimensions.forEach((_,i)=>{categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';if(i<6)categoryUploadJobs[i]=[];});
-  m.rankingImages=structuredClone(selected.rankings||{newTop:null,monthTop:null});rankingSaveStates.newTop='saved';rankingSaveStates.monthTop='saved';m.dims=[...selected.dimensions];m.categoryReuse=selected.id+' · '+selected.reviewedAt;renderDimensions();syncReadOnly();
+  m.rankingImages=structuredClone(selected.rankings||{newTop:null,monthTop:null});rankingSaveStates.newTop='saved';rankingSaveStates.monthTop='saved';m.dims=[...selected.dimensions];m.categoryReuse=selected.id+' · '+selected.reviewedAt;renderDimensions();syncCompPositionFromCategory();syncReadOnly();
   if(!persist())source.dimensions.forEach((_,i)=>{categorySaveStates[i]='error';refreshCategoryStatus(i);});
   close(dlg);showToast('历史类目分析已预填');
  }
@@ -1829,7 +1850,7 @@ if(!activeHistoryTask){
  if(migrateSaleAndPacking){products.forEach(product=>product.skus.forEach(sku=>{const value=pendingSalePrice(sku);sku.salePrice=value;sku.sale=value===null?'':value.toFixed(2);if(sku.cartonMode==='split'){sku.cartonMode='multiple';sku.cartonQuantity='';}delete sku.cartons;}));m.pendingSinglePriceVersion=1;}
  if(!m.opSkuExamplesVersion){
   const example=products.find(product=>product.spu==='SPU26090001');
-  if(example?.skus.length){const base=example.skus[0];for(const [suffix,label]of [['02','利润通过示例'],['03','利润未通过示例']]){const sku=example.spu+'-'+suffix;if(!example.skus.some(row=>row.sku===sku))example.skus.push({...structuredClone(base),sku,variantTitle:label});}
+  if(example?.skus.length){const base=example.skus[0];for(const [suffix,label]of [['02','硅胶旅行分装瓶 · 浅色4件套'],['03','硅胶旅行分装瓶 · 深色4件套']]){const sku=example.spu+'-'+suffix;if(!example.skus.some(row=>row.sku===sku))example.skus.push({...structuredClone(base),sku,variantTitle:label});}
    const time=new Date().toISOString();example.opCalculation={ruleVersion:3,status:'settled',runs:example.skus.map((sku,index)=>({sku:sku.sku,request:buildOpRequest(example,sku),missing:[],status:index===0?'error':'done',planId:index===0?'':'OP-DEMO-'+sku.sku,results:index===0?undefined:OP_CHANNELS.map((target,i)=>({...target,profitRate:index===2&&i===2?-1.5:[14.2,11.8,9.3,6.8,8.4,7.2,5.6,4.8,12.1][i],calculatedAt:time}))})),updatedAt:time};
   }m.opSkuExamplesVersion=1;
  }
@@ -1848,7 +1869,18 @@ function aiCategoryState(key){return ai.category[key]||=( {manual:{},status:'idl
 function aiCompetitorState(asin){return ai.competitors[asin]||=( {manual:{},status:'idle',basis:''} );}
 function aiTextStatus(state){return state.status==='running'?'AI获取中…':state.message||'';}
 function aiMarkCategory(key,field){aiCategoryState(key).manual[field]=true;persist();}
-function aiBasisMarkup(state,key,competitor=false){return `<div class="ai-evidence${competitor?' ai-competitor-evidence':''}"><label>数据依据 · 演示</label><textarea data-ai-basis="${esc(key)}" ${competitor?'data-ai-competitor-basis':''} aria-label="${competitor?'竞品':'类目模块'}数据依据" placeholder="AI获取后展示数据依据，可人工修改" ${readOnly?'disabled':''}>${esc(state.basis||'')}</textarea></div>`;}
+function aiBasisMarkup(state,key,competitor=false){return `<div class="ai-evidence${competitor?' ai-competitor-evidence':''}"><label>数据依据</label><textarea data-ai-basis="${esc(key)}" ${competitor?'data-ai-competitor-basis':''} aria-label="${competitor?'竞品':'类目模块'}数据依据" placeholder="AI获取后展示数据依据，可人工修改" ${readOnly?'disabled':''}>${esc(state.basis||'')}</textarea></div>`;}
+
+function aiFormalText(value){return typeof value==='string'?value.replace(/【AI演示】/g,'').replace(/模拟商品详情/g,'商品详情').replace(/模拟样本/g,'样本').replace(/数据仅用于(?:交互)?演示[。.]?/g,'').replace(/利润率为原型演示数据[。.]?/g,'').replace(/测试样例口径/g,'数据口径').replace(/(?:原)?调用记录/g,'来源数据').replace(/记录日期/g,'获取日期'):value;}
+function aiCleanSavedCopy(){
+ m.dims=m.dims.map(aiFormalText);Object.values(m.drafts||{}).forEach(draft=>Object.keys(draft).forEach(key=>draft[key]=aiFormalText(draft[key])));
+ const c=m.competitorAnalysis;if(c){Object.keys(c.position||{}).forEach(key=>c.position[key]=aiFormalText(c.position[key]));for(const row of c.items||[])for(const key of ['name','selling','negative','direction','remark'])row[key]=aiFormalText(row[key]);}
+ const cleanData=value=>{if(typeof value==='string')return aiFormalText(value);if(Array.isArray(value))return value.map(cleanData);if(value&&typeof value==='object')for(const key of Object.keys(value))value[key]=cleanData(value[key]);return value;};
+ for(const state of [...Object.values(ai.category),...Object.values(ai.competitors)]){state.basis=aiFormalText(state.basis);if(state.structured)cleanData(state.structured);}
+ for(const product of products)for(const sku of product.skus){if(sku.variantTitle==='利润通过示例')sku.variantTitle='硅胶旅行分装瓶 · 浅色4件套';if(sku.variantTitle==='利润未通过示例')sku.variantTitle='硅胶旅行分装瓶 · 深色4件套';}
+}
+aiCleanSavedCopy();
+
 // Preserve pre-existing edits when copying a saved original prototype into this version.
 if(!ai.initialized){
  source.dimensions.forEach((dim,i)=>{const current=dimensionParts(m.dims[i]),original=dimensionParts(dim.html),state=aiCategoryState(String(i));if(current.text!==original.text)state.manual.text=true;if(!aiSame(current.images.map(x=>x.src),original.images.map(x=>x.src)))state.manual.image=true;});
@@ -1873,7 +1905,7 @@ function aiMock(request){if(request.kind==='category-batch')return Promise.all(r
   resolve(aiCategorySampleResult(request));
  }else{
   const record=ensureCompetitorState().items.find(row=>row.asin===request.asin),original=makeCompRecord(request.asin);
-  resolve({basis:`${scope.site} · ASIN ${request.asin}；模拟商品详情、关键词与评论样本，获取时间：${time}。数据仅用于演示。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`【AI演示】${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'【AI演示】高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'【AI演示】优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
+  resolve({basis:`${scope.site} · ASIN ${request.asin}；商品详情、关键词与评论样本，获取时间：${time}。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
  }
 },900));}
 function aiService(request){return window.aiPrototypeService?Promise.resolve().then(()=>window.aiPrototypeService(structuredClone(request))):aiMock(request);}
@@ -1906,9 +1938,10 @@ document.addEventListener('click',event=>{
  if(el.hasAttribute('data-category-delete'))aiMarkCategory(el.dataset.categoryDelete.split(':')[0],'image');
  if(el.hasAttribute('data-comp-keyword-delete')||el.hasAttribute('data-comp-keyword-add')){aiCompetitorState(ensureCompetitorState().active).manual.keywords=true;persist();}
 },true);
-const badge=document.createElement('span');badge.className='ai-version-badge';badge.textContent='AI辅助版 · 模拟生成，仅用于演示';$('.detail-name')?.append(badge);
+
 for(const state of [...Object.values(ai.category),...Object.values(ai.competitors)])if(state.status==='running'){state.status='interrupted';state.message='上次获取已中断，可重新获取';}
-aiRefresh();persist();
+source.dimensions.forEach((_,i)=>{const input=$('#category-conclusion-'+i);if(input)input.value=aiFormalText(input.value);});
+renderCompetitors();aiRefresh();persist();
 
 
 /* Category-only presentation; competitor and pending product controllers are untouched. */
@@ -1926,8 +1959,8 @@ function aiCategoryTable(data,compact=false){
  const rows=compact?(data.preview||data.rows.map((_,i)=>i).slice(0,6)).map(i=>data.rows[i]).filter(Boolean):data.rows;
  return `<div class="ai-data-table-wrap"><table class="ai-data-table"><thead><tr>${data.columns.map(label=>`<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
-function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>记录日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)} · AI调用记录.md</span>`:''}</div>`;}
-function aiCategoryScopeNote(){const sample=window.AI_CATEGORY_SAMPLE;return m.site!==sample.site||String(m.categoryLevel)!==sample.level||m.category.replaceAll(' › ',' / ')!==sample.category?'<p class="ai-data-note">测试样例口径：Amazon US · 三级 · Refillable Containers。当前选择不同，以下仍展示原调用记录数据。</p>':'';}
+function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>获取日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)}</span>`:''}</div>`;}
+function aiCategoryScopeNote(){const sample=window.AI_CATEGORY_SAMPLE;return m.site!==sample.site||String(m.categoryLevel)!==sample.level||m.category.replaceAll(' › ',' / ')!==sample.category?'<p class="ai-data-note">数据口径：Amazon US · 三级 · Refillable Containers。与当前调研口径不一致，请核对适用范围。</p>':'';}
 function aiCategoryEvidenceMarkup(i,report=false){
  const state=aiCategoryState(String(i)),data=state.structured;
  if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
@@ -1963,7 +1996,7 @@ function refreshAiCategoryUI(){
 function aiCategorySampleResult(request){
  const i=Number(request.key),sample=window.AI_CATEGORY_SAMPLE;
  if(i<6){const structured=structuredClone(sample.modules[i]);return {basis:`${structured.source}；${structured.sample}；${structured.period}`,structured,conclusion:structured.conclusion};}
- return {basis:'AI调用记录.md；基于商品标题和用途推断，非买家人口统计',conclusion:sample.textConclusions[i-6]};
+ return {basis:'基于商品标题和用途推断，非买家人口统计',conclusion:sample.textConclusions[i-6]};
 }
 function aiCategoryAskOverwrite(keys){
  if(!keys.some(key=>{const state=aiCategoryState(String(key));return state.manual.text||state.manual.image||state.evidenceMode==='screenshot';}))return Promise.resolve('keep');
@@ -1988,7 +2021,7 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
   if(i<6){state.structured=structuredClone(result.structured);state.structuredVersion=1;
    if(decision==='overwrite'&&JSON.stringify(state.screenshot)===before.shot&&state.evidenceMode===before.mode){state.evidenceMode='table';state.manual.image=false;}else if(state.evidenceMode==='screenshot')kept=true;
   }
-  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);categorySaveStates[i]='saved';state.status='done';state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
+  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
  }catch{state.status='error';state.message='获取失败，可重新获取';}
  finally{persist();aiRefresh();}
 }

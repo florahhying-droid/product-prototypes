@@ -14,8 +14,8 @@ function aiCategoryTable(data,compact=false){
  const rows=compact?(data.preview||data.rows.map((_,i)=>i).slice(0,6)).map(i=>data.rows[i]).filter(Boolean):data.rows;
  return `<div class="ai-data-table-wrap"><table class="ai-data-table"><thead><tr>${data.columns.map(label=>`<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
-function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>记录日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)} · AI调用记录.md</span>`:''}</div>`;}
-function aiCategoryScopeNote(){const sample=window.AI_CATEGORY_SAMPLE;return m.site!==sample.site||String(m.categoryLevel)!==sample.level||m.category.replaceAll(' › ',' / ')!==sample.category?'<p class="ai-data-note">测试样例口径：Amazon US · 三级 · Refillable Containers。当前选择不同，以下仍展示原调用记录数据。</p>':'';}
+function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>获取日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)}</span>`:''}</div>`;}
+function aiCategoryScopeNote(){const sample=window.AI_CATEGORY_SAMPLE;return m.site!==sample.site||String(m.categoryLevel)!==sample.level||m.category.replaceAll(' › ',' / ')!==sample.category?'<p class="ai-data-note">数据口径：Amazon US · 三级 · Refillable Containers。与当前调研口径不一致，请核对适用范围。</p>':'';}
 function aiCategoryEvidenceMarkup(i,report=false){
  const state=aiCategoryState(String(i)),data=state.structured;
  if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
@@ -51,7 +51,7 @@ function refreshAiCategoryUI(){
 function aiCategorySampleResult(request){
  const i=Number(request.key),sample=window.AI_CATEGORY_SAMPLE;
  if(i<6){const structured=structuredClone(sample.modules[i]);return {basis:`${structured.source}；${structured.sample}；${structured.period}`,structured,conclusion:structured.conclusion};}
- return {basis:'AI调用记录.md；基于商品标题和用途推断，非买家人口统计',conclusion:sample.textConclusions[i-6]};
+ return {basis:'基于商品标题和用途推断，非买家人口统计',conclusion:sample.textConclusions[i-6]};
 }
 function aiCategoryAskOverwrite(keys){
  if(!keys.some(key=>{const state=aiCategoryState(String(key));return state.manual.text||state.manual.image||state.evidenceMode==='screenshot';}))return Promise.resolve('keep');
@@ -76,7 +76,7 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
   if(i<6){state.structured=structuredClone(result.structured);state.structuredVersion=1;
    if(decision==='overwrite'&&JSON.stringify(state.screenshot)===before.shot&&state.evidenceMode===before.mode){state.evidenceMode='table';state.manual.image=false;}else if(state.evidenceMode==='screenshot')kept=true;
   }
-  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);categorySaveStates[i]='saved';state.status='done';state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
+  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
  }catch{state.status='error';state.message='获取失败，可重新获取';}
  finally{persist();aiRefresh();}
 }
