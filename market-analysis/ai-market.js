@@ -695,7 +695,6 @@ function aiCategoryState(key){return ai.category[key]||=( {manual:{},status:'idl
 function aiCompetitorState(asin){return ai.competitors[asin]||=( {manual:{},status:'idle',basis:''} );}
 function aiTextStatus(state){return state.status==='running'?'AI获取中…':state.message||'';}
 function aiMarkCategory(key,field){aiCategoryState(key).manual[field]=true;persist();}
-function aiBasisMarkup(state,key,competitor=false){return `<div class="ai-evidence${competitor?' ai-competitor-evidence':''}"><label>数据依据</label><textarea data-ai-basis="${esc(key)}" ${competitor?'data-ai-competitor-basis':''} aria-label="${competitor?'竞品':'类目模块'}数据依据" placeholder="AI获取后展示数据依据，可人工修改" ${readOnly?'disabled':''}>${esc(state.basis||'')}</textarea></div>`;}
 
 function aiFormalText(value){return typeof value==='string'?value.replace(/【AI演示】/g,'').replace(/模拟商品详情/g,'商品详情').replace(/模拟样本/g,'样本').replace(/数据仅用于(?:交互)?演示[。.]?/g,'').replace(/利润率为原型演示数据[。.]?/g,'').replace(/测试样例口径/g,'数据口径').replace(/(?:原)?调用记录/g,'来源数据').replace(/记录日期/g,'获取日期'):value;}
 function aiCleanSavedCopy(){
@@ -717,7 +716,7 @@ if(!ai.initialized){
 function aiRefresh(){
  refreshAiCategoryUI();
  const target=$('#compDetail'),record=ensureCompetitorState().items.find(row=>row.asin===ensureCompetitorState().active);
- if(target&&record){const state=aiCompetitorState(record.asin);if(!target.querySelector('.ai-competitor-bar'))target.insertAdjacentHTML('afterbegin',`<div class="ai-competitor-bar"><span>当前ASIN：${esc(record.asin)}</span><span class="ai-status" data-ai-comp-status role="status" aria-live="polite"></span><button type="button" class="ai-action market-write" data-ai-get-competitor="${esc(record.asin)}">AI获取竞品分析</button></div>`+aiBasisMarkup(state,record.asin,true));const button=target.querySelector('[data-ai-get-competitor]');button.disabled=state.status==='running';button.hidden=readOnly;button.textContent=state.status==='running'?'AI获取中…':'AI获取竞品分析';const status=target.querySelector('[data-ai-comp-status]');status.textContent=aiTextStatus(state);status.dataset.status=state.status;}
+ if(target&&record){const state=aiCompetitorState(record.asin);if(!target.querySelector('.ai-competitor-bar'))target.insertAdjacentHTML('afterbegin',`<div class="ai-competitor-bar"><span>当前ASIN：${esc(record.asin)}</span><span class="ai-status" data-ai-comp-status role="status" aria-live="polite"></span><button type="button" class="btn ai-action market-write" data-ai-get-competitor="${esc(record.asin)}">AI获取竞品分析</button></div>`);const button=target.querySelector('[data-ai-get-competitor]');button.disabled=state.status==='running';button.hidden=readOnly;button.textContent=state.status==='running'?'AI获取中…':'AI获取竞品分析';const status=target.querySelector('[data-ai-comp-status]');status.textContent=aiTextStatus(state);status.dataset.status=state.status;}
 }
 const aiOriginalRenderDimensions=renderDimensions;renderDimensions=function(){aiOriginalRenderDimensions();aiRefresh();};
 const aiOriginalRenderCompDetail=renderCompDetail;renderCompDetail=function(){aiOriginalRenderCompDetail();aiRefresh();};
@@ -786,12 +785,11 @@ function aiCategoryTable(data,compact=false){
  return `<div class="ai-data-table-wrap"><table class="ai-data-table"><thead><tr>${data.columns.map(label=>`<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>获取日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)}</span>`:''}</div>`;}
-function aiCategoryScopeNote(){const sample=window.AI_CATEGORY_SAMPLE;return m.site!==sample.site||String(m.categoryLevel)!==sample.level||m.category.replaceAll(' › ',' / ')!==sample.category?'<p class="ai-data-note">数据口径：Amazon US · 三级 · Refillable Containers。与当前调研口径不一致，请核对适用范围。</p>':'';}
 function aiCategoryEvidenceMarkup(i,report=false){
  const state=aiCategoryState(String(i)),data=state.structured;
  if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
  if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请获取AI数据或上传截图。</div>';
- return aiCategoryScopeNote()+aiCategoryTable(data,true)+`<div class="ai-data-footer">${aiCategorySource(data)}${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
+ return aiCategoryTable(data,true)+`<div class="ai-data-footer">${aiCategorySource(data)}${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
 }
 function refreshAiCategoryUI(){
  const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head');
