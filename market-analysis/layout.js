@@ -141,6 +141,7 @@
   if (/^https?:$/.test(window.location.protocol)) {
     document.querySelectorAll('.demo-suite-switch a').forEach(link => {
       if (link.getAttribute('href') === '市场分析报告交互原型.html') link.setAttribute('href', 'index.html');
+      if (link.getAttribute('href') === '市场分析报告AI辅助原型.html') link.setAttribute('href', 'ai-index.html');
     });
   }
 })();
