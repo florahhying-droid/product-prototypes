@@ -56,10 +56,13 @@ ai_controller = (root / 'market.js').read_text(encoding='utf-8')
 ai_controller = ai_controller.replace("const KEY='ac-market-analysis-v1';", "const KEY='ac-market-analysis-ai-v1';")
 ai_controller = ai_controller.replace('JSON.parse(localStorage.getItem(KEY))', "JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('ac-market-analysis-v1'))")
 ai_controller = ai_controller.replace("c.querySelector('textarea')?.value.trim()", "c.querySelector('.category-conclusion')?.value.trim()")
+ai_controller = ai_controller.replace("if(i<6&&!dimensionImages[i]?.length)", "if(i<6&&!aiCategoryHasEvidence(i))")
+ai_controller = ai_controller.replace("'请上传'+source.dimensions[i].title+'分析图片'", "'请获取'+source.dimensions[i].title+'AI数据或上传截图'")
 cut = ai_controller.rindex('})();')
-ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
+ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 (root / 'ai-market.js').write_text(ai_controller, encoding='utf-8')
 ai_source = (root / 'index.html').read_text(encoding='utf-8').replace('src="market.js"', 'src="ai-market.js"')
+ai_source = ai_source.replace('<script src="ai-market.js"></script>', '<script src="ai-category-data.js"></script><script src="ai-market.js"></script>')
 ai_source = ai_source.replace('<title>', '<title>AI辅助版 · ', 1)
 ai_source = ai_source.replace('href="layout.css">', 'href="layout.css"><link rel="stylesheet" href="ai.css">')
 old_nav = '<a class="active" aria-current="page" href="市场分析报告交互原型.html">原版原型</a>'
@@ -67,6 +70,7 @@ ai_source = ai_source.replace(old_nav, '<a href="市场分析报告交互原型.
 (root / 'ai-index.html').write_text(ai_source, encoding='utf-8')
 ai_offline = html.replace('<title>', '<title>AI辅助版 · ', 1)
 ai_offline = ai_offline.replace(old_nav, '<a href="市场分析报告交互原型.html">原版原型</a>').replace('<a href="市场分析报告AI辅助原型.html">AI辅助版</a>', '<a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a>')
+ai_offline = ai_offline.replace('<script>' + (root / 'report-data.js').read_text(encoding='utf-8'), '<script>' + (root / 'ai-category-data.js').read_text(encoding='utf-8') + '</script><script>' + (root / 'report-data.js').read_text(encoding='utf-8'), 1)
 original_controller = (root / 'market.js').read_text(encoding='utf-8')
 # Apply the same compact-rich transformations as the original offline build.
 ai_controller = ai_controller.replace('m.dims[+a[1]]=el.innerHTML', 'm.dims[+a[1]]=compactRich(el)').replace("el.classList.contains('editor')?el.innerHTML:el.value", "el.classList.contains('editor')?compactRich(el):el.value")

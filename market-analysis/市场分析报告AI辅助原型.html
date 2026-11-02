@@ -470,6 +470,32 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .ai-version-badge{margin-left:10px;font-size:11px;font-weight:400;color:#0e8f87}.ai-action{white-space:nowrap;color:#0e8f87;border:1px solid #96d7cf;background:#fff;border-radius:2px;padding:3px 10px;font:inherit;cursor:pointer}.ai-action:disabled{opacity:.5;cursor:wait}.ai-retry{border:0;background:transparent;padding:0 7px;color:#15978c;font:inherit;white-space:nowrap;cursor:pointer}.ai-retry:disabled{opacity:.45;cursor:wait}.ai-status{font-size:11px;color:#8592a3;font-weight:400}.ai-status[data-status="error"],.ai-status[data-status="interrupted"]{color:#d37837}.ai-status[data-status="done"]{color:#15966b}.ai-category-tools{display:flex;align-items:center;gap:9px;margin-left:auto}.ai-competitor-bar{display:flex;align-items:center;gap:12px;min-height:31px;padding:4px 10px;margin-bottom:7px;border:1px solid #dce9e6;background:#f6fbfa;font-size:12px}.ai-competitor-bar .ai-action{margin-left:auto;border:0;padding:1px 0;background:transparent}.ai-evidence{padding:8px 12px;border-bottom:1px solid #e4ecea;background:#fbfdfc;display:flex;gap:10px;align-items:flex-start}.ai-evidence label{flex:none;color:#819087;font-size:11px;padding-top:3px}.ai-evidence textarea{width:100%;min-width:0;height:38px;min-height:38px;resize:vertical;border:0;background:transparent;font:inherit;font-size:11px;line-height:1.6;color:#697d75}.ai-evidence textarea:focus{outline:1px solid #9bd6ce;background:#fff}.ai-category-tools .ai-status{max-width:280px}.ai-competitor-evidence{margin:-7px 0 8px;border:1px solid #e2ece8;border-top:0}#categoryRankings>h4{display:flex;align-items:center;gap:8px}#categoryRankings>h4 #rankingRequiredProgress{margin-left:auto}.ai-retry[hidden],.ai-action[hidden]{display:none!important}@media(max-width:900px){.ai-category-tools{flex-wrap:wrap}.ai-category-tools .ai-status{display:none}.ai-competitor-bar{flex-wrap:wrap}}
 
 #categoryRankings.is-collapsed>.ai-evidence{display:none}
+
+/* Category evidence: one compact vertical stack, retaining AC typography and borders. */
+#dimensions .ai-category-stack{display:block!important;padding:12px 14px;gap:0}
+#dimensions .ai-analysis-basis{min-width:0;margin:0 0 16px}
+#dimensions .ai-basis-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:12px;font-weight:500;color:#53657b}
+#dimensions .ai-basis-actions{display:flex;align-items:center;gap:15px;font-weight:400}
+#dimensions .ai-basis-actions [hidden]{display:none!important}
+.ai-data-table-wrap{overflow-x:auto;border:1px solid #e0e5eb;background:#fff}
+.ai-data-table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;white-space:normal;font-size:12px}
+.ai-data-table th,.ai-data-table td{position:static;height:auto;min-height:28px;padding:6px 10px;border:1px solid #e3e8ee;text-align:left;vertical-align:top;line-height:1.55;overflow-wrap:anywhere}
+.ai-data-table th{background:#f7f9fb;color:#56677d;font-weight:500}
+.ai-data-table tr:last-child td{border-bottom:0}.ai-data-table th:first-child,.ai-data-table td:first-child{border-left:0}.ai-data-table th:last-child,.ai-data-table td:last-child{border-right:0}.ai-data-table th{border-top:0}
+.ai-data-table th:first-child{width:31%}.ai-data-table th:nth-child(2){width:24%}
+.ai-data-source{display:flex;flex-wrap:wrap;gap:2px 18px;color:#8994a3;font-size:11px;line-height:1.65;margin-top:7px;min-width:0}
+.ai-data-footer{display:flex;align-items:flex-end;gap:14px;justify-content:space-between}.ai-data-footer>.ai-data-source{flex:1}.ai-data-footer>.link{flex:none;white-space:nowrap;font-size:11px;margin-bottom:1px}
+#dimensions .ai-analysis-conclusion{display:block;width:100%;padding:0;background:transparent;border:0}
+#dimensions .ai-analysis-conclusion>label{display:block;margin-bottom:8px;font-size:12px;color:#53657b}
+#dimensions .category-conclusion{height:136px!important;min-height:136px!important;max-height:136px!important;overflow-y:auto;resize:none;padding:9px 10px;line-height:1.8}
+#dimensions .category-item-status{margin-left:auto}.ai-data-empty{padding:28px;color:#96a0ad;background:#fafbfc;border:1px dashed #dfe5eb;text-align:center}
+.ai-data-note{margin:8px 0;color:#8a96a5;font-size:11px;line-height:1.7}.ai-category-shot{margin:0;text-align:center}.ai-category-shot img{display:inline-block;max-width:100%;max-height:240px;width:auto;height:auto;object-fit:contain;cursor:zoom-in}.ai-category-shot figcaption{font-size:11px;line-height:1.8;color:#8a96a5;margin-top:4px}
+.ai-data-drawer-mask{position:fixed;inset:0;z-index:12020;background:#1b29354d;display:flex;justify-content:flex-end}
+.ai-data-drawer{width:min(820px,88vw);height:100%;background:#fff;display:flex;flex-direction:column;box-shadow:-7px 0 28px #1f304b24}
+.ai-data-drawer>header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 20px;border-bottom:1px solid #e1e6ec;background:#fff}.ai-data-drawer h3{font-size:15px;color:#32455f;margin:0 0 7px}.ai-data-drawer .close{flex:none}.ai-data-drawer-body{padding:18px 20px 30px;overflow-y:auto;flex:1}.ai-data-drawer-body>section{margin-top:23px}.ai-data-drawer h4{font-size:13px;font-weight:500;color:#52677d;margin:0 0 9px}.ai-data-drawer .ai-data-source{display:block}.ai-data-drawer .ai-data-source span{display:block}.report-paper .ai-data-table{min-width:0}.report-paper .ai-category-shot img{max-height:360px}.report-paper .report-analysis>h4{margin:12px 0 8px;font-size:13px}
+@media(max-width:800px){.ai-data-footer{display:block}.ai-data-footer>.link{display:block;margin:7px 0 0 auto}.ai-data-drawer{width:95vw}.ai-data-table{min-width:430px}.ai-data-drawer .ai-data-table{min-width:500px}}
+
+.ai-shot-status:not(:empty){margin-top:7px;color:#c67b35;font-size:11px}
 </style></head>
 <body>
   <nav class="demo-suite-switch" aria-label="方案与原型导航"><span class="switch-label">市场分析</span><a href="plan.html">整合方案</a><a href="市场分析报告交互原型.html">原版原型</a><a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a></nav>
@@ -628,7 +654,521 @@ $('#candidateBody').innerHTML=shown.map(c=>`<tr class="${c.createdSpu?'candidate
     $$('[data-close]').forEach(b=>b.onclick=()=>$('#'+b.dataset.close).classList.remove('open'));$('#detailDrawer').onclick=e=>{if(e.target===$('#detailDrawer'))$('#detailDrawer').classList.remove('open')};$('#editModal').onclick=e=>{if(e.target===$('#editModal'))$('#editModal').classList.remove('open')};$('#variantConfirmModal').onclick=e=>{if(e.target===$('#variantConfirmModal'))$('#variantConfirmModal').classList.remove('open')};$('#deleteConfirmModal').onclick=e=>{if(e.target===$('#deleteConfirmModal'))$('#deleteConfirmModal').classList.remove('open')};
     applyWorkflow();
   </script>
-<script>/* 摘自用户提供的市场分析报告；仅用于原型示例，不作为已核实的业务结论。 */
+<script>// Transcribed from D:/Codex工作区/AI调用记录.md; source-specific scopes are preserved.
+window.AI_CATEGORY_SAMPLE = {
+  "record": "AI调用记录.md",
+  "site": "US",
+  "level": "3",
+  "category": "Beauty & Personal Care / Tools & Accessories / Refillable Containers",
+  "node": "11062781",
+  "retrievedAt": "2026-11-02",
+  "modules": [
+    {
+      "title": "市场规模与概况",
+      "columns": [
+        "核心指标",
+        "数值",
+        "口径说明"
+      ],
+      "rows": [
+        [
+          "Top 100 商品月销量",
+          "约 637,146 件",
+          "Amazon US 该类目头部 100 个商品的估算月销量"
+        ],
+        [
+          "Top 100 商品月销售额",
+          "约 US$5.53M",
+          "按 Top 100 商品估算"
+        ],
+        [
+          "Top 100 销售额/销量折算均价",
+          "约 US$8.67",
+          "根据 Top 100 销售额 ÷ 销量计算"
+        ],
+        [
+          "类目平均售价",
+          "US$9.21",
+          "类目报告统计；报告同时显示价格区间约 US$3.99–60.59"
+        ],
+        [
+          "商品平均评分",
+          "约 4.4/5",
+          "类目整体评价偏正面"
+        ],
+        [
+          "Top 100 平均上架时长",
+          "约 1,270 天",
+          "市场中有相当数量的成熟老品"
+        ],
+        [
+          "商品总数 / 可售商品数",
+          "约 282,182 / 69,969",
+          "类目报告口径；商品总数不等于实际活跃竞争商品数"
+        ],
+        [
+          "退货率",
+          "约 3.29%",
+          "类目报告值；高于同类目比较值 1.96%"
+        ],
+        [
+          "转化率",
+          "约 3.0%",
+          "类目报告值，需结合具体子类目理解"
+        ]
+      ],
+      "source": "Sorftime · category_report",
+      "sample": "Amazon US · Refillable Containers；Top 100估算与类目报告整体指标逐项注明",
+      "period": "截至2026-11-02；调用记录未注明该报告的统计月",
+      "conclusion": "这是一个需求体量较大的综合类目，但细分用途差异很大。旅行套装、家用喷瓶、精油瓶、DIY化妆品包装等消费者需求和竞品并不完全相同，选品时建议进一步锁定子类目，而不要直接按整个大类的均值定产品。",
+      "preview": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "notes": "Top 100折算均价与类目平均售价是不同指标；商品总数不等于实际活跃竞争商品数。月度浏览量来自SellersSprite market_product_demand_trend，不与Top 100销量合并。",
+      "extra": [
+        {
+          "title": "子类目商品数量",
+          "columns": [
+            "子类目",
+            "商品数",
+            "主要产品形态"
+          ],
+          "rows": [
+            [
+              "Spray Bottles",
+              "2,976",
+              "喷雾瓶、细雾喷瓶"
+            ],
+            [
+              "Pump Dispensers",
+              "2,223",
+              "按压泵瓶、分配器"
+            ],
+            [
+              "Jars",
+              "1,968",
+              "膏霜罐、空罐"
+            ],
+            [
+              "Kits",
+              "1,288",
+              "旅行分装组合套装"
+            ],
+            [
+              "Squeeze Bottles",
+              "828",
+              "挤压瓶"
+            ],
+            [
+              "Roller Bottles",
+              "827",
+              "滚珠瓶、精油瓶"
+            ],
+            [
+              "Droppers",
+              "301",
+              "滴管瓶"
+            ]
+          ],
+          "source": "SellersSprite · product_node",
+          "sample": "类目子节点商品数量；非Top 100样本",
+          "period": "截至2026-11-02"
+        },
+        {
+          "title": "另一来源：月度浏览量范围",
+          "columns": [
+            "指标",
+            "范围",
+            "说明"
+          ],
+          "rows": [
+            [
+              "月度浏览量",
+              "近一年数据约 49,000–196,000/月",
+              "SellersSprite market_product_demand_trend；近一年浏览量范围，非Top 100月销量"
+            ]
+          ],
+          "source": "SellersSprite · market_product_demand_trend",
+          "sample": "类目浏览量趋势，非Top 100月销量",
+          "period": "近一年（原记录未注明起止月）；截至2026-11-02"
+        }
+      ]
+    },
+    {
+      "title": "市场趋势/流量周期",
+      "columns": [
+        "月份",
+        "Top 100月销量（件，估算）"
+      ],
+      "rows": [
+        [
+          "2024-11",
+          "630,675"
+        ],
+        [
+          "2024-12",
+          "596,304"
+        ],
+        [
+          "2025-01",
+          "654,266"
+        ],
+        [
+          "2025-02",
+          "611,240"
+        ],
+        [
+          "2025-03",
+          "742,998"
+        ],
+        [
+          "2025-04",
+          "699,118"
+        ],
+        [
+          "2025-05",
+          "766,809"
+        ],
+        [
+          "2025-06",
+          "819,582"
+        ],
+        [
+          "2025-07",
+          "849,056"
+        ],
+        [
+          "2025-08",
+          "774,904"
+        ],
+        [
+          "2025-09",
+          "718,732"
+        ],
+        [
+          "2025-10",
+          "641,271"
+        ],
+        [
+          "2025-11",
+          "723,421"
+        ],
+        [
+          "2025-12",
+          "728,637"
+        ],
+        [
+          "2026-01",
+          "657,189"
+        ],
+        [
+          "2026-02",
+          "575,716"
+        ],
+        [
+          "2026-03",
+          "694,521"
+        ],
+        [
+          "2026-04",
+          "663,480"
+        ],
+        [
+          "2026-05",
+          "685,987"
+        ],
+        [
+          "2026-06",
+          "819,525"
+        ],
+        [
+          "2026-07",
+          "788,147"
+        ],
+        [
+          "2026-08",
+          "755,037"
+        ],
+        [
+          "2026-09",
+          "695,839"
+        ],
+        [
+          "2026-10",
+          "480,665"
+        ]
+      ],
+      "source": "Sorftime · category_trend",
+      "sample": "Amazon US · 类目节点11062781 · Top 100商品月销量估算",
+      "period": "2024-11至2026-10；共24个月",
+      "conclusion": "2025年7月是这段时间的最高点，约84.9万件；2026年6月也达到约82.0万件。整体呈现年中偏强的走势。2026年10月的数值明显偏低，但可能是未完整月份，不宜直接判断为需求骤降。",
+      "preview": [
+        0,
+        8,
+        13,
+        19,
+        22,
+        23
+      ],
+      "notes": "2024年1—10月缺失，未补值。2026年10月可能为未完整月份；category_trend与category_report的同期销量口径不一致，不拼接月销售额或计算双轴趋势。",
+      "extra": []
+    },
+    {
+      "title": "商品集中度",
+      "columns": [
+        "集中度指标",
+        "销量占比",
+        "说明"
+      ],
+      "rows": [
+        [
+          "Top 3 商品销量占 Top 100",
+          "20.83%",
+          "头部商品有优势，但不是由少数单品完全垄断"
+        ],
+        [
+          "Top 3 品牌销量占 Top 100",
+          "20.83%",
+          "品牌集中程度中等，存在多品牌竞争"
+        ],
+        [
+          "Top 3 卖家销量占 Top 100",
+          "19.79%",
+          "卖家分散度较高"
+        ],
+        [
+          "Amazon自营销量占比",
+          "0.31%",
+          "Sorftime Top 100口径；与63商品样本的1.57%不同"
+        ]
+      ],
+      "source": "Sorftime · category_report",
+      "sample": "Amazon US · Top 100商品；商品、品牌、卖家分别按销量聚合",
+      "period": "截至2026-11-02；调用记录未注明报告统计月",
+      "conclusion": "从大类集中度看，竞争并非完全被少数品牌锁定；但不同细分赛道的竞争结构可能差异很大。旅行分装套装与持续喷雾瓶应分别评估，不能用大类集中度直接代表某个细分类目的进入难度。",
+      "preview": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "notes": "Amazon自营0.31%取自调用记录后续“商品集中度｜Sorftime Top 100口径”补充。不同分布维度不可相加，也不与SellersSprite样本拼接。",
+      "extra": []
+    },
+    {
+      "title": "上架时间分布",
+      "columns": [
+        "商品上架时间",
+        "商品数（63 个样本口径）",
+        "销量占比",
+        "解读"
+      ],
+      "rows": [
+        [
+          "3 年以上",
+          "42",
+          "约 66.2%",
+          "老品数量和销量贡献较高，成熟商品具备评价与排名积累优势"
+        ],
+        [
+          "2–3 年左右",
+          "4",
+          "约 17.8%",
+          "部分中生代产品仍有较强销量"
+        ],
+        [
+          "1–2 年左右",
+          "8",
+          "约 2.5%",
+          "新旧产品表现分化"
+        ],
+        [
+          "1 年以内及其他分组",
+          "9",
+          "约 13.6%",
+          "有新品进入并获得销量，但不是普遍现象"
+        ]
+      ],
+      "source": "SellersSprite · market_listing_date_distribution",
+      "sample": "63个样本商品；不是Sorftime Top 100类目榜单",
+      "period": "截至2026-11-02；调用记录未注明采样月",
+      "conclusion": "类目整体有较明显的成熟品基础，评价积累和老链接排名重要；但并非完全没有新品机会。新产品更适合通过细分用途、结构升级、配件组合或体验改善切入，而不是简单复制已有规格。",
+      "preview": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "notes": "销量占比保留原记录的约数，不重新归一化。下列补充来自另一来源，单独展示，不纳入63个商品分组。",
+      "extra": [
+        {
+          "title": "另一口径：最近3个月新品",
+          "columns": [
+            "指标",
+            "销量占比",
+            "说明"
+          ],
+          "rows": [
+            [
+              "最近3个月新品",
+              "0.00%",
+              "类目报告口径；不能并入上方63样本分组"
+            ]
+          ],
+          "source": "Sorftime · category_report",
+          "sample": "Top 100类目报告，非63个样本商品",
+          "period": "截至2026-11-02；报告统计月未注明"
+        }
+      ]
+    },
+    {
+      "title": "价格分布",
+      "columns": [
+        "价格带",
+        "商品数量（样本）",
+        "月销量占比",
+        "市场含义"
+      ],
+      "rows": [
+        [
+          "US$0–5",
+          "4",
+          "13.19%",
+          "有一定低价走量需求，适合简单基础款或小规格产品"
+        ],
+        [
+          "US$5–10",
+          "36",
+          "80.22%",
+          "核心价格带，竞争与销量最集中"
+        ],
+        [
+          "US$10–15",
+          "14",
+          "2.80%",
+          "需要通过材质、容量或套装配置支撑溢价"
+        ],
+        [
+          "US$15–20",
+          "3",
+          "1.23%",
+          "销量占比有限"
+        ],
+        [
+          "US$20–25",
+          "5",
+          "2.55%",
+          "适合大包装、套装或更高客单方案"
+        ],
+        [
+          "US$25 以上",
+          "1",
+          "0.01%",
+          "在该样本中不是主流价格区间"
+        ]
+      ],
+      "source": "SellersSprite · market_price_distribution",
+      "sample": "63个样本商品；样本销量占比，非整个类目普查",
+      "period": "截至2026-11-02；调用记录未注明采样月",
+      "conclusion": "若做大众旅行分装或基础喷瓶，优先研究US$5–10的主流带；若售价高于US$10，建议用防漏结构、精准喷雾、耐用材质、容量组合、收纳袋／漏斗／标签等明确的价值点支撑价格。",
+      "preview": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "notes": "商品数量与销量占比保留调用记录原值，不据此推算整个类目的商品数或销量。",
+      "extra": []
+    },
+    {
+      "title": "卖家分布",
+      "columns": [
+        "维度",
+        "卖家国别/类型",
+        "商品数量",
+        "销量占比"
+      ],
+      "rows": [
+        [
+          "卖家国别",
+          "中国卖家",
+          "41",
+          "66.89%"
+        ],
+        [
+          "卖家国别",
+          "美国卖家",
+          "22",
+          "33.11%"
+        ],
+        [
+          "履约方式",
+          "FBA",
+          "54/63",
+          "97.85%"
+        ],
+        [
+          "履约方式",
+          "FBM",
+          "7/63",
+          "0.35%"
+        ],
+        [
+          "履约方式",
+          "Amazon自营",
+          "1",
+          "约1.57%"
+        ]
+      ],
+      "source": "SellersSprite · market_seller_country_distribution / market_seller_type_concentration",
+      "sample": "63个样本商品；卖家国别与履约方式是两个独立维度",
+      "period": "截至2026-11-02；调用记录未注明采样月",
+      "conclusion": "类目供应竞争国际化程度高，但中国卖家在样本销量中占主导。FBA覆盖率高，说明配送时效和库存可售能力是基本竞争条件。以上卖家国别和配送方式来自样本口径，并非整个类目所有商品的完整普查。",
+      "preview": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "notes": "国别与履约方式不可相加；不补齐原记录未覆盖的商品数量。此处Amazon自营约1.57%是SellersSprite样本口径，与Sorftime Top 100的0.31%不同。",
+      "extra": [
+        {
+          "title": "卖家国别销售额占比",
+          "columns": [
+            "卖家国别",
+            "销售额占比"
+          ],
+          "rows": [
+            [
+              "中国卖家",
+              "61.52%"
+            ],
+            [
+              "美国卖家",
+              "38.48%"
+            ]
+          ],
+          "source": "SellersSprite · market_seller_country_distribution",
+          "sample": "63个样本商品；销售额维度",
+          "period": "截至2026-11-02；调用记录未注明采样月"
+        }
+      ]
+    }
+  ],
+  "textConclusions": [
+    "基于畅销商品标题与用途归纳，不是Amazon买家人口统计数据。\n经常出行的消费者：分装洗发水、护发素、乳液、护肤品，满足随身行李要求；防漏、容量清晰、便携、容易清洗和灌装\n日常美发及专业从业者：美发师、理发店、沙龙及居家造型用户使用喷雾瓶；喷雾细腻均匀、连续喷雾、握持舒适、耐用\n植物护理用户：给室内植物、园艺植物喷水；喷头可调、喷雾稳定、瓶身容量和耐用度\n家居清洁用户：分装清洁液、酒精或自配清洁液；瓶身耐化学性、喷头不易堵漏、标签清晰\nDIY 美妆 / 精油爱好者：分装精油、香水、乳霜、唇彩或自制护肤品；材质适配、瓶口精度、遮光性、配件完整\n重视收纳与补充装的消费者：家庭浴室、旅行包或工作场景的重复灌装；识别标签、统一外观、易清洁、可重复使用",
+    "旅行洗漱与随身携带：硅胶挤压瓶、膏霜罐、旅行套装；优化瓶盖密封、宽口灌装、透明收纳袋、容量标识\n美发与沙龙造型：持续喷雾瓶、细雾喷瓶；喷雾均匀度、连续喷雾稳定性、喷头耐久、可替换喷头\n室内植物护理：喷雾瓶、可调喷头瓶；Mist/Stream 模式切换、防堵、瓶身防滑与容量刻度\n家庭清洁：塑料喷瓶、玻璃喷瓶；抗漏、喷头耐化学、瓶身标注与区分不同溶液\n精油、香水及香氛分装：滴管瓶、滚珠瓶、香水喷雾瓶；遮光材料、滚珠顺滑度、喷头密封与便携性\nDIY 化妆品及样品包装：小罐、滴管瓶、睫毛膏/唇彩空管；多规格组合、标签和漏斗等辅助配件、适合小批量制作"
+  ]
+};
+</script><script>/* 摘自用户提供的市场分析报告；仅用于原型示例，不作为已核实的业务结论。 */
 window.REPORT_SOURCE={"dimensions": [{"title": "市场规模与概况", "html": "<p>成熟度 (Maturity): 中高。 市场分析概况 显示样本中最早的产品上架时间可追溯至2015年 (Bar5F Pumps)。上架时间分布 进一步证实，约 47% 的月销量来自上架时间3年及以上的产品，表明市场有稳定基础。然而，上架趋势分布 中2024、2025、2026年新品数量和销量占比显著，显示市场活跃，不断有新产品和新玩家进入。</p><img src=\"assets/image1.png\" alt=\"市场规模与概况 · 图表1\" tabindex=\"0\"><p>市场体量 (Scale): 巨大且持续增长。 市场分析概况 显示，抽样的100个ASIN，平均每个ASIN月均销售额高达 7.11 万美元，月均销量 7803 件。参考 行业销售趋势，该细分市场的整体月销售额在过去一年中（从2024年8月到2025年8月）从约 325 万美元增长至约 593 万美元，而预测到2026年8月将达到近 700 万美元，月销量更是高达 77.8 万件。这显示市场总容量非常可观，且处于强劲的增长态势。</p><p>销售速度 (Velocity): 极高。 样本商品平均月销量为 7803 件，而前10商品更是高达 27690 件 (市场分析概况)。这表明市场需求旺盛，产品流转极快，消费者购买决策周期短。</p><p>平均价格 (ASP): 整体样本平均价格为 8.92 美元 (市场分析概况)。价格分布 显示，绝大部分销量（92.71%）和销售额（83.55%）集中在 4-12 美元的价格区间，其中 8-12 美元是销量和销售额的“甜点区”。这表明市场对价格高度敏感，消费者追求高性价比。</p>"}, {"title": "市场趋势/流量周期", "html": "<p>整体趋势: 行业销售趋势 清晰地展示了 强劲的增长态势。从2024年8月到2026年8月，月销量和月销售额均呈现显著上升趋势。</p><img src=\"assets/image2.png\" alt=\"市场趋势/流量周期 · 图表2\" tabindex=\"0\"><p>季节性: 行业销售趋势 和 行业需求及趋势 均显示出明显的季节性。销售高峰通常出现在 春末夏初（5-7月） 和 年末（11-12月）。这与旅行季（夏季出游）和假日购物季（礼品、旅行准备）的需求高度相关。每年年初（1-2月）和秋季（9-10月）通常是相对低谷。</p><p>关键词趋势 (行业需求及趋势):</p><p>\"travel bottles\" (旅行瓶), \"travel spray bottle\" (旅行喷雾瓶), \"travel size bottles\" (旅行尺寸瓶), \"refillable travel bottles\" (可再填充旅行瓶) 是该市场最核心且搜索量巨大的关键词，且在过去几年中呈现显著增长，尤其是在2023年和2024年。这明确指出 旅行场景是可再填充容器最主要的需求驱动力。</p><p>\"refillable cosmetic containers\" (可再填充化妆品容器) 搜索量相对较小，但也有稳定增长，表明化妆品分装也是一个细分需求。</p><p>关键洞察: 市场需求主要围绕“旅行”和“便携”，消费者对小尺寸、防漏、易于携带和填充的容器有强烈需求。</p><p>搜索与购买 (商品需求趋势): 数据缺失。</p><p>退货率 (商品需求趋势): 数据缺失。但考虑到产品性质（液体分装），防漏性能将是影响退货率的关键因素。</p>"}, {"title": "商品集中度", "html": "<p>集中度 (商品集中度, 品牌集中度, 卖家集中度): 中等集中，但头部效应明显。</p><img src=\"assets/image3.png\" alt=\"商品集中度 · 图表3\" tabindex=\"0\"><img src=\"assets/image4.png\" alt=\"商品集中度 · 图表4\" tabindex=\"0\"><img src=\"assets/image5.png\" alt=\"商品集中度 · 图表5\" tabindex=\"0\"><p>产品层面: Top 10 ASINs 占据了样本总销量的 35.48% 和总销售额的 35.05%。第一名 BeautifyBeauties Continuous Spray Bottle (B07GRD5WLD) 独占约 7.53% 的销量和 7.02% 的销售额，显示出较强的头部产品效应。</p><p>集中度 (商品集中度, 品牌集中度, 卖家集中度): 中等集中，但头部效应明显。</p><p>品牌层面: 品牌集中度 显示，前6大品牌（BeautifyBeauties, Mrsdry, Tocelffe, Quatish, Kitsch, SUPER+）合计占据了约 29.38% 的月销量。这表明市场品牌众多，竞争分散，没有绝对的垄断品牌，为新品牌提供了进入空间。</p><p>集中度 (商品集中度, 品牌集中度, 卖家集中度): 中等集中，但头部效应明显。</p><p>卖家层面: 卖家集中度 显示，前6大卖家（Czbrm, Beauty & Amber, Super +, JINSHANG INTERNATIONAL, Quatish, Amazon）合计占据了约 29.66% 的月销量。亚马逊自营 (Amazon) 仅占 3.98% 的销量和 7.87% 的销售额，并非绝对主导，这对于第三方卖家是利好消息。</p>"}, {"title": "上架时间分布", "html": "<p>1. 市场被老品高度垄断：44% 的竞品已经上架超过 3 年，绿色销量占比曲线在 “3 年以上” 直接冲高，该区间贡献接近 45%+ 市场销量。老品积累大量 review、权重，牢牢吃掉大部分订单。</p><img src=\"assets/image6.png\" alt=\"上架时间分布 · 图表6\" tabindex=\"0\"><img src=\"assets/image7.png\" alt=\"上架时间分布 · 图表7\" tabindex=\"0\"><p>2. 1‑3 年区间的产品数量分布比较均匀（7‑11 个 / 区间），是市场中坚力量；</p><p>3. 真正的新品（≤半年）合计只有 9 个，占比仅 9%。说明这个类目新品起量门槛很高，新卖家不容易快速突围；</p><p>4. 规律：上架时间越长，整体获取销量的能力越强；上架 3 年以上的老品是销量核心。</p><p>1. 2020 年是第一轮爆发：疫情带动收纳 / 分装容器需求，当年上架 11 个；2021 短暂回调，从 2022 开始，每年上新数量持续暴涨，2025 年达到峰值 21 个 ASIN，大量新卖家持续进场。</p><p>2. 绿色销量占比曲线：2023‑2024 上架的这批产品拿到了市场最高的销量占比。</p><p>   - 不是越老就越强：2020 年老品多，但销量占比不如 23‑24 年新品；</p><p>   - 说明：虽然 3 年以上老品存量大，但2‑3 年的新锐 ASIN 可以抢夺大量市场份额，产品迭代、改良款有机会突围老品。</p><p>3. 2025 上新 21 个、2026 至今 11 个，代表赛道还在持续涌入竞争者，内卷加剧。</p><p>4. 矛盾点：</p><p>   - 时长分布图看到：3 年以上老品占据大量销量；</p><p>   - 年份分布图看到：23‑24 年上架（距今 2‑3 年）的新品也拿到很高销量占比。</p><p>   → 结论：老品有壁垒，但差异化改良的新款依然可以切市场，不是完全无解。</p>"}, {"title": "价格分布", "html": "<p>该可填充容器类目核心销量集中在 8‑12 美元价格段，低价区间竞品扎堆内卷，高价市场容量有限；市场被大量 3 年以上老品占据，但改良新品仍有突围机会，新品优先布局 8.99‑11.99 美金，避开纯低价红海。</p><img src=\"assets/image8.png\" alt=\"价格分布 · 图表8\" tabindex=\"0\">"}, {"title": "卖家分布", "html": "<p>该类目几乎由 FBA 卖家主导，FBA 的 ASIN 数量、月销量占比均接近 100%，亚马逊自营占比很低；FBA 竞品平均评论数五千多，评论体量高，评分和自营接近，新品面临较高评论壁垒。</p><img src=\"assets/image9.png\" alt=\"卖家分布 · 图表9\" tabindex=\"0\">"}, {"title": "消费者画像", "html": "<p>1. 主力人群：25‑45 岁家庭女性为主（家庭主妇、租房群体、居家收纳爱好者），重视居家整洁、环保减塑，追求性价比，喜欢统一颜值的家居收纳，愿意购买替换装减少一次性塑料消耗。</p><p>2. 次要人群：经常出差旅行的上班族、健身人群、DIY 护肤爱好者、小户型住户；少量小商家（沙龙、小型工作室采购分装）。</p><p>3. 消费心理：①省钱，买大桶原液分装，不用反复买小瓶装；②环保，减少一次性塑料瓶；③家居颜值，统一浴室 / 厨房外观；④出行便携，满足机场 TSA 旅行分装要求。</p><p> 价格敏感度中等，愿意为防漏、BPA‑free、简约外观付费，不愿意为无实质功能的设计付很高溢价，对应前面 8‑12 美金是主流价格带。</p>"}, {"title": "使用场景", "html": "<p>1. 居家浴室（最大场景）：洗发水、沐浴露、洗手液、护发素分装，替换大瓶补充液，统一卫浴台面外观，是类目最大流量来源。</p><p>2. 厨房场景：洗洁精、餐具洗涤剂分装，部分用来收纳调料、干货。</p><p>3. 旅行 / 出差 / 健身：TSA 合规便携分装瓶，分装洗护乳液，放行李箱、健身包，防漏是核心痛点。</p><p>4. DIY 个人护理：自制护肤品、身体乳，分装药膏、手工洗护产品。</p><p>5. 清洁收纳：分装各类家用清洁剂，收纳整理储物柜。</p>"}], "competitors": [{"D": "旅行分装瓶", "F": "便携防漏硅胶分装瓶套装", "H": "1.travel toiletry containers\n2.travel containers\n3.travel toiletries", "I": "B0FKB9CYXY", "J": "45925", "K": "4.6", "L": "552", "M": "23.99", "N": "功能：采用 BPA‑Free 可挤压硅胶材质，搭配三层防漏结构与宽口，3oz 符合 TSA 安检标准，挤压可实现瓶内液体几乎无残留。\n场景：主打飞机出行、出差健身等外出便携分装洗护，同时支持居家浴室、DIY 护肤重复灌装使用。\n设计：弧形瓶身搭配多色 4 件套组合，软质硅胶轻薄省空间，通过颜色快速区分不同洗护用品。", "O": "6.18 x 5.43 x 3.78 inches", "P": "#36 in Refillable Cosmetic Container Kits", "Q": "1958+", "R": "9000+（核心词搜索结果）", "S": "7509", "T": "功能痛点：宣传防漏但行李颠簸易渗漏，密封圈易移位，浓稠洗护液清洗困难易残留异味，反复使用后瓶盖螺纹容易磨损松动。\n体验痛点：硅胶瓶身过软，装满液体无法直立摆放，部分用户反馈实际容量体感偏小，达不到心理预期。\n耐用痛点：长期反复挤压灌装后，塑料瓶盖与硅胶连接处损耗快，整体耐用度一般。", "V": "高（国内广东/浙江有成熟防滑垫供应链）", "W": "29.1", "X": "15-25（单套毛利）", "Y": "无", "Z": "无强制认证", "AA": "无", "AB": "开发不同的组合套装，增加刮刀和小漏斗等配件", "AC": "该硅胶旅行分装瓶的关联产品主要为其他 TSA 合规硅胶分装瓶套装、分装小罐、喷雾瓶、洗漱收纳包及灌装辅助配件，用户会对比不同容量、配色、套件丰富度的竞品，也会搭配整套旅行洗漱用品一同选购。", "AD": "该 TSA 硅胶旅行分装瓶多用于飞机出行、出差健身场景，常和洗漱收纳包、标签贴、灌装漏斗搭配购买，用于整套出行洗护解决方案，满足液体分装收纳的配套需求。", "AE": "核心（高流量高需求，覆盖多场景）", "AF": "", "img": "image11.jpeg", "feedback": "image14.jpeg"}, {"D": "旅行分装瓶", "F": "四合一旅行分装瓶", "H": "1.4 in 1 travel dispenser bottle\n2.4 in 1 travel dispenser bottle\n3.travel shampoo and conditioner", "I": "B0GWQNG51H", "J": "46167", "K": "4", "L": "63", "M": "22.99", "N": "功能：旋转式多仓一体分装结构，密封防漏，宽口便于灌装浓稠洗护液，符合 TSA 出行标准，可重复填充使用，一瓶容纳多种洗护液体。\n场景：适配飞机出行、短途出差、露营健身等外出场景，也可居家浴室分装大瓶洗护，满足多品类液体同时携带的需求。\n设计：旋转切换舱位，一体化集成多格容器省去多瓶零散收纳，体积小巧便携，搭配分类标识，外观简约，方便快速区分不同洗护用品。", "O": "2.2 x 6.5 x 2.2 inches", "P": "#114 in Refillable Cosmetic Pump Dispensers", "Q": "507+", "R": "309+（核心词搜索结果）", "S": "35970", "T": "功能痛点：旋转拼接结构易发生渗漏、仓室之间串液，灌装口偏小，浓稠洗护液灌装与内部清洗较为麻烦。\n体验痛点：旋转卡位受震动容易误切换，单仓容量有限，整体装载量不及心理预期，多仓操作逻辑对部分用户略显繁琐。\n耐用痛点：旋转塑料件反复转动后易磨损松动，瓶身外部标识容易磨损掉色，长期使用可靠性一般。", "V": "高（国内浙江/江苏有成熟防滑垫供应链）", "W": "31.68", "X": "8-15（单套毛利）", "Y": "无", "Z": "无强制认证", "AA": "无", "AB": "升级材质，做套装", "AC": "这款旋转多仓分装瓶的关联产品以其他 TSA 合规旅行分装容器、洗漱收纳包、灌装辅助配件为主，用户会对比普通多瓶套装类竞品，也会搭配出行洗漱配件一起选购。", "AD": "这款旋转多仓分装瓶用于出行收纳多种洗护液，常搭配洗漱收纳包、内容物标签贴、灌装漏斗一同选购，以此完善整套旅行洗护分装的收纳解决方案。", "AE": "引流（低客单价高转化，受众广）", "AF": "", "img": "image12.jpeg", "feedback": "image15.jpeg"}, {"D": "旅行分装瓶", "F": "茶色泵头分装瓶", "H": "1.shampoo bottles\n2.bottle soap\n3.amber soap dispenser\n4.soap bottle\n5.pump bottle dispenser", "I": "B0FY2DD2H6", "J": "46021", "K": "4.5", "L": "177", "M": "27.99", "N": "功能：8oz 玻璃泵头分装瓶，密封防漏，可重复灌装，无 BPA，泵头按压出液可控，适配洗发水、洗手液等各类粘稠洗护液体。\n场景：主要用于居家浴室、卫生间洗护分装，也可用于民宿出租房收纳洗护用品，不主打短途旅行，侧重家居长期复用。\n设计：透明磨砂玻璃瓶身搭配金属质感泵头，简约轻奢外观，瓶身平整可粘贴标签，整体颜值高，适配卫浴台面装饰摆放。", "O": "11x 8.85 x 7inches", "P": "#42 in Refillable Cosmetic Pump Dispensers", "Q": "977+", "R": "5000+（核心词搜索结果）", "S": "29211", "T": "功能痛点：泵头易卡顿堵塞，浓稠液体下出液不稳定，按压后存在滴液、倾倒漏液现象，吸管易脱落影响正常取用。\n体验痛点：玻璃本体易碎，运输易破损，瓶身偏重无法用于旅行携带，透明瓶容易积攒水垢污渍，内部清洗存在一定难度。\n耐用痛点：电镀泵头表层质感容易磨损，配套标签遇水易脱落，泵头长期反复按压后容易出现回弹失效的故障。", "V": "高（国内浙江/江苏有成熟防滑垫供应链）", "W": "29.36", "X": "12-22（单套毛利）", "Y": "无", "Z": "无强制认证", "AA": "无", "AB": "开发不同的组合套装，增加刮刀和小漏斗等配件", "AC": "这款居家玻璃泵头分装瓶的关联产品主要为不同容量 / 泵头款式的家居玻璃皂液瓶、防水分类标签、灌装漏斗，用户会对比塑料款分装容器，也会搭配卫浴收纳软装一同选购。", "AD": "这款居家玻璃泵头分装瓶适配浴室、厨房台面的家居收纳场景，常搭配防水分类标签、同风格卫浴摆件、灌装漏斗一同选购，以此打造统一美观的居家洗护收纳方案。", "AE": "利润（高客单价低竞争，用户粘性强）", "AF": "", "img": "image13.jpeg", "feedback": "image16.jpeg"}]};</script><script>/* Market analysis extension; the preceding script retains the AC sourcing workflow.
  * Edit REPORT_SOURCE for source examples; field definitions below control the form.
  * Frontend simulation only. State is saved locally in this browser.
@@ -1231,7 +1771,7 @@ $('#preproject').onclick=()=>{openDialog('预立项 · 引用结构化报告',`<
 function compactRich(el){const copy=el.cloneNode(true);copy.querySelectorAll('img').forEach(img=>{const src=img.getAttribute('src');for(const [name,data] of Object.entries(window.INLINE_ASSETS)){if(src===data){img.setAttribute('src','assets/'+name);break;}}});return copy.innerHTML;}
 const hasText=html=>{const t=document.createElement('div');t.innerHTML=html||'';return !!t.textContent.trim();};
 function validationError(el,message){el.classList.add('invalid');el.insertAdjacentHTML('beforeend',`<div class="field-error">${esc(message)}</div>`);return el;}
-function validate(){document.activeElement?.blur();$$('#marketSection .invalid').forEach(e=>e.classList.remove('invalid'));$$('#marketSection .field-error').forEach(e=>e.remove());$('#categoryError')?.remove();let errors=[];if(isVisible){if(!m.site)errors.push(validationError($('#marketSite').closest('label'),'请选择站点'));if(!m.categoryLevel)errors.push(validationError($('#marketLevel').closest('label'),'请选择品类等级'));if(!m.category.trim()){$('#marketCategory').style.borderColor='#e6656e';$('#marketCategory').insertAdjacentHTML('afterend','<span id="categoryError" class="field-error">请选择或输入调研品类</span>');errors.push($('#marketCategory'));}rankingDefinitions.forEach(([key,title])=>{if(key==='newTop'&&!m.rankingImages?.[key]){revealRankingRequired();errors.push(validationError($('#ranking-'+key),'请上传'+title+'图片'));}});m.dims.forEach((html,i)=>{const text=$('#category-conclusion-'+i)?.value;if(text!==undefined?!text.trim():!hasText(html))errors.push(validationError($('#dim-'+i),'请填写'+source.dimensions[i].title));if(i<6&&!dimensionImages[i]?.length)errors.push(validationError($('#dim-'+i),'请上传'+source.dimensions[i].title+'分析图片'));});errors.push(...validateCompetitorAnalysis());}
+function validate(){document.activeElement?.blur();$$('#marketSection .invalid').forEach(e=>e.classList.remove('invalid'));$$('#marketSection .field-error').forEach(e=>e.remove());$('#categoryError')?.remove();let errors=[];if(isVisible){if(!m.site)errors.push(validationError($('#marketSite').closest('label'),'请选择站点'));if(!m.categoryLevel)errors.push(validationError($('#marketLevel').closest('label'),'请选择品类等级'));if(!m.category.trim()){$('#marketCategory').style.borderColor='#e6656e';$('#marketCategory').insertAdjacentHTML('afterend','<span id="categoryError" class="field-error">请选择或输入调研品类</span>');errors.push($('#marketCategory'));}rankingDefinitions.forEach(([key,title])=>{if(key==='newTop'&&!m.rankingImages?.[key]){revealRankingRequired();errors.push(validationError($('#ranking-'+key),'请上传'+title+'图片'));}});m.dims.forEach((html,i)=>{const text=$('#category-conclusion-'+i)?.value;if(text!==undefined?!text.trim():!hasText(html))errors.push(validationError($('#dim-'+i),'请填写'+source.dimensions[i].title));if(i<6&&!aiCategoryHasEvidence(i))errors.push(validationError($('#dim-'+i),'请获取'+source.dimensions[i].title+'AI数据或上传截图'));});errors.push(...validateCompetitorAnalysis());}
 if(!products.length||products.some(p=>!p.skus.length||!p.category||p.skus.some(s=>!s.sale))){errors.push($('#pendingSection'));showToast(isVisible&&(!m.rankingImages?.newTop||dimensionImages.slice(0,6).some(images=>!images?.length))?'市场分析未完成':'请补全待开发产品品类、SKU和预计售价','error');}else if(errors.length)showToast(isVisible&&(!m.rankingImages?.newTop||dimensionImages.slice(0,6).some(images=>!images?.length))?'市场分析未完成':`有 ${errors.length} 项未完成，请检查红色标记字段`,'error');if(errors.length){let node=errors[0];while(node&&node!==main){if(node.classList.contains('module-collapsed')){node.classList.remove('module-collapsed');const toggle=node.querySelector(':scope > .field-head .module-toggle,:scope > .sub-head .module-toggle,:scope > .section-head .module-toggle');toggle?.setAttribute('aria-expanded','true');}node=node.parentElement;}errors[0].scrollIntoView({behavior:'smooth',block:'center'});const input=errors[0].matches('input')?errors[0]:errors[0].querySelector('.editor,input,textarea');setTimeout(()=>input?.focus({preventScroll:true}),300);return false;}return true;}
 $('#submitTask').onclick=()=>{if(readOnly||!validate())return;const dlg=openDialog('提交审核',`<p>类目分析、${m.selected.length}个竞品分析与待开发产品将一起提交审核。</p>`,`<button class="btn" data-cancel>继续编辑</button><button class="btn primary" data-submit>确认提交</button>`);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-submit]').onclick=()=>{m.frozenVisibility=isVisible;m.stage='review';$('#workflowState').value='review';persist();applyWorkflow();close(dlg);showToast('任务已提交审核，市场分析进入只读状态');openReview();};};
 function openReview(){const channels=[];const dlg=openDialog('开发任务审核',`<div class="review-banner"><div><strong>旅行分装瓶开发</strong><br>DT202609280018　开发人：林悦　任务状态：${esc($('#taskStatusTag').textContent)}</div>${isVisible?'<button class="btn" data-report>查看市场分析报告</button>':''}</div><h3 style="font-size:14px">待开发产品 <span class="subtle">${products.length}个SPU / ${products.reduce((n,p)=>n+p.skus.length,0)}个SKU</span></h3><div class="review-table"><table><thead><tr><th>SPU / SKU</th><th>图片</th><th>产品名称</th><th>参考ASIN</th><th>供应商</th><th>采购价</th><th>预计售价</th></tr></thead><tbody>${products.map(p=>`<tr><td class="left"><strong>▾ ${esc(p.spu)}</strong></td><td><img loading="lazy" decoding="async" width="42" height="42" src="${asset(p.img)}"></td><td class="left">${esc(p.title)}</td><td>${esc(p.asin)}</td><td>${esc(p.supplier)}</td><td>—</td><td>—</td></tr>${p.skus.map(s=>`<tr><td>　${esc(s.sku)}</td><td><img loading="lazy" decoding="async" width="38" height="38" src="${asset(s.img||p.img)}"></td><td class="left">${esc(s.variantTitle||p.title)}</td><td>${esc(p.asin)}</td><td>${esc(p.supplier)}</td><td>¥${Number(s.price).toFixed(2)}</td><td>${esc(s.sale)}</td></tr>`).join('')}`).join('')}</tbody></table></div>${isVisible&&channels.length?`<div class="review-readonly">${channels.map(([spu,c])=>`<b>${esc(spu)} · 星渠开发信息</b><br>差异化设计：${esc(c.design)}<br>样品状态：${esc(c.sample)}　计划上线日期：${esc(c.launch)}`).join('<hr>')}</div>`:''}<h3 style="font-size:14px">审核意见</h3><textarea class="review-opinion" placeholder="填写审核意见；驳回时需填写" ${m.stage!=='review'?'disabled':''}></textarea><div class="field-error" id="reviewError"></div>`,`<button class="btn" data-cancel>关闭</button>${m.stage==='review'?'<button class="btn" data-reject>驳回</button><button class="btn primary" data-approve>审核通过</button>':''}`);dlg.querySelector('[data-report]')?.addEventListener('click',preview);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-approve]')?.addEventListener('click',()=>{m.stage='done';$('#workflowState').value='done';persist();applyWorkflow();close(dlg);showToast('审核通过，任务已完成');});dlg.querySelector('[data-reject]')?.addEventListener('click',()=>{if(!dlg.querySelector('textarea').value.trim()){dlg.querySelector('#reviewError').textContent='请填写驳回意见';dlg.querySelector('textarea').style.borderColor='#e6656e';return;}m.stage='research';$('#workflowState').value='research';persist();applyWorkflow();close(dlg);showToast('已驳回，任务返回调研中');});}
@@ -1317,18 +1857,7 @@ if(!ai.initialized){
  ai.initialized=true;persist();
 }
 function aiRefresh(){
- const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head');
- if(head&&!$('#aiCategoryTools'))head.insertAdjacentHTML('beforeend','<div class="ai-category-tools" id="aiCategoryTools"><span class="ai-status" id="aiCategoryStatus" role="status" aria-live="polite"></span><button type="button" class="ai-action market-write" id="aiGetCategory">AI获取分析</button></div>');
- const all=$('#aiGetCategory');if(all){all.disabled=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running');all.hidden=readOnly;all.textContent=aiBusy.has('category')?'AI获取中…':'AI获取分析';}
- const summary=$('#aiCategoryStatus');if(summary)summary.textContent=aiBusy.has('category')?'按当前站点与品类获取分析…':ai.categoryMessage||'';
- for(const key of ['rankings',...source.dimensions.map((_,i)=>String(i))]){
-  const card=key==='rankings'?$('#categoryRankings'):$('#dim-'+key),header=card?.querySelector(key==='rankings'?'h4':'.field-head');if(!header)continue;
-  const state=aiCategoryState(key);
-  if(!header.querySelector('[data-ai-category]'))header.insertAdjacentHTML('beforeend',`<span class="ai-status" data-ai-module-status="${key}" role="status" aria-live="polite"></span><button type="button" class="ai-retry market-write" data-ai-category="${key}">AI重新获取</button>`);
-  const retry=header.querySelector('[data-ai-category]');retry.disabled=state.status==='running'||aiBusy.has('category');retry.hidden=readOnly;
-  const status=header.querySelector('[data-ai-module-status]');status.textContent=aiTextStatus(state);status.dataset.status=state.status;
-  const previous=card.querySelector('[data-ai-basis]');if(!previous)header.insertAdjacentHTML('afterend',aiBasisMarkup(state,key));else{if(document.activeElement!==previous&&previous.value!==state.basis)previous.value=state.basis;previous.disabled=readOnly;}
- }
+ refreshAiCategoryUI();
  const target=$('#compDetail'),record=ensureCompetitorState().items.find(row=>row.asin===ensureCompetitorState().active);
  if(target&&record){const state=aiCompetitorState(record.asin);if(!target.querySelector('.ai-competitor-bar'))target.insertAdjacentHTML('afterbegin',`<div class="ai-competitor-bar"><span>当前ASIN：${esc(record.asin)}</span><span class="ai-status" data-ai-comp-status role="status" aria-live="polite"></span><button type="button" class="ai-action market-write" data-ai-get-competitor="${esc(record.asin)}">AI获取竞品分析</button></div>`+aiBasisMarkup(state,record.asin,true));const button=target.querySelector('[data-ai-get-competitor]');button.disabled=state.status==='running';button.hidden=readOnly;button.textContent=state.status==='running'?'AI获取中…':'AI获取竞品分析';const status=target.querySelector('[data-ai-comp-status]');status.textContent=aiTextStatus(state);status.dataset.status=state.status;}
 }
@@ -1339,21 +1868,9 @@ const aiOriginalUpload=uploadCategoryImage;uploadCategoryImage=function(i,...arg
 const aiOriginalSaveRanking=saveRanking;saveRanking=function(key){aiMarkCategory('rankings',key);return aiOriginalSaveRanking(key);};
 
 function aiMock(request){if(request.kind==='category-batch')return Promise.all(request.modules.map(key=>aiMock({kind:'category',key,scope:request.scope,batch:true,attempt:request.attempts[key]}).then(result=>[key,result],()=>[key,{error:'获取失败'}]))).then(entries=>({modules:Object.fromEntries(entries)}));return new Promise((resolve,reject)=>setTimeout(()=>{
- if(request.kind==='category'&&request.key==='3'&&request.batch&&request.attempt===1){reject(new Error('本模块获取失败，请单独重新获取'));return;}
  const scope=request.scope,context=`${scope.site} · Amazon${categoryLevelText(scope.level)} · ${scope.category}`,time=new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
  if(request.kind==='category'){
-  const key=request.key,basis=`${context}。模拟样本：100个ASIN，近24个月趋势及公开商品信息；获取时间：${time}。数据仅用于交互演示。`;
-  if(key==='rankings'){resolve({basis,newTop:{src:'assets/image10.png',alt:'AI演示：新品TOP10'},monthTop:{src:'assets/image10.png',alt:'AI演示：小类近30天TOP'}});return;}
-  const i=Number(key),conclusions=[
-   '演示样本显示市场处于稳定增长阶段，近一年需求仍有提升空间。建议先以小批量测试差异化组合，结合真实销量数据验证市场容量。',
-   '演示趋势呈现季节性波动，旺季前应提前备货。建议结合主要节日、站点流量及物流时效制定上新节奏。',
-   '演示样本中头部商品占比较高，但长尾仍有细分机会。建议通过规格组合、使用场景及包装设计减少同质化竞争。',
-   '演示样本中新老商品共同分布，近期上新仍能获得销量。建议优先分析新商品的差异化策略，并观察其增长持续性。',
-   '演示价格分布以中间价格带为主。建议结合采购成本、物流费用及目标利润，评估单品与组合套装的定价空间。',
-   '演示样本包含多类型卖家，供给较充分。建议从交付能力、产品质量、售后及差异化服务建立竞争优势。',
-   '演示用户更关注便捷性、可靠性与性价比。建议结合真实评论划分目标人群，并验证其购买动机与关键痛点。',
-   '演示使用场景包括日常使用、外出携带和礼赠。建议围绕高频使用场景优化产品结构、套装与说明内容。'
-  ];resolve({basis,conclusion:`【AI演示】${source.dimensions[i].title}\n调研口径：${context}\n${conclusions[i]}`,image:dimensionParts(source.dimensions[i].html).images[0]});
+  resolve(aiCategorySampleResult(request));
  }else{
   const record=ensureCompetitorState().items.find(row=>row.asin===request.asin),original=makeCompRecord(request.asin);
   resolve({basis:`${scope.site} · ASIN ${request.asin}；模拟商品详情、关键词与评论样本，获取时间：${time}。数据仅用于演示。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`【AI演示】${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'【AI演示】高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'【AI演示】优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
@@ -1361,40 +1878,6 @@ function aiMock(request){if(request.kind==='category-batch')return Promise.all(r
 },900));}
 function aiService(request){return window.aiPrototypeService?Promise.resolve().then(()=>window.aiPrototypeService(structuredClone(request))):aiMock(request);}
 function aiContextValid(key){return !readOnly&&!activeHistoryTask&&key===aiScopeKey();}
-async function aiRunCategory(key,batch=false,batchResult=null){
- const state=aiCategoryState(key);if(state.status==='running'||readOnly)return;
- const scopeKey=aiScopeKey(),scope=aiScope();if(!scope.site||!scope.level||!scope.category){showToast('请先选择站点、品类等级和调研品类','error');return;}
- const node=$('#category-conclusion-'+key),before={text:node?.value,images:key==='rankings'?structuredClone(m.rankingImages):structuredClone(dimensionImages[Number(key)]||[]),basis:state.basis},token=++ai.sequence;
- state.status='running';state.token=token;state.attempts++;state.message='';aiRefresh();
- try{
-  const result=await (batchResult||aiService({kind:'category',key,scope,batch,attempt:state.attempts,taskId:'AI-CAT-'+token}));
-  if(state.token!==token)return;
-  if(!aiContextValid(scopeKey)){state.status='interrupted';state.message='口径或状态已变化，结果未回填';return;}
-  if(typeof result.basis!=='string'||(key!=='rankings'&&typeof result.conclusion!=='string'))throw new Error('返回结果不完整');
-  let protectedCount=0;
-  if(!state.manual.basis&&state.basis===before.basis)state.basis=result.basis;else protectedCount++;
-  if(key==='rankings'){
-   for(const rank of ['newTop','monthTop']){if(state.manual[rank]||!aiSame(m.rankingImages[rank],before.images[rank])){protectedCount++;continue;}if(result[rank]?.src)m.rankingImages[rank]=structuredClone(result[rank]);}renderRankings();
-  }else{
-   const i=Number(key),input=$('#category-conclusion-'+i);
-   if(!state.manual.text&&input.value===before.text)input.value=result.conclusion;else protectedCount++;
-   if(i<6&&result.image){if(!state.manual.image&&aiSame(dimensionImages[i],before.images))dimensionImages[i]=[structuredClone(result.image)];else protectedCount++;}
-   categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);categorySaveStates[i]='saved';renderCategoryGallery(i);
-  }
-  state.status='done';state.message=protectedCount?'AI已更新 · 保留人工修改':'AI已更新';if(!persist()){state.status='error';state.message='保存失败，可重新获取';}
- }catch(error){state.status='error';state.message='获取失败，请重新获取';}
- finally{persist();aiRefresh();refreshCategoryControls();}
-}
-async function aiRunAll(){
- if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;
- document.activeElement?.blur();if(!m.site||!m.categoryLevel||!m.category.trim()){showToast('请先选择站点、品类等级和调研品类','error');return;}
- const modules=['rankings',...source.dimensions.map((_,i)=>String(i))],taskId='AI-CAT-BATCH-'+(++ai.sequence);
- aiBusy.add('category');aiRefresh();
- const response=aiService({kind:'category-batch',scope:aiScope(),taskId,modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
- await Promise.all(modules.map(key=>aiRunCategory(key,true,response.then(result=>{const module=result.modules?.[key];if(!module||module.error)throw new Error('模块获取失败');return module;}))));
- aiBusy.delete('category');const failed=Object.values(ai.category).filter(state=>state.status==='error').length;
- ai.categoryMessage=failed?`${failed}个模块获取失败，可单独重新获取`:'本次获取结束，已保留人工修改';persist();aiRefresh();
-}
 async function aiRunCompetitor(asin){
  const record=ensureCompetitorState().items.find(row=>row.asin===asin),state=aiCompetitorState(asin);if(!record||readOnly||state.status==='running')return;
  document.activeElement?.blur();const before=structuredClone(record),scopeKey=aiScopeKey(),beforeBasis=state.basis,token=++ai.sequence;state.status='running';state.token=token;state.message='';aiRefresh();
@@ -1426,6 +1909,114 @@ document.addEventListener('click',event=>{
 const badge=document.createElement('span');badge.className='ai-version-badge';badge.textContent='AI辅助版 · 模拟生成，仅用于演示';$('.detail-name')?.append(badge);
 for(const state of [...Object.values(ai.category),...Object.values(ai.competitors)])if(state.status==='running'){state.status='interrupted';state.message='上次获取已中断，可重新获取';}
 aiRefresh();persist();
+
+
+/* Category-only presentation; competitor and pending product controllers are untouched. */
+function aiCategoryFixture(i){return window.AI_CATEGORY_SAMPLE?.modules[i];}
+function aiCategoryHasEvidence(i){const state=aiCategoryState(String(i));return !!(state.structured?.rows?.length||state.screenshot?.src);}
+function aiCategoryInit(i){
+ const state=aiCategoryState(String(i));if(state.structuredVersion!==1){
+  state.structured=structuredClone(aiCategoryFixture(i));state.evidenceMode='table';
+  state.screenshot=state.manual.image?structuredClone(dimensionImages[i]?.[0]||null):null;
+  if(!state.manual.text){const input=$('#category-conclusion-'+i);if(input){input.value=state.structured.conclusion;m.dims[i]=dimensionHtml(i);categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';}}
+  state.structuredVersion=1;
+ }return state;
+}
+function aiCategoryTable(data,compact=false){
+ const rows=compact?(data.preview||data.rows.map((_,i)=>i).slice(0,6)).map(i=>data.rows[i]).filter(Boolean):data.rows;
+ return `<div class="ai-data-table-wrap"><table class="ai-data-table"><thead><tr>${data.columns.map(label=>`<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>记录日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)} · AI调用记录.md</span>`:''}</div>`;}
+function aiCategoryScopeNote(){const sample=window.AI_CATEGORY_SAMPLE;return m.site!==sample.site||String(m.categoryLevel)!==sample.level||m.category.replaceAll(' › ',' / ')!==sample.category?'<p class="ai-data-note">测试样例口径：Amazon US · 三级 · Refillable Containers。当前选择不同，以下仍展示原调用记录数据。</p>':'';}
+function aiCategoryEvidenceMarkup(i,report=false){
+ const state=aiCategoryState(String(i)),data=state.structured;
+ if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
+ if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请获取AI数据或上传截图。</div>';
+ return aiCategoryScopeNote()+aiCategoryTable(data,true)+`<div class="ai-data-footer">${aiCategorySource(data)}${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
+}
+function refreshAiCategoryUI(){
+ const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head');
+ if(head&&!$('#aiCategoryTools'))head.insertAdjacentHTML('beforeend','<div class="ai-category-tools" id="aiCategoryTools"><span class="ai-status" id="aiCategoryStatus" role="status" aria-live="polite"></span><button type="button" class="ai-action market-write" id="aiGetCategory">AI获取分析</button></div>');
+ const all=$('#aiGetCategory');if(all){all.disabled=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running');all.hidden=readOnly;all.textContent=aiBusy.has('category')?'AI获取中…':'AI获取分析';}
+ if($('#aiCategoryStatus'))$('#aiCategoryStatus').textContent=aiBusy.has('category')?'正在获取8项分析…':ai.categoryMessage||'';
+ $('#categoryRankings')?.querySelectorAll('.ai-evidence,[data-ai-module-status],[data-ai-category]').forEach(node=>node.remove());
+ source.dimensions.forEach((_,i)=>{
+  const key=String(i),card=$('#dim-'+i),header=card?.querySelector('.field-head');if(!card||!header)return;
+  const state=i<6?aiCategoryInit(i):aiCategoryState(key);
+  card.querySelectorAll(':scope > .ai-evidence,[data-ai-module-status]').forEach(node=>node.remove());
+  if(!header.querySelector('[data-ai-category]'))header.insertAdjacentHTML('beforeend',`<button type="button" class="ai-retry market-write" data-ai-category="${i}">AI重新获取</button>`);
+  const button=header.querySelector('[data-ai-category]');button.disabled=state.status==='running'||aiBusy.has('category');button.hidden=readOnly;
+  const body=card.querySelector('.category-item-body');
+  if(i<6){
+   if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span><div class="ai-basis-actions"><button type="button" class="link" data-ai-restore-data="${i}">恢复AI数据</button><button type="button" class="link market-write" data-category-upload="${i}">上传截图</button></div></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
+   const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);if(area.innerHTML!==markup)area.innerHTML=markup;
+   const restore=body.querySelector('[data-ai-restore-data]');restore.hidden=state.evidenceMode!=='screenshot'||!state.structured||readOnly;
+   const upload=body.querySelector('[data-category-upload]');upload.hidden=readOnly;upload.disabled=categoryUploadJobs[i]?.[0]?.status==='uploading';upload.textContent=upload.disabled?'上传中…':state.evidenceMode==='screenshot'?'重新上传':'上传截图';
+   const job=categoryUploadJobs[i]?.[0],shotStatus=body.querySelector('[data-ai-shot-status]');if(shotStatus){const error=job?.status==='error'?`截图上传失败 <button type="button" class="link" data-category-image-retry="${i}:${job.id}">重试</button>`:'';if(shotStatus.innerHTML!==error)shotStatus.innerHTML=error;}
+
+  }
+  const input=$('#category-conclusion-'+i);if(input){input.disabled=readOnly;input.style.height='136px';}
+  refreshCategoryStatus(i);const mark=card.querySelector('.category-save-status');if(mark&&['error','running','interrupted'].includes(state.status))mark.dataset.state=state.status==='running'?'saving':'error';
+ });
+ refreshCategoryControls();
+}
+function aiCategorySampleResult(request){
+ const i=Number(request.key),sample=window.AI_CATEGORY_SAMPLE;
+ if(i<6){const structured=structuredClone(sample.modules[i]);return {basis:`${structured.source}；${structured.sample}；${structured.period}`,structured,conclusion:structured.conclusion};}
+ return {basis:'AI调用记录.md；基于商品标题和用途推断，非买家人口统计',conclusion:sample.textConclusions[i-6]};
+}
+function aiCategoryAskOverwrite(keys){
+ if(!keys.some(key=>{const state=aiCategoryState(String(key));return state.manual.text||state.manual.image||state.evidenceMode==='screenshot';}))return Promise.resolve('keep');
+ return new Promise(resolve=>{const dialog=openDialog('重新获取分析','<p>所选分析项已有人工填写的结论或截图，是否覆盖？</p><p class="subtle">保留时只更新AI数据，不改动人工结论及当前截图；覆盖时使用AI初稿和表格。获取期间的新修改仍会保留。</p>','<button type="button" class="btn" data-ai-cover-cancel>取消</button><button type="button" class="btn" data-ai-cover-keep>保留人工内容并获取</button><button type="button" class="btn primary" data-ai-cover-confirm>覆盖并重新获取</button>');
+  let answered=false;const answer=value=>{if(answered)return;answered=true;document.removeEventListener('keydown',escape);close(dialog);resolve(value);};
+  const escape=e=>{if(e.key==='Escape')answer('cancel');};document.addEventListener('keydown',escape);
+  dialog.querySelector('[data-ai-cover-cancel]').onclick=()=>answer('cancel');dialog.querySelector('[data-ai-cover-keep]').onclick=()=>answer('keep');dialog.querySelector('[data-ai-cover-confirm]').onclick=()=>answer('overwrite');dialog.querySelector('.close').onclick=()=>answer('cancel');dialog.addEventListener('click',e=>{if(e.target===dialog)answer('cancel');});
+ });
+}
+async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
+ if(!/^\d$/.test(key)||+key>7||readOnly)return;const state=aiCategoryState(key);if(state.status==='running')return;
+ document.activeElement?.blur();if(!decision)decision=await aiCategoryAskOverwrite([key]);if(decision==='cancel'||readOnly||state.status==='running')return;
+ const scopeKey=aiScopeKey(),scope=aiScope();if(!scope.site||!scope.level||!scope.category){showToast('请先选择站点、品类等级和调研品类','error');return;}
+ const i=Number(key),input=$('#category-conclusion-'+i),before={text:input.value,version:categorySaveVersions[i]||0,shot:JSON.stringify(state.screenshot),mode:state.evidenceMode},token=++ai.sequence;
+ state.status='running';state.token=token;state.attempts++;state.message='';aiRefresh();
+ try{
+  const result=await(batchResult||aiService({kind:'category',key,scope,batch,attempt:state.attempts,taskId:'AI-CAT-'+token}));if(state.token!==token)return;
+  if(!aiContextValid(scopeKey)){state.status='interrupted';state.message='口径已变化，结果未回填';return;}
+  if(typeof result.conclusion!=='string'||i<6&&(!result.structured?.rows?.length||!Array.isArray(result.structured.columns)))throw new Error('返回数据不完整');
+  const current=$('#category-conclusion-'+i);let kept=false;
+  if((!state.manual.text||decision==='overwrite')&&current.value===before.text&&(categorySaveVersions[i]||0)===before.version){current.value=result.conclusion;state.manual.text=false;}else kept=true;
+  if(i<6){state.structured=structuredClone(result.structured);state.structuredVersion=1;
+   if(decision==='overwrite'&&JSON.stringify(state.screenshot)===before.shot&&state.evidenceMode===before.mode){state.evidenceMode='table';state.manual.image=false;}else if(state.evidenceMode==='screenshot')kept=true;
+  }
+  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);categorySaveStates[i]='saved';state.status='done';state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
+ }catch{state.status='error';state.message='获取失败，可重新获取';}
+ finally{persist();aiRefresh();}
+}
+async function aiRunAll(){
+ if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;document.activeElement?.blur();
+ if(!m.site||!m.categoryLevel||!m.category.trim()){showToast('请先选择站点、品类等级和调研品类','error');return;}
+ const modules=source.dimensions.map((_,i)=>String(i)),scopeKey=aiScopeKey(),decision=await aiCategoryAskOverwrite(modules);if(decision==='cancel'||readOnly||scopeKey!==aiScopeKey()||aiBusy.has('category'))return;
+ aiBusy.add('category');aiRefresh();const response=aiService({kind:'category-batch',scope:aiScope(),taskId:'AI-CAT-BATCH-'+(++ai.sequence),modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
+ await Promise.all(modules.map(key=>aiRunCategory(key,true,response.then(result=>{const module=result.modules?.[key];if(!module||module.error)throw new Error('获取失败');return module;}),decision)));
+ aiBusy.delete('category');const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，可单独重新获取`:'8项分析获取完成';persist();aiRefresh();
+}
+function aiOpenCategoryData(i){
+ const data=aiCategoryState(String(i)).structured;if(!data)return;aiCloseCategoryData();const origin=document.activeElement,mask=document.createElement('div');mask.className='ai-data-drawer-mask';mask.id='aiCategoryDataDrawer';mask.innerHTML=`<aside class="ai-data-drawer" role="dialog" aria-modal="true" aria-labelledby="aiDataDrawerTitle"><header><div><h3 id="aiDataDrawerTitle">${esc(source.dimensions[i].title)} · 完整数据</h3><span class="subtle">Amazon US · Refillable Containers · 节点11062781</span></div><button type="button" class="close" data-ai-data-close aria-label="关闭完整数据">×</button></header><div class="ai-data-drawer-body">${aiCategoryTable(data)}${aiCategorySource(data,true)}<p class="ai-data-note">${esc(data.notes||'')}</p>${(data.extra||[]).map(extra=>`<section><h4>${esc(extra.title)}</h4>${aiCategoryTable(extra)}${aiCategorySource(extra)}</section>`).join('')}</div></aside>`;
+ document.body.append(mask);mask._origin=origin;mask._overflow=document.body.style.overflow;document.body.style.overflow='hidden';mask.querySelector('[data-ai-data-close]').focus();
+}
+function aiCloseCategoryData(){const node=$('#aiCategoryDataDrawer');if(node){document.body.style.overflow=node._overflow||'';node.remove();if(node._origin?.isConnected)node._origin.focus();}}
+const aiCategoryOriginalStatus=categoryStatusLabel;categoryStatusLabel=function(i){const state=aiCategoryState(String(i));if(state.status==='running')return 'AI获取中…';if(state.status==='error')return 'AI获取失败';if(state.status==='interrupted')return state.message||'获取已中断';if(i>=6)return aiCategoryOriginalStatus(i);if(categorySaveStates[i]==='saving')return '保存中…';if(categorySaveStates[i]==='dirty')return '未保存';if(categorySaveStates[i]==='error')return '保存失败 · 重试';if(!$('#category-conclusion-'+i)?.value.trim())return '未填写';return aiCategoryHasEvidence(i)?'✓ 已保存':'待获取依据';};
+refreshCategoryControls=function(){const cards=[...document.querySelectorAll('#dimensions > .category-analysis-item')],collapsed=cards.filter(card=>card.classList.contains('module-collapsed')).length;const toggle=$('#toggleCategoryItems');if(toggle)toggle.textContent=$('#categoryAnalysisBlock')?.classList.contains('module-collapsed')||collapsed===cards.length&&$('#categoryRankings').classList.contains('is-collapsed')?'全部展开':'全部收起';if($('#categoryProgress'))$('#categoryProgress').textContent='已填写 '+(cards.filter((card,i)=>card.querySelector('.category-conclusion')?.value.trim()&&(i>=6||aiCategoryHasEvidence(i))).length+Number(!!($('#marketCategory')?.value??m.category).trim())+Number(!!m.rankingImages?.newTop))+'/10';};
+sizeCategoryText=function(){$$('#dimensions .category-conclusion').forEach(input=>input.style.height='136px');};
+const aiCategoryOriginalGallery=renderCategoryGallery;renderCategoryGallery=function(i){aiCategoryOriginalGallery(i);if(i<6)refreshAiCategoryUI();};
+uploadCategoryImage=async function(i,job,retry=false){if(readOnly)return;aiMarkCategory(String(i),'image');const state=aiCategoryState(String(i));await aiOriginalUpload(i,job,retry);if(!job.cancelled&&!readOnly&&job.status!=='error'&&dimensionImages[i]?.[0]?.src===job.src){state.screenshot=structuredClone(dimensionImages[i][0]);state.evidenceMode='screenshot';persist();}refreshAiCategoryUI();};
+const aiCategoryOriginalReport=categoryReportHtml;categoryReportHtml=function(dims,rankings){
+ if(activeHistoryTask||categoryHistoryRecords.some(record=>record.dimensions===dims))return aiCategoryOriginalReport(dims,rankings);
+ return rankingReportHtml(rankings)+source.dimensions.map((module,i)=>`<article class="report-analysis"><h3>${i+1}. ${esc(module.title)}</h3>${i<6?`<h4>分析依据</h4>${aiCategoryEvidenceMarkup(i,true)}`:''}<h4>分析结论</h4><div class="report-rich comp-report-text">${reportValue(dimensionParts(m.dims[i]).text)}</div></article>`).join('');
+};
+document.addEventListener('click',event=>{const full=event.target.closest('[data-ai-full-data]'),restore=event.target.closest('[data-ai-restore-data]'),remove=event.target.closest('[data-ai-remove-shot]');if(full)aiOpenCategoryData(Number(full.dataset.aiFullData));if((restore||remove)&&!readOnly){const i=Number((restore||remove).dataset[restore?'aiRestoreData':'aiRemoveShot']),state=aiCategoryState(String(i));state.evidenceMode='table';for(const job of categoryUploadJobs[i]||[])job.cancelled=true;categoryUploadJobs[i]=[];if(remove){state.screenshot=null;dimensionImages[i]=[];state.manual.image=false;m.dims[i]=dimensionHtml(i);}persist();refreshAiCategoryUI();}if(event.target.closest('[data-ai-data-close]')||event.target.id==='aiCategoryDataDrawer')aiCloseCategoryData();});
+document.addEventListener('keydown',event=>{const drawer=$('#aiCategoryDataDrawer');if(!drawer)return;if(event.key==='Escape'){event.preventDefault();aiCloseCategoryData();}if(event.key==='Tab'){event.preventDefault();drawer.querySelector('[data-ai-data-close]').focus();}});
+refreshAiCategoryUI();persist();
 
 })();
 </script><script>/* Reuse the 1688 task-detail navigation and module folding conventions. */

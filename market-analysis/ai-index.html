@@ -193,6 +193,6 @@ $('#candidateBody').innerHTML=shown.map(c=>`<tr class="${c.createdSpu?'candidate
     $$('[data-close]').forEach(b=>b.onclick=()=>$('#'+b.dataset.close).classList.remove('open'));$('#detailDrawer').onclick=e=>{if(e.target===$('#detailDrawer'))$('#detailDrawer').classList.remove('open')};$('#editModal').onclick=e=>{if(e.target===$('#editModal'))$('#editModal').classList.remove('open')};$('#variantConfirmModal').onclick=e=>{if(e.target===$('#variantConfirmModal'))$('#variantConfirmModal').classList.remove('open')};$('#deleteConfirmModal').onclick=e=>{if(e.target===$('#deleteConfirmModal'))$('#deleteConfirmModal').classList.remove('open')};
     applyWorkflow();
   </script>
-<script src="report-data.js"></script><script src="ai-market.js"></script><script src="layout.js"></script>
+<script src="report-data.js"></script><script src="ai-category-data.js"></script><script src="ai-market.js"></script><script src="layout.js"></script>
 </body>
 </html>
