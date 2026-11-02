@@ -791,11 +791,24 @@ function aiCategoryEvidenceMarkup(i,report=false){
  if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请获取AI数据或上传截图。</div>';
  return aiCategoryTable(data,true)+`<div class="ai-data-footer">${aiCategorySource(data)}${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
 }
+function aiCategoryCanGenerate(){
+ const site=$('#marketSite'),level=$('#marketLevel'),category=$('#marketCategory'),value=category?.value.trim()||'';
+ return !!(site?.value&&['3','4','5'].includes(level?.value)&&value&&value===m.category.trim()&&site.value===m.site&&level.value===String(m.categoryLevel)&&!$('#categoryError')&&category.getAttribute('aria-invalid')!=='true');
+}
+function aiUpdateCategoryPrimary(){
+ const button=$('#aiGetCategory');if(!button)return;
+ const busy=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'),generated=ai.categoryGenerated||source.dimensions.some((_,i)=>{const state=ai.category[String(i)];return state?.generatedAt||state?.status==='done'&&state?.attempts>0;});
+ button.disabled=readOnly||busy||!aiCategoryCanGenerate();button.hidden=readOnly;button.textContent=aiBusy.has('category')?'AI生成中…':generated?'AI重新生成':'AI生成分析';
+ button.title=!aiCategoryCanGenerate()?'请先选择有效的站点、品类等级和调研品类':'';
+}
 function refreshAiCategoryUI(){
- const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head');
- if(head&&!$('#aiCategoryTools'))head.insertAdjacentHTML('beforeend','<div class="ai-category-tools" id="aiCategoryTools"><span class="ai-status" id="aiCategoryStatus" role="status" aria-live="polite"></span><button type="button" class="ai-action market-write" id="aiGetCategory">AI获取分析</button></div>');
- const all=$('#aiGetCategory');if(all){all.disabled=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running');all.hidden=readOnly;all.textContent=aiBusy.has('category')?'AI获取中…':'AI获取分析';}
- if($('#aiCategoryStatus'))$('#aiCategoryStatus').textContent=aiBusy.has('category')?'正在获取分析与榜单…':ai.categoryMessage||'';
+ const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head'),row=$('.category-meta-bottom');
+ if(row&&!$('#aiGetCategory'))row.insertAdjacentHTML('beforeend','<div class="ai-category-tools" id="aiCategoryTools"><button type="button" class="btn primary ai-action market-write" id="aiGetCategory">AI生成分析</button></div>');
+ if(row&&$('#aiCategoryTools')?.parentElement!==row)row.append($('#aiCategoryTools'));
+ $('#aiCategoryStatus')?.remove();$('#categoryProgress')?.remove();
+ const toggle=$('#toggleCategoryItems');if(head&&toggle){toggle.classList.remove('btn');toggle.classList.add('link','ai-collapse-text');const title=head.querySelector('h3');if(title?.nextElementSibling!==toggle)title?.after(toggle);}
+ const tools=head?.querySelector('.category-head-tools');if(tools&&!tools.children.length)tools.remove();
+ aiUpdateCategoryPrimary();
  $('#categoryRankings')?.querySelectorAll('.ai-evidence,[data-ai-module-status],[data-ai-category]').forEach(node=>node.remove());
  source.dimensions.forEach((_,i)=>{
   const key=String(i),card=$('#dim-'+i),header=card?.querySelector('.field-head');if(!card||!header)return;
@@ -846,17 +859,17 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
   if(i<6){state.structured=structuredClone(result.structured);state.structuredVersion=1;
    if(decision==='overwrite'&&JSON.stringify(state.screenshot)===before.shot&&state.evidenceMode===before.mode){state.evidenceMode='table';state.manual.image=false;}else if(state.evidenceMode==='screenshot')kept=true;
   }
-  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
+  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.generatedAt=Date.now();state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
  }catch{state.status='error';state.message='获取失败，可重新获取';}
  finally{persist();aiRefresh();}
 }
 async function aiRunAll(){
  if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;document.activeElement?.blur();
- if(!m.site||!m.categoryLevel||!m.category.trim()){showToast('请先选择站点、品类等级和调研品类','error');return;}
- const modules=[...source.dimensions.map((_,i)=>String(i)),'newTop','monthTop'],scopeKey=aiScopeKey(),decision=await aiCategoryAskOverwrite(modules);if(decision==='cancel'||readOnly||scopeKey!==aiScopeKey()||aiBusy.has('category'))return;
+ if(!aiCategoryCanGenerate()){showToast('请先选择有效的站点、品类等级和调研品类','error');return;}
+ const modules=source.dimensions.map((_,i)=>String(i)),scopeKey=aiScopeKey(),decision=await aiCategoryAskOverwrite(modules);if(decision==='cancel'||readOnly||scopeKey!==aiScopeKey()||aiBusy.has('category'))return;
  aiBusy.add('category');aiRefresh();const response=aiService({kind:'category-batch',scope:aiScope(),taskId:'AI-CAT-BATCH-'+(++ai.sequence),modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
  await Promise.all(modules.map(key=>aiRunCategory(key,true,response.then(result=>{const module=result.modules?.[key];if(!module||module.error)throw new Error('获取失败');return module;}),decision)));
- aiBusy.delete('category');const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，可单独重新获取`:'分析与榜单已更新';persist();aiRefresh();
+ aiBusy.delete('category');if(modules.some(key=>aiCategoryState(key).status==='done'))ai.categoryGenerated=true;const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，可单独重新获取`:'类目分析已更新';persist();aiRefresh();
 }
 function aiOpenCategoryData(i){
  const data=aiCategoryState(String(i)).structured;if(!data)return;aiCloseCategoryData();const origin=document.activeElement,mask=document.createElement('div');mask.className='ai-data-drawer-mask';mask.id='aiCategoryDataDrawer';mask.innerHTML=`<aside class="ai-data-drawer" role="dialog" aria-modal="true" aria-labelledby="aiDataDrawerTitle"><header><div><h3 id="aiDataDrawerTitle">${esc(source.dimensions[i].title)} · 完整数据</h3><span class="subtle">Amazon US · Refillable Containers · 节点11062781</span></div><button type="button" class="close" data-ai-data-close aria-label="关闭完整数据">×</button></header><div class="ai-data-drawer-body">${aiCategoryTable(data)}${aiCategorySource(data,true)}<p class="ai-data-note">${esc(data.notes||'')}</p>${(data.extra||[]).map(extra=>`<section><h4>${esc(extra.title)}</h4>${aiCategoryTable(extra)}${aiCategorySource(extra)}</section>`).join('')}</div></aside>`;
@@ -864,7 +877,7 @@ function aiOpenCategoryData(i){
 }
 function aiCloseCategoryData(){const node=$('#aiCategoryDataDrawer');if(node){document.body.style.overflow=node._overflow||'';node.remove();if(node._origin?.isConnected)node._origin.focus();}}
 const aiCategoryOriginalStatus=categoryStatusLabel;categoryStatusLabel=function(i){const state=aiCategoryState(String(i));if(state.status==='running')return 'AI获取中…';if(state.status==='error')return 'AI获取失败';if(state.status==='interrupted')return state.message||'获取已中断';if(i>=6)return aiCategoryOriginalStatus(i);if(categorySaveStates[i]==='saving')return '保存中…';if(categorySaveStates[i]==='dirty')return '未保存';if(categorySaveStates[i]==='error')return '保存失败 · 重试';if(!$('#category-conclusion-'+i)?.value.trim())return '未填写';return aiCategoryHasEvidence(i)?'✓ 已保存':'待获取依据';};
-refreshCategoryControls=function(){const cards=[...document.querySelectorAll('#dimensions > .category-analysis-item')],collapsed=cards.filter(card=>card.classList.contains('module-collapsed')).length;const toggle=$('#toggleCategoryItems');if(toggle)toggle.textContent=$('#categoryAnalysisBlock')?.classList.contains('module-collapsed')||collapsed===cards.length&&$('#categoryRankings').classList.contains('is-collapsed')?'全部展开':'全部收起';if($('#categoryProgress'))$('#categoryProgress').textContent='已填写 '+(cards.filter((card,i)=>card.querySelector('.category-conclusion')?.value.trim()&&(i>=6||aiCategoryHasEvidence(i))).length+Number(!!($('#marketCategory')?.value??m.category).trim())+Number(aiRankingHasEvidence('newTop')))+'/10';};
+refreshCategoryControls=function(){const cards=[...document.querySelectorAll('#dimensions > .category-analysis-item')],collapsed=cards.filter(card=>card.classList.contains('module-collapsed')).length;const toggle=$('#toggleCategoryItems');if(toggle)toggle.textContent=$('#categoryAnalysisBlock')?.classList.contains('module-collapsed')||collapsed===cards.length&&$('#categoryRankings').classList.contains('is-collapsed')?'全部展开':'全部收起';$('#categoryProgress')?.remove();aiUpdateCategoryPrimary();};
 sizeCategoryText=function(){$$('#dimensions .category-conclusion').forEach(input=>input.style.height='136px');};
 const aiCategoryOriginalGallery=renderCategoryGallery;renderCategoryGallery=function(i){aiCategoryOriginalGallery(i);if(i<6)refreshAiCategoryUI();};
 uploadCategoryImage=async function(i,job,retry=false){if(readOnly)return;aiMarkCategory(String(i),'image');const state=aiCategoryState(String(i));await aiOriginalUpload(i,job,retry);if(!job.cancelled&&!readOnly&&job.status!=='error'&&dimensionImages[i]?.[0]?.src===job.src){state.screenshot=structuredClone(dimensionImages[i][0]);state.evidenceMode='screenshot';persist();}refreshAiCategoryUI();};
@@ -878,22 +891,23 @@ refreshAiCategoryUI();persist();
 
 
 /* Ranking evidence is scoped to the AI copy; source rows are never synthesized. */
+const aiRankingFolded=new Set(['monthTop']);
 function aiRankingState(key){const state=aiCategoryState(key);if(!state.rankingVersion){state.structured=structuredClone(window.AI_CATEGORY_SAMPLE.rankings[key]);state.evidenceMode='table';state.screenshot=structuredClone(m.rankingImages?.[key]||null);state.rankingVersion=1;}return state;}
 function aiRankingHasEvidence(key){const state=aiRankingState(key);return !!(state.structured?.rows?.length||state.screenshot?.src);}
 function aiRankingTable(data,compact=false){
- const rows=compact?data.rows.slice(0,5):data.rows,labels=compact?['排名','商品 / ASIN','售价（USD）','预估月销量','评分 / 评分数']:['排名','商品 / ASIN','品牌 / 形态','售价（USD）','预估月销量','评分 / 评分数','上架日期'];
+ const rows=compact?data.rows.slice(0,3):data.rows,labels=compact?['排名','商品 / ASIN','售价（USD）','预估月销量','评分 / 评分数']:['排名','商品 / ASIN','品牌 / 形态','售价（USD）','预估月销量','评分 / 评分数','上架日期'];
  return `<div class="ai-data-table-wrap"><table class="ai-data-table ai-ranking-table${compact?' is-compact':''}"><thead><tr>${labels.map(label=>`<th>${label}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr><td>${esc(row[0])}</td><td class="ai-ranking-product">${esc(row[1])}<br><a class="external-link" href="https://www.amazon.com/dp/${esc(row[2])}" target="_blank" rel="noopener noreferrer">${esc(row[2])} ${asinLinkIcon}</a></td>${compact?'':`<td>${esc(row[3])}</td>`}<td>${esc(row[4])}</td><td>${esc(row[5])}</td><td>${esc(row[6])}</td>${compact?'':`<td>${esc(row[7])}</td>`}</tr>`).join('')}</tbody></table></div>`;
 }
 function aiRankingBody(key,report=false){
  const state=aiRankingState(key),data=state.structured;
  if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,rankingDefinitions.find(row=>row[0]===key)[1]+'截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-rank-remove="${key}">删除截图</button>`:''}</figcaption></figure>`;
  if(!data?.rows?.length)return '<div class="ai-data-empty">暂无榜单，请获取AI数据或上传截图。</div>';
- return aiRankingTable(data,true)+`<div class="ai-ranking-source">${aiCategorySource(data)}<p class="ai-data-note">${esc(data.notes)}</p>${report?'':`<div class="ai-ranking-more"><button type="button" class="link" data-ai-rank-full="${key}">查看完整榜单（${data.rows.length}条）</button></div>`}</div>`;
+ return aiRankingTable(data,!report)+`<div class="ai-ranking-source"><div class="ai-ranking-source-line" title="${esc(data.source+'；'+data.sample+'；'+data.period)}">来源：${esc(data.source.split(' · ')[0])} ｜ Amazon US ｜ 统计日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)} ｜ 预估月销量</div>${report?'':`<div class="ai-ranking-more"><button type="button" class="link" data-ai-rank-full="${key}">查看全部${data.rows.length}条</button></div>`}</div>`;
 }
 renderRankings=function(){
  const target=$('#rankingCards');if(!target)return;
  const markup=rankingDefinitions.map(([key,title])=>{const state=aiRankingState(key),busy=state.status==='running',label=busy?'AI获取中…':state.status==='error'?'获取失败':rankingSaveStates[key]==='error'?'保存失败':'';
- return `<article class="ranking-card ai-ranking-card" id="ranking-${key}"><div class="ranking-card-head"><span>${title}${key==='newTop'?'<span class="required"> *</span>':''}</span><div class="ranking-card-tools"><span class="ai-status" role="status" data-status="${state.status}">${label}</span>${readOnly?'':`<button type="button" class="ai-retry" data-ai-rank-fetch="${key}" ${busy||aiBusy.has('category')?'disabled':''}>${state.structured?'AI重新获取':'AI获取榜单'}</button>${state.evidenceMode==='screenshot'&&state.structured?`<button type="button" class="link" data-ai-rank-restore="${key}">恢复AI数据</button>`:''}<button type="button" class="link" data-ai-rank-upload="${key}">${state.evidenceMode==='screenshot'?'重新上传':'上传截图'}</button>`}</div></div><div class="ai-ranking-body">${aiRankingBody(key)}</div></article>`;}).join('');
+ return `<article class="ranking-card ai-ranking-card${aiRankingFolded.has(key)?' is-rank-collapsed':''}" id="ranking-${key}"><div class="ranking-card-head"><button type="button" class="ai-rank-toggle" data-ai-rank-toggle="${key}" aria-expanded="${!aiRankingFolded.has(key)}"><span class="ai-rank-chevron" aria-hidden="true">›</span>${title}<span class="${key==='newTop'?'required':'subtle'}">（${key==='newTop'?'必填':'选填'}）</span></button><div class="ranking-card-tools"><span class="ai-status" role="status" data-status="${state.status}">${label}</span>${readOnly?'':`<button type="button" class="ai-retry" data-ai-rank-fetch="${key}" ${busy||aiBusy.has('category')?'disabled':''}>${state.structured?'AI重新获取':'AI获取榜单'}</button>${state.evidenceMode==='screenshot'&&state.structured?`<button type="button" class="link" data-ai-rank-restore="${key}">恢复AI表格</button>`:''}<button type="button" class="link" data-ai-rank-upload="${key}">${state.evidenceMode==='screenshot'?'更换截图':'替换为截图'}</button>`}</div></div><div class="ai-ranking-body" ${aiRankingFolded.has(key)?'hidden':''}>${aiRankingBody(key)}</div></article>`;}).join('');
  if(target.innerHTML!==markup)target.innerHTML=markup;refreshRankingProgress();
 };
 refreshRankingProgress=function(){const node=$('#rankingRequiredProgress');if(node){const ready=aiRankingHasEvidence('newTop');node.textContent=ready?'✓ 已保存':'待获取榜单';node.classList.toggle('is-complete',ready);node.classList.toggle('is-empty',!ready);}refreshCategoryControls();};
@@ -917,11 +931,13 @@ function aiRankingDrawer(key){
 function aiRankingUpload(key){
  if(readOnly)return;const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=()=>{
   const file=input.files?.[0];if(!file)return;if(!file.type.startsWith('image/'))return showToast('请选择图片文件','error');if(file.size>3*1024*1024)return showToast('单张图片不能超过3MB','error');
-  const state=aiRankingState(key),uploadVersion=(state.uploadVersion||0)+1;state.uploadVersion=uploadVersion;const reader=new FileReader();reader.onload=()=>{if(readOnly||state.uploadVersion!==uploadVersion)return;state.screenshot={src:reader.result,alt:file.name};state.evidenceMode='screenshot';state.manual.image=true;state.imageVersion=(state.imageVersion||0)+1;m.rankingImages[key]=structuredClone(state.screenshot);rankingSaveStates[key]=persist()?'saved':'error';aiRefresh();};reader.onerror=()=>showToast('截图上传失败，请重试','error');reader.readAsDataURL(file);
+  const state=aiRankingState(key),uploadVersion=(state.uploadVersion||0)+1;state.uploadVersion=uploadVersion;const reader=new FileReader();reader.onload=()=>{if(readOnly||state.uploadVersion!==uploadVersion)return;state.screenshot={src:reader.result,alt:file.name};state.evidenceMode='screenshot';aiRankingFolded.delete(key);state.manual.image=true;state.imageVersion=(state.imageVersion||0)+1;m.rankingImages[key]=structuredClone(state.screenshot);rankingSaveStates[key]=persist()?'saved':'error';aiRefresh();};reader.onerror=()=>showToast('截图上传失败，请重试','error');reader.readAsDataURL(file);
  };input.click();
 }
 const aiRankingOriginalReport=rankingReportHtml;rankingReportHtml=function(rankings){if(activeHistoryTask||rankings!==m.rankingImages)return aiRankingOriginalReport(rankings);return `<div class="ai-ranking-report">${rankingDefinitions.map(([key,title])=>`<section><h4>${title}</h4>${aiRankingBody(key,true)}</section>`).join('')}</div>`;};
 document.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;
+ if(button.dataset.aiRankToggle){const key=button.dataset.aiRankToggle;aiRankingFolded.has(key)?aiRankingFolded.delete(key):aiRankingFolded.add(key);renderRankings();return;}
+ if(button.id==='toggleCategoryItems'){if($('#categoryRankings').classList.contains('is-collapsed')){aiRankingFolded.add('newTop');aiRankingFolded.add('monthTop');}else aiRankingFolded.clear();renderRankings();}
  if(button.dataset.aiRankFull)aiRankingDrawer(button.dataset.aiRankFull);
  if(readOnly)return;
  if(button.dataset.aiRankFetch&&!aiBusy.has('category'))aiRunRanking(button.dataset.aiRankFetch);
