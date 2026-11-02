@@ -28,3 +28,7 @@
 @media(max-width:800px){.ai-data-footer{display:block}.ai-data-footer>.link{display:block;margin:7px 0 0 auto}.ai-data-drawer{width:95vw}.ai-data-table{min-width:430px}.ai-data-drawer .ai-data-table{min-width:500px}}
 
 .ai-shot-status:not(:empty){margin-top:7px;color:#c67b35;font-size:11px}
+
+/* Ranking tables use the same evidence and screenshot presentation as category modules. */
+#rankingCards .ai-ranking-card{min-width:0;padding:10px;background:#fff}#rankingCards .ranking-card-head{gap:8px;flex-wrap:wrap;margin-bottom:9px}#rankingCards .ranking-card-tools{gap:10px;flex-wrap:wrap}#rankingCards .ranking-card-tools .ai-retry{padding:0}#rankingCards .ranking-card-head>span:first-child{font-weight:500;color:#53657b}
+.ai-ranking-table th:first-child{width:8%}.ai-ranking-table th:nth-child(2){width:31%}.ai-ranking-table.is-compact{min-width:500px}.ai-ranking-table.is-compact th:nth-child(2){width:39%}.ai-ranking-table th,.ai-ranking-table td{font-size:11px;padding:6px 8px;vertical-align:middle}.ai-ranking-product{line-height:1.6}.ai-ranking-product .external-link{display:inline-block;margin-left:0;white-space:nowrap}.ai-ranking-source .ai-data-source{display:block}.ai-ranking-source .ai-data-source span{display:block}.ai-ranking-source .ai-data-note{margin:4px 0}.ai-ranking-more{text-align:right;margin-top:5px}.ai-ranking-more button{font-size:11px}.ai-data-drawer .ai-ranking-table{min-width:930px}.ai-ranking-report>section{margin:14px 0 20px}.ai-ranking-report .ai-ranking-table{min-width:0}.ai-ranking-report .ai-category-shot img{max-height:350px}
