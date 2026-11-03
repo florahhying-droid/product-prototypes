@@ -34,6 +34,7 @@
 .ai-ranking-table th:first-child{width:8%}.ai-ranking-table th:nth-child(2){width:31%}.ai-ranking-table.is-compact{min-width:500px}.ai-ranking-table.is-compact th:nth-child(2){width:39%}.ai-ranking-table th,.ai-ranking-table td{font-size:11px;padding:6px 8px;vertical-align:middle}.ai-ranking-product{line-height:1.6}.ai-ranking-product .external-link{display:inline-block;margin-left:0;white-space:nowrap}.ai-ranking-source .ai-data-source{display:block}.ai-ranking-source .ai-data-source span{display:block}.ai-ranking-source .ai-data-note{margin:4px 0}.ai-ranking-more{text-align:right;margin-top:5px}.ai-ranking-more button{font-size:11px}.ai-data-drawer .ai-ranking-table{min-width:930px}.ai-ranking-report>section{margin:14px 0 20px}.ai-ranking-report .ai-ranking-table{min-width:0}.ai-ranking-report .ai-category-shot img{max-height:350px}
 
 /* Local toolbar refinement: a single primary action in the category input row. */
+.ai-standard-footer{position:static;display:flex;justify-content:flex-end;padding:16px 4px 0;font-size:11px}.ai-standard-footer a{color:#8b97a6;text-decoration:none}.ai-standard-footer a:hover{color:var(--teal);text-decoration:underline}
 .save-mark:not([data-state]),.category-save-status[data-state="saved"]{display:none!important}
 .ai-pending-readonly input:disabled,.ai-pending-readonly select:disabled,.ai-pending-readonly textarea:disabled{color:var(--text,#34435b);opacity:1;-webkit-text-fill-color:currentColor;background:#f7f9fb}
 .ai-pending-readonly .pending-upload-tile:disabled{opacity:1;cursor:default}

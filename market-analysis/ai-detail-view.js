@@ -1,4 +1,24 @@
 /* Detail presentation changes are confined to the AI version. */
+// Keep the archived standard version reachable without a floating switch entry.
+const aiStandardLink=$('.demo-suite-switch a[href="市场分析报告交互原型.html"]');
+if(aiStandardLink){const footer=document.createElement('footer');footer.className='ai-standard-footer';footer.setAttribute('aria-label','历史版本');aiStandardLink.textContent='标准版';if(/^https?:$/.test(window.location.protocol))aiStandardLink.href='index.html';footer.append(aiStandardLink);$('.main').append(footer);}
+const aiPurchaseLink=$('#editPurchaseLink');
+aiPurchaseLink.required=true;aiPurchaseLink.setAttribute('aria-required','true');
+$('label[for="editPurchaseLink"]').insertAdjacentHTML('afterbegin','<span class="required">*</span> ');
+aiPurchaseLink.addEventListener('input',()=>{if(aiPurchaseLink.value.trim())clearPendingRequiredError(aiPurchaseLink.closest('.pending-basic-field'));});
+const aiDetailOriginalRequired=validatePendingRequiredFields;
+validatePendingRequiredFields=function(){
+ if(!aiPurchaseLink.value.trim()){
+  const field=aiPurchaseLink.closest('.pending-basic-field');clearPendingRequiredError(field);field.classList.add('pending-field-invalid');aiPurchaseLink.setAttribute('aria-invalid','true');field.insertAdjacentHTML('beforeend','<div class="inline-error pending-required-error">请填写采购链接</div>');showToast('请填写采购链接','error');aiPurchaseLink.focus();return false;
+ }
+ return aiDetailOriginalRequired();
+};
+const aiDetailOriginalValidate=validate;
+validate=function(){
+ const missing=products.find(p=>!String(p.purchaseLink??p.url??'').trim());
+ if(missing){showToast('请补全待开发产品采购链接','error');$('#pendingSection').scrollIntoView({behavior:'smooth',block:'center'});return false;}
+ return aiDetailOriginalValidate();
+};
 function aiCleanDetailActions(){
  $('#toggleCompetitorItems')?.remove();
  $$('#compDetail [data-comp-progress]').forEach(node=>node.remove());
