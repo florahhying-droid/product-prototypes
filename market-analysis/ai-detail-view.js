@@ -15,12 +15,12 @@ renderProducts=function(){
  $$('#pendingBody tr').forEach(row=>{
   const cells=[...row.children];if(cells.length===1){cells[0].colSpan=10;return;}
   removed.forEach(index=>cells[index]?.remove());
-  const id=row.querySelector('[data-spu]')?.dataset.spu||row.querySelector('.sku-code')?.textContent;
+  const spu=row.querySelector('[data-spu]')?.dataset.spu,id=spu||row.querySelector('.sku-code')?.textContent;
   const product=products.find(p=>p.spu===id||p.skus.some(s=>s.sku===id));
-  if(product&&cells[5])cells[5].innerHTML=sourceCell(product);
+  if(spu&&product&&cells[5])cells[5].innerHTML=sourceCell(product);
   let operation=row.querySelector('.pending-operation-fixed');
   if(!operation){operation=document.createElement('td');operation.className='pending-operation-fixed';row.append(operation);}
-  if(id){const view=document.createElement('button');view.type='button';view.className='link ai-view-product';view.textContent='查看';view.dataset.pendingView=id;view.onclick=()=>aiViewPending(id);operation.prepend(view);if(view.nextSibling)view.after(document.createElement('br'));}
+  if(spu){const view=document.createElement('button');view.type='button';view.className='link ai-view-product';view.textContent='查看';view.dataset.pendingView=id;view.onclick=()=>aiViewPending(id);operation.prepend(view);if(view.nextSibling)view.after(document.createElement('br'));}
  });
  removed.forEach(index=>headers[index].remove());
  if(!$('#pendingHead .pending-operation-fixed'))$('#pendingHead tr').insertAdjacentHTML('beforeend','<th class="pending-operation-fixed">操作</th>');
