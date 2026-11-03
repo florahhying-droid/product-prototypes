@@ -85,7 +85,7 @@ function refreshCategoryStatus(i){const status=$('#dim-'+i+' .category-save-stat
 async function saveCategoryItem(i){
  if(readOnly)return;const version=(categorySaveVersions[i]||0)+1;categorySaveVersions[i]=version;
  const html=dimensionHtml(i);categorySaveStates[i]='saving';refreshCategoryStatus(i);
- await new Promise(resolve=>setTimeout(resolve,650));
+ await new Promise(resolve=>setTimeout(resolve,120));
  if(categorySaveVersions[i]!==version)return;
  m.dims[i]=html;syncCompPositionFromCategory();
  categorySaveStates[i]=persist()?'saved':'error';refreshCategoryStatus(i);refreshCategoryControls();
@@ -96,7 +96,7 @@ async function uploadCategoryImage(i,job,retry=false){
  job.status='uploading';renderCategoryGallery(i);
  try{
   if(!job.src)job.src=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('read'));reader.onabort=()=>reject(new Error('abort'));reader.readAsDataURL(job.file);});
-  await new Promise(resolve=>setTimeout(resolve,500));
+  await new Promise(resolve=>setTimeout(resolve,0));
   if(!categoryUploadJobs[i].includes(job))return;
   dimensionImages[i]=[{src:job.src,alt:job.file.name}];categoryUploadJobs[i]=categoryUploadJobs[i].filter(j=>j!==job);renderCategoryGallery(i);saveCategoryItem(i);
  }catch{if(categoryUploadJobs[i].includes(job)){job.status='error';renderCategoryGallery(i);}}
@@ -688,6 +688,7 @@ if(!activeHistoryTask){
 /* Injected into the copied market controller; the original controller stays unchanged. */
 const ai=m.aiAssist||=( {category:{},competitors:{},sequence:0} );
 const aiBusy=new Set();
+const aiMarkupCache=new WeakMap();
 const aiScope=()=>({site:m.site,level:String(m.categoryLevel),category:m.category.trim()});
 const aiScopeKey=()=>JSON.stringify(aiScope());
 const aiSame=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -732,7 +733,7 @@ function aiMock(request){if(request.kind==='category-batch')return Promise.all(r
   const record=ensureCompetitorState().items.find(row=>row.asin===request.asin),original=makeCompRecord(request.asin);
   resolve({basis:`${scope.site} · ASIN ${request.asin}；商品详情、关键词与评论样本，获取时间：${time}。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
  }
-},900));}
+},180));}
 function aiService(request){return window.aiPrototypeService?Promise.resolve().then(()=>window.aiPrototypeService(structuredClone(request))):aiMock(request);}
 function aiContextValid(key){return !readOnly&&!activeHistoryTask&&key===aiScopeKey();}
 async function aiRunCompetitor(asin){
@@ -770,6 +771,7 @@ renderCompetitors();aiRefresh();persist();
 
 
 /* Category-only presentation; competitor and pending product controllers are untouched. */
+function aiSetMarkup(node,markup){if(aiMarkupCache.get(node)===markup)return;node.innerHTML=markup;aiMarkupCache.set(node,markup);}
 function aiCategoryFixture(i){return window.AI_CATEGORY_SAMPLE?.modules[i];}
 function aiCategoryHasEvidence(i){const state=aiCategoryState(String(i));return !!(state.structured?.rows?.length||state.screenshot?.src);}
 function aiCategoryInit(i){
@@ -819,7 +821,7 @@ function refreshAiCategoryUI(){
   const body=card.querySelector('.category-item-body');
   if(i<6){
    if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span><div class="ai-basis-actions"><button type="button" class="link" data-ai-restore-data="${i}">恢复AI数据</button><button type="button" class="link market-write" data-category-upload="${i}">替换为截图</button></div></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
-   const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);if(area.innerHTML!==markup)area.innerHTML=markup;
+   const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);aiSetMarkup(area,markup);
    const restore=body.querySelector('[data-ai-restore-data]');restore.hidden=state.evidenceMode!=='screenshot'||!state.structured||readOnly;
    const upload=body.querySelector('[data-category-upload]');upload.hidden=readOnly;upload.disabled=categoryUploadJobs[i]?.[0]?.status==='uploading';upload.textContent=upload.disabled?'上传中…':state.evidenceMode==='screenshot'?'更换截图':'替换为截图';
    const job=categoryUploadJobs[i]?.[0],shotStatus=body.querySelector('[data-ai-shot-status]');if(shotStatus){const error=job?.status==='error'?`截图上传失败 <button type="button" class="link" data-category-image-retry="${i}:${job.id}">重试</button>`:'';if(shotStatus.innerHTML!==error)shotStatus.innerHTML=error;}
@@ -849,7 +851,7 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
  document.activeElement?.blur();if(!decision)decision=await aiCategoryAskOverwrite([key]);if(decision==='cancel'||readOnly||state.status==='running')return;
  const scopeKey=aiScopeKey(),scope=aiScope();if(!scope.site||!scope.level||!scope.category){showToast('请先选择站点、品类等级和调研品类','error');return;}
  const i=Number(key),input=$('#category-conclusion-'+i),before={text:input.value,version:categorySaveVersions[i]||0,shot:JSON.stringify(state.screenshot),mode:state.evidenceMode},token=++ai.sequence;
- state.status='running';state.token=token;state.attempts++;state.message='';aiRefresh();
+ state.status='running';state.token=token;state.attempts++;state.message='';if(!batch)aiRefresh();
  try{
   const result=await(batchResult||aiService({kind:'category',key,scope,batch,attempt:state.attempts,taskId:'AI-CAT-'+token}));if(state.token!==token)return;
   if(!aiContextValid(scopeKey)){state.status='interrupted';state.message='口径已变化，结果未回填';return;}
@@ -861,7 +863,7 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
   }
   categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.generatedAt=Date.now();state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
  }catch{state.status='error';state.message='获取失败，可重新获取';}
- finally{persist();aiRefresh();}
+ finally{if(!batch){persist();aiRefresh();}}
 }
 async function aiRunAll(){
  if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;document.activeElement?.blur();
@@ -908,7 +910,7 @@ renderRankings=function(){
  const target=$('#rankingCards');if(!target)return;
  const markup=rankingDefinitions.map(([key,title])=>{const state=aiRankingState(key),busy=state.status==='running',label=busy?'AI获取中…':state.status==='error'?'获取失败':rankingSaveStates[key]==='error'?'保存失败':'';
  return `<article class="ranking-card ai-ranking-card${aiRankingFolded.has(key)?' is-rank-collapsed':''}" id="ranking-${key}"><div class="ranking-card-head"><button type="button" class="ai-rank-toggle" data-ai-rank-toggle="${key}" aria-expanded="${!aiRankingFolded.has(key)}"><span class="ai-rank-chevron" aria-hidden="true">›</span>${title}${key==='newTop'?'<span class="required"> *</span>':''}</button><div class="ranking-card-tools"><span class="ai-status" role="status" data-status="${state.status}">${label}</span>${readOnly?'':`<button type="button" class="ai-retry" data-ai-rank-fetch="${key}" ${busy||aiBusy.has('category')?'disabled':''}>${state.structured?'AI重新获取':'AI获取榜单'}</button>${state.evidenceMode==='screenshot'&&state.structured?`<button type="button" class="link" data-ai-rank-restore="${key}">恢复AI表格</button>`:''}<button type="button" class="link" data-ai-rank-upload="${key}">${state.evidenceMode==='screenshot'?'更换截图':'替换为截图'}</button>`}</div></div><div class="ai-ranking-body" ${aiRankingFolded.has(key)?'hidden':''}>${aiRankingBody(key)}</div></article>`;}).join('');
- if(target.innerHTML!==markup)target.innerHTML=markup;refreshRankingProgress();
+ aiSetMarkup(target,markup);refreshRankingProgress();
 };
 refreshRankingProgress=function(){const node=$('#rankingRequiredProgress');if(node){const ready=aiRankingHasEvidence('newTop');node.textContent=ready?'':'待获取榜单';node.classList.toggle('is-complete',ready);node.classList.toggle('is-empty',!ready);}refreshCategoryControls();};
 const aiRankingOriginalRefresh=refreshAiCategoryUI;refreshAiCategoryUI=function(){aiRankingOriginalRefresh();renderRankings();};

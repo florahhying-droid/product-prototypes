@@ -54,6 +54,8 @@ print(f'Created {target.name} ({target.stat().st_size:,} bytes)')
 # The AI controller is a direct copy, with isolated storage and a scoped extension.
 ai_controller = (root / 'market.js').read_text(encoding='utf-8')
 ai_controller = ai_controller.replace("const KEY='ac-market-analysis-v1';", "const KEY='ac-market-analysis-ai-v1';")
+# Keep local demonstration feedback brief; option dialogs remain synchronous.
+ai_controller = ai_controller.replace("setTimeout(resolve,650)", "setTimeout(resolve,120)").replace("setTimeout(resolve,500)", "setTimeout(resolve,0)")
 ai_controller = ai_controller.replace('JSON.parse(localStorage.getItem(KEY))', "JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('ac-market-analysis-v1'))")
 ai_controller = ai_controller.replace("c.querySelector('textarea')?.value.trim()", "c.querySelector('.category-conclusion')?.value.trim()")
 ai_controller = ai_controller.replace("if(i<6&&!dimensionImages[i]?.length)", "if(i<6&&!aiCategoryHasEvidence(i))")

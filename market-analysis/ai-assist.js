@@ -2,6 +2,7 @@
 /* Injected into the copied market controller; the original controller stays unchanged. */
 const ai=m.aiAssist||=( {category:{},competitors:{},sequence:0} );
 const aiBusy=new Set();
+const aiMarkupCache=new WeakMap();
 const aiScope=()=>({site:m.site,level:String(m.categoryLevel),category:m.category.trim()});
 const aiScopeKey=()=>JSON.stringify(aiScope());
 const aiSame=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -46,7 +47,7 @@ function aiMock(request){if(request.kind==='category-batch')return Promise.all(r
   const record=ensureCompetitorState().items.find(row=>row.asin===request.asin),original=makeCompRecord(request.asin);
   resolve({basis:`${scope.site} · ASIN ${request.asin}；商品详情、关键词与评论样本，获取时间：${time}。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
  }
-},900));}
+},180));}
 function aiService(request){return window.aiPrototypeService?Promise.resolve().then(()=>window.aiPrototypeService(structuredClone(request))):aiMock(request);}
 function aiContextValid(key){return !readOnly&&!activeHistoryTask&&key===aiScopeKey();}
 async function aiRunCompetitor(asin){

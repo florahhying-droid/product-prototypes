@@ -1,5 +1,6 @@
 
 /* Category-only presentation; competitor and pending product controllers are untouched. */
+function aiSetMarkup(node,markup){if(aiMarkupCache.get(node)===markup)return;node.innerHTML=markup;aiMarkupCache.set(node,markup);}
 function aiCategoryFixture(i){return window.AI_CATEGORY_SAMPLE?.modules[i];}
 function aiCategoryHasEvidence(i){const state=aiCategoryState(String(i));return !!(state.structured?.rows?.length||state.screenshot?.src);}
 function aiCategoryInit(i){
@@ -49,7 +50,7 @@ function refreshAiCategoryUI(){
   const body=card.querySelector('.category-item-body');
   if(i<6){
    if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span><div class="ai-basis-actions"><button type="button" class="link" data-ai-restore-data="${i}">恢复AI数据</button><button type="button" class="link market-write" data-category-upload="${i}">替换为截图</button></div></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
-   const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);if(area.innerHTML!==markup)area.innerHTML=markup;
+   const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);aiSetMarkup(area,markup);
    const restore=body.querySelector('[data-ai-restore-data]');restore.hidden=state.evidenceMode!=='screenshot'||!state.structured||readOnly;
    const upload=body.querySelector('[data-category-upload]');upload.hidden=readOnly;upload.disabled=categoryUploadJobs[i]?.[0]?.status==='uploading';upload.textContent=upload.disabled?'上传中…':state.evidenceMode==='screenshot'?'更换截图':'替换为截图';
    const job=categoryUploadJobs[i]?.[0],shotStatus=body.querySelector('[data-ai-shot-status]');if(shotStatus){const error=job?.status==='error'?`截图上传失败 <button type="button" class="link" data-category-image-retry="${i}:${job.id}">重试</button>`:'';if(shotStatus.innerHTML!==error)shotStatus.innerHTML=error;}
@@ -79,7 +80,7 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
  document.activeElement?.blur();if(!decision)decision=await aiCategoryAskOverwrite([key]);if(decision==='cancel'||readOnly||state.status==='running')return;
  const scopeKey=aiScopeKey(),scope=aiScope();if(!scope.site||!scope.level||!scope.category){showToast('请先选择站点、品类等级和调研品类','error');return;}
  const i=Number(key),input=$('#category-conclusion-'+i),before={text:input.value,version:categorySaveVersions[i]||0,shot:JSON.stringify(state.screenshot),mode:state.evidenceMode},token=++ai.sequence;
- state.status='running';state.token=token;state.attempts++;state.message='';aiRefresh();
+ state.status='running';state.token=token;state.attempts++;state.message='';if(!batch)aiRefresh();
  try{
   const result=await(batchResult||aiService({kind:'category',key,scope,batch,attempt:state.attempts,taskId:'AI-CAT-'+token}));if(state.token!==token)return;
   if(!aiContextValid(scopeKey)){state.status='interrupted';state.message='口径已变化，结果未回填';return;}
@@ -91,7 +92,7 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
   }
   categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.generatedAt=Date.now();state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
  }catch{state.status='error';state.message='获取失败，可重新获取';}
- finally{persist();aiRefresh();}
+ finally{if(!batch){persist();aiRefresh();}}
 }
 async function aiRunAll(){
  if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;document.activeElement?.blur();
