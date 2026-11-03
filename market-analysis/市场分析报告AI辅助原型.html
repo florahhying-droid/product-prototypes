@@ -1562,16 +1562,7 @@ function makeCompRecord(asin,origin='reference'){
   keywords:(words.length?words.slice(0,3):['']).map((word,i)=>({word,count:i?'5000以上':clean(d.R||s?.R),volume:i?'3800+':clean(d.S||s?.S)})),
   feedback:s?.feedback?[{src:'assets/'+s.feedback,alt:'用户反馈图片'}]:[]};
 }
-function syncCompPositionFromCategory(force=false){
- const c=m.competitorAnalysis;if(!c)return false;c.position||={};
- const fresh=!c.positionSync;c.positionSync||={manual:{},last:{}};c.positionSync.manual||={};c.positionSync.last||={};let changed=fresh;
- for(const [key,,dim]of compPositionDefinitions){
-  const incoming=plainCompText(m.dims[dim]),current=String(c.position[key]||'');
-  if(fresh&&current&&current!==incoming&&current!==plainCompText(source.dimensions[dim].html))c.positionSync.manual[key]=true;
-  if(force||!c.positionSync.manual[key]){if(current!==incoming){c.position[key]=incoming;changed=true;const input=$('#position-'+key);if(input)input.value=incoming;}c.positionSync.last[key]=incoming;if(force)c.positionSync.manual[key]=false;}
- }
- if(changed){persist();if($('#competitors [data-comp-progress="position"]'))refreshCompProgress();}return changed;
-}
+function syncCompPositionFromCategory(){return false;}
 async function syncCompPositionWithConfirmation(){
  if(readOnly)return;document.activeElement?.blur();
  await Promise.all(compPositionDefinitions.map(([,,dim])=>['dirty','saving'].includes(categorySaveStates[dim])?saveCategoryItem(dim):Promise.resolve()));
@@ -1612,14 +1603,9 @@ function compMissing(r){
  if(r.reviews!==''&&(!/^\d+$/.test(String(r.reviews))))fields.push({key:'reviews',message:'Review数量应为非负整数'});
  if(r.price!==''&&(!Number.isFinite(+r.price)||+r.price<0))fields.push({key:'price',message:'请输入有效的非负售价'});
  if(r.specs&&!/((?:^|[^a-z])(?:cm|mm|m|in|inch|inches|ft|oz|ounces|lb|lbs|pounds|g|kg|ml|l)\b|厘米|毫米|英寸|英尺|克|千克|毫升|磅|盎司|升)/i.test(r.specs))fields.push({key:'specs',message:'产品规格 / 尺寸需注明单位'});
- if(!r.keywords.length)fields.push({key:'keywords',message:'请至少添加一组完整的关键词及搜索数据'});
- else if(!r.keywords.some(row=>['word','count','volume'].every(k=>String(row[k]||'').trim()))){
-  const best=r.keywords.reduce((best,row,i,rows)=>['word','count','volume'].filter(k=>String(row[k]||'').trim()).length>['word','count','volume'].filter(k=>String(rows[best][k]||'').trim()).length?i:best,0);
-  ['word','count','volume'].forEach(k=>{if(!String(r.keywords[best][k]||'').trim())fields.push({key:`kw-${best}-${k}`,message:'请至少填写一组完整的关键词及搜索数据'});});
- }
  return fields;
 }
-function compCompletion(r){const total=14;const missing=new Set(compMissing(r).filter(e=>e.key!=='keywords').map(e=>e.key)).size+(r.keywords.length?0:3);return `${Math.max(0,total-missing)}/${total}`;}
+function compCompletion(r){const total=11;return `${Math.max(0,total-new Set(compMissing(r).map(e=>e.key)).size)}/${total}`;}
 function compStatusHtml(){return '';}
 function updateCompStatus(){}
 function saveComp(group){
@@ -1659,7 +1645,7 @@ function renderCompDetail(){
  const overview=`<div class="comp-product-overview"><div class="comp-overview-image">${r.image?`<img loading="lazy" decoding="async" src="${esc(compImage(r.image))}" alt="${esc(r.name)}">${!r.systemImage?`<button type="button" class="link market-write" data-comp-product-upload ${readOnly?'hidden':''}>重新上传</button>`:''}`:readOnly?'<span>暂无图片</span>':`<button type="button" class="comp-product-empty-upload market-write" data-comp-product-upload aria-label="上传商品图片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 16 5-5 5 5 4-4 4 4M15 7h4M17 5v4"/></svg><span>上传图片</span></button>`}</div><div class="comp-overview-copy">${compControl(r,'name','产品名称')}<div class="comp-original-title">英文名：${r.english?esc(r.english):'—'}</div><div class="comp-original-title comp-category-path">品类：${esc(compCategoryPath(r))}</div>${compMismatchHtml(r)}</div></div>`;
  const base=overview+`<div class="comp-form-grid">${['date','rating','reviews','price','sales','bsr'].map(key=>compFieldDefinitions.find(d=>d[0]===key)).map(([k,l,t])=>compControl(r,k,l,t)).join('')}${compControl(r,'specs','产品规格 / 尺寸','textarea')}</div>`;
  const feedback=compControl(r,'selling','核心卖点','textarea')+`<div class="comp-feedback-group">${compControl(r,'negative','核心差评点','textarea').replace('</textarea></div></div>','</textarea>')}<div class="comp-feedback-images"><div class="comp-feedback-tools"><span>用户反馈图片（最多3张）</span><button type="button" class="btn primary market-write" data-comp-feedback-upload ${readOnly?'hidden':''} ${r.feedback.length>=3?'disabled':''}>上传图片</button></div><div class="comp-feedback-thumbs">${r.feedback.map((img,i)=>`<div class="comp-feedback-thumb"><img loading="lazy" decoding="async" src="${esc(compImage(img.src))}" alt="用户反馈图片"><button type="button" class="category-image-delete market-write" data-comp-feedback-delete="${i}" aria-label="删除用户反馈图片" ${readOnly?'hidden':''}>×</button></div>`).join('')||'<span class="comp-no-feedback">暂无图片</span>'}</div></div></div></div></div>`;
- target.innerHTML=compModule('base','基础信息',base,r)+compModule('keywords','关键词及搜索数据',renderCompKeywords(r),r)+compModule('feedback','产品卖点与用户反馈',feedback,r)+compModule('advice','开发建议',compControl(r,'direction','差异化开发方向','textarea')+compControl(r,'remark','备注','textarea',true).replace('<textarea id="ci-remark"','<textarea placeholder="采购注意事项、利润优化建议等" id="ci-remark"'),r);
+ target.innerHTML=compModule('base','基础信息',base,r)+compModule('feedback','产品卖点与用户反馈',feedback,r)+compModule('advice','开发建议',compControl(r,'direction','差异化开发方向','textarea')+compControl(r,'remark','备注','textarea',true).replace('<textarea id="ci-remark"','<textarea placeholder="采购注意事项、利润优化建议等" id="ci-remark"'),r);
  refreshCompFoldControl();refreshCompScope();
 }
 function setCompPositionCollapsed(collapsed){
@@ -1675,7 +1661,7 @@ function refreshCompFoldControl(){
 }
 function renderCompetitors(){
  const c=ensureCompetitorState(),root=$('#competitors');
- root.innerHTML=`<section class="comp-position ${compFolded.has('position')?'is-collapsed':''}"><div class="comp-position-head"><h4><button type="button" class="analysis-fold-title" data-comp-position-toggle aria-expanded="${!compFolded.has('position')}"><span class="analysis-fold-chevron" aria-hidden="true">›</span>竞品市场定位</button></h4><button type="button" class="link market-write" data-comp-sync-position title="从类目分析同步节日周期、使用场景及消费者画像" ${readOnly?'hidden':''}>同步类目分析</button>${compProgressHtml('position')}</div><div class="comp-position-grid">${compPositionDefinitions.map(([key,label])=>`<div id="cp-${key}"><label for="position-${key}">${label} <span class="required">*</span></label><textarea id="position-${key}" placeholder="${esc(compPositionPlaceholders[key])}" data-comp-position="${key}" data-comp-group="position" aria-required="true" ${readOnly?'disabled':''}>${esc(c.position[key])}</textarea></div>`).join('')}</div></section><div class="comp-workspace"><aside class="comp-sidebar"><div class="comp-sidebar-head"><strong>竞品列表</strong><button class="btn primary market-write" id="selectCompetitors" ${readOnly?'hidden':''}>＋ 添加竞品</button></div><input id="compSearch" type="search" placeholder="搜索ASIN / 产品名称" value="${esc(compQuery)}" aria-label="搜索ASIN或产品名称"><div id="compList"></div></aside><div class="comp-detail" id="compDetail"></div></div>`;
+ root.innerHTML=`<div class="comp-workspace"><aside class="comp-sidebar"><div class="comp-sidebar-head"><strong>竞品列表</strong><button class="btn primary market-write" id="selectCompetitors" ${readOnly?'hidden':''}>＋ 添加竞品</button></div><input id="compSearch" type="search" placeholder="搜索ASIN / 产品名称" value="${esc(compQuery)}" aria-label="搜索ASIN或产品名称"><div id="compList"></div></aside><div class="comp-detail" id="compDetail"></div></div>`;
  renderCompList();renderCompDetail();
  const head=$('#competitorCount').closest('.sub-head');
  if(!$('#toggleCompetitorItems'))head.insertAdjacentHTML('beforeend','<button type="button" class="btn" id="toggleCompetitorItems">全部收起</button>');
@@ -1771,7 +1757,6 @@ function compClick(e){
 }
 function validateCompetitorAnalysis(){
  const c=ensureCompetitorState(),errors=[];
- compPositionDefinitions.forEach(([key,label])=>{if(!c.position[key].trim()){setCompPositionCollapsed(false);errors.push(validationError($('#cp-'+key),'请填写'+label));}});
  if(!c.items.length){errors.push(validationError($('.comp-sidebar'),'请至少添加一个竞品'));return errors;}
  const bad=c.items.find(r=>compMissing(r).length);if(bad){compQuery='';c.active=bad.asin;compFolded.clear();setCompPositionCollapsed(false);$('#compSearch').value='';renderCompList();renderCompDetail();compMissing(bad).forEach(({key,message})=>{const node=$('#cf-'+key);if(node&&!node.classList.contains('invalid'))errors.push(validationError(node,message));});}
  if(!errors.length&&!persist())errors.push(validationError($('#compDetail'),'内容保存失败，请重试后提交'));
@@ -1784,10 +1769,10 @@ function reportPairs(fields){const rows=[];for(let i=0;i<fields.length;i+=2){con
 
 function reportLongText(title,value,required=true){return `<div class="report-text-block"><h4>${esc(title)}</h4><div class="comp-report-text">${reportValue(value,required)}</div></div>`;}
 function categoryReportHtml(dims,rankings){return rankingReportHtml(rankings)+source.dimensions.map((d,i)=>{const parts=dimensionParts(dims[i]);return `<article class="report-analysis"><h3>${i+1}. ${esc(d.title)}</h3><div class="report-rich comp-report-text">${reportValue(parts.text)}</div>${i<6?`<div class="report-analysis-image">${reportImageList(parts.images,true,'分析图片')}</div>`:''}</article>`;}).join('');}
-function competitorReportHtml(){const c=ensureCompetitorState();return `<section class="report-position"><h3>竞品市场定位</h3>${compPositionDefinitions.map(([k,l])=>reportLongText(l,c.position[k])).join('')}</section>${c.items.length?c.items.map((r,i)=>{
+function competitorReportHtml(){const c=ensureCompetitorState();return `${c.items.length?c.items.map((r,i)=>{
  const basic=[['产品名称',reportValue(r.name)+`<div class="report-english-name">${reportValue(r.english)}</div>`],['产品图片',reportImageHtml(r.image,true,'竞品产品图片')],...['date','rating','reviews','price','sales','bsr'].map(key=>{const [,label]=compFieldDefinitions.find(d=>d[0]===key);return [label,reportValue(r[key])];}),['产品规格 / 尺寸',reportValue(r.specs)]];
  const keywords=(r.keywords||[]).filter(row=>[row.word,row.count,row.volume].some(v=>String(v??'').trim()));
- return `<article class="report-competitor"><h3>${i+1}. ASIN：${reportValue(r.asin)}</h3><h4>基础信息</h4>${reportPairs(basic)}<h4>关键词及搜索数据</h4><div class="report-table-wrap"><table class="report-keywords"><thead><tr><th>核心关键词（英文）</th><th>搜索竞品数量（核心词下）</th><th>核心关键词搜索量（月）</th></tr></thead><tbody>${keywords.length?keywords.map(row=>`<tr><td>${reportValue(row.word)}</td><td>${reportValue(row.count)}</td><td>${reportValue(row.volume)}</td></tr>`).join(''):'<tr><td colspan="3">'+reportValue('')+'</td></tr>'}</tbody></table></div>${reportLongText('核心卖点',r.selling)}${reportLongText('核心差评点',r.negative)}<div class="report-text-block"><h4>用户反馈图片</h4>${reportImageList(r.feedback,false,'用户反馈图片')}</div>${reportLongText('差异化开发方向',r.direction)}${reportLongText('备注',r.remark,false)}</article>`;
+ return `<article class="report-competitor"><h3>${i+1}. ASIN：${reportValue(r.asin)}</h3><h4>基础信息</h4>${reportPairs(basic)}${reportLongText('核心卖点',r.selling)}${reportLongText('核心差评点',r.negative)}<div class="report-text-block"><h4>用户反馈图片</h4>${reportImageList(r.feedback,false,'用户反馈图片')}</div>${reportLongText('差异化开发方向',r.direction)}${reportLongText('备注',r.remark,false)}</article>`;
  }).join(''):`<p>${reportValue('')}</p>`}`;}
 function pendingProductsReportHtml(){return products.length?products.map((p,i)=>{const offer=candidates.find(c=>c.id===p.offerId),link=p.purchaseLink??(p.url||offer?.promotionURL||(p.offerId?offerUrl(p.offerId):''));const fields=[['SPU',reportValue(p.spu)],['产品标题',reportValue(p.title)],['系统品类',reportValue(p.category)],['供应商名称',reportValue(p.supplier)],['产品图片',reportImageHtml(p.img,true,'SPU产品图片')],['采购链接',reportValue(link,false)],['采购备注',reportValue(p.purchaseNotes)]];return `<article class="report-product"><h3>${i+1}. ${esc(p.spu||'待完善')} · ${esc(p.title||'待完善')}</h3><h4>SPU概要</h4>${reportPairs(fields)}<h4>SKU明细（${p.skus?.length||0}个）</h4><div class="report-table-wrap"><table class="report-skus"><thead><tr>${['SKU','产品标题','产品图片','参考产品','采购价（CNY）','预计售价（USD）','起订量','配件搭配清单','利润测算'].map(title=>`<th>${title}</th>`).join('')}</tr></thead><tbody>${p.skus?.length?p.skus.map(sku=>`<tr><td>${reportValue(sku.sku)}</td><td>${reportValue(sku.variantTitle||p.title)}</td><td>${reportImageHtml(sku.img||p.img,true,'SKU产品图片')}</td><td>${reportValue(sku.reference||p.asin)}<br>${reportValue(sku.referenceType)}</td><td>${reportValue(sku.price===null||sku.price===undefined||sku.price===''?'':Number.isFinite(Number(sku.price))?Number(sku.price).toFixed(2):sku.price)}</td><td>${reportValue(pendingSalePrice(sku)===null?'':pendingSalePrice(sku).toFixed(2))}</td><td>${reportValue(sku.moq)}</td><td>${reportValue(sku.accessoryList??sku.packagingList??sku.competitor)}</td><td>${esc(opSummary(p,sku))}</td></tr>`).join(''):'<tr><td colspan="9">'+reportValue('')+'</td></tr>'}</tbody></table></div></article>`;}).join(''):`<p>${reportValue('')}</p>`;}
 
@@ -2152,7 +2137,7 @@ async function aiRunCompetitor(asin){
   const result=await aiService({kind:'competitor',asin,scope:aiScope(),taskId:'AI-COMP-'+token});if(state.token!==token)return;
   if(!aiContextValid(scopeKey)||!ensureCompetitorState().items.includes(record)){state.status='interrupted';state.message='口径或竞品已变化，结果未回填';return;}
   if(!result.fields||typeof result.basis!=='string')throw new Error('返回结果不完整');let protectedCount=0;
-  for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','selling','negative','direction','keywords']){if(result.fields[key]===undefined)continue;if(state.manual[key]||!aiSame(record[key],before[key])){protectedCount++;continue;}if(key==='keywords'&&!Array.isArray(result.fields[key]))continue;record[key]=structuredClone(result.fields[key]);}
+  for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','selling','negative','direction']){if(result.fields[key]===undefined)continue;if(state.manual[key]||!aiSame(record[key],before[key])){protectedCount++;continue;}if(key==='keywords'&&!Array.isArray(result.fields[key]))continue;record[key]=structuredClone(result.fields[key]);}
   if(!state.manual.basis&&state.basis===beforeBasis)state.basis=result.basis;else protectedCount++;
   state.status='done';state.message=protectedCount?'AI已更新 · 保留人工修改':'AI已更新';if(!persist()){state.status='error';state.message='保存失败，请重新获取';}
   renderCompList();if(ensureCompetitorState().active===asin)renderCompDetail();

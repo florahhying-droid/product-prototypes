@@ -57,7 +57,7 @@ async function aiRunCompetitor(asin){
   const result=await aiService({kind:'competitor',asin,scope:aiScope(),taskId:'AI-COMP-'+token});if(state.token!==token)return;
   if(!aiContextValid(scopeKey)||!ensureCompetitorState().items.includes(record)){state.status='interrupted';state.message='口径或竞品已变化，结果未回填';return;}
   if(!result.fields||typeof result.basis!=='string')throw new Error('返回结果不完整');let protectedCount=0;
-  for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','selling','negative','direction','keywords']){if(result.fields[key]===undefined)continue;if(state.manual[key]||!aiSame(record[key],before[key])){protectedCount++;continue;}if(key==='keywords'&&!Array.isArray(result.fields[key]))continue;record[key]=structuredClone(result.fields[key]);}
+  for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','selling','negative','direction']){if(result.fields[key]===undefined)continue;if(state.manual[key]||!aiSame(record[key],before[key])){protectedCount++;continue;}if(key==='keywords'&&!Array.isArray(result.fields[key]))continue;record[key]=structuredClone(result.fields[key]);}
   if(!state.manual.basis&&state.basis===beforeBasis)state.basis=result.basis;else protectedCount++;
   state.status='done';state.message=protectedCount?'AI已更新 · 保留人工修改':'AI已更新';if(!persist()){state.status='error';state.message='保存失败，请重新获取';}
   renderCompList();if(ensureCompetitorState().active===asin)renderCompDetail();

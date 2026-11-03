@@ -63,6 +63,28 @@ ai_controller = ai_controller.replace("'请上传'+source.dimensions[i].title+'�
 ai_controller = ai_controller.replace('<p class="subtle op-example-note">利润率为原型演示数据。</p>', '')
 ai_controller = ai_controller.replace('利润通过示例', '硅胶旅行分装瓶 · 浅色4件套').replace('利润未通过示例', '硅胶旅行分装瓶 · 深色4件套')
 ai_controller = ai_controller.replace("if(key==='newTop'&&!m.rankingImages?.[key])", "if(key==='newTop'&&!aiRankingHasEvidence(key))")
+# The AI version no longer includes shared competitor positioning or keyword analysis.
+position_start = ai_controller.index('<section class="comp-position ${')
+position_end = ai_controller.index('<div class="comp-workspace">', position_start)
+ai_controller = ai_controller[:position_start] + ai_controller[position_end:]
+ai_controller = ai_controller.replace("+compModule('keywords','关键词及搜索数据',renderCompKeywords(r),r)", '')
+keyword_start = ai_controller.index(" if(!r.keywords.length)fields.push")
+keyword_end = ai_controller.index(' return fields;', keyword_start)
+ai_controller = ai_controller[:keyword_start] + ai_controller[keyword_end:]
+completion_start = ai_controller.index('function compCompletion(r){')
+completion_end = ai_controller.index('\n', completion_start)
+ai_controller = ai_controller[:completion_start] + "function compCompletion(r){const total=11;return `${Math.max(0,total-new Set(compMissing(r).map(e=>e.key)).size)}/${total}`;}" + ai_controller[completion_end:]
+ai_controller = re.sub(r"^ compPositionDefinitions\.forEach\(\(\[key,label\]\).*?\n", '', ai_controller, flags=re.M)
+report_start = ai_controller.index('<section class="report-position">')
+report_end = ai_controller.index('${c.items.length?', report_start)
+ai_controller = ai_controller[:report_start] + ai_controller[report_end:]
+keyword_report_start = ai_controller.index('<h4>关键词及搜索数据</h4>')
+keyword_report_end = ai_controller.index("${reportLongText('核心卖点'", keyword_report_start)
+ai_controller = ai_controller[:keyword_report_start] + ai_controller[keyword_report_end:]
+# Keep saved historical data intact, but stop synchronizing removed positioning fields.
+sync_start = ai_controller.index('function syncCompPositionFromCategory(force=false){')
+sync_end = ai_controller.index('async function syncCompPositionWithConfirmation()', sync_start)
+ai_controller = ai_controller[:sync_start] + 'function syncCompPositionFromCategory(){return false;}\n' + ai_controller[sync_end:]
 cut = ai_controller.rindex('})();')
 ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 (root / 'ai-market.js').write_text(ai_controller, encoding='utf-8')
