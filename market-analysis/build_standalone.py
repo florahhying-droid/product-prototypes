@@ -86,7 +86,7 @@ sync_start = ai_controller.index('function syncCompPositionFromCategory(force=fa
 sync_end = ai_controller.index('async function syncCompPositionWithConfirmation()', sync_start)
 ai_controller = ai_controller[:sync_start] + 'function syncCompPositionFromCategory(){return false;}\n' + ai_controller[sync_end:]
 cut = ai_controller.rindex('})();')
-ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
+ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-import-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 (root / 'ai-market.js').write_text(ai_controller, encoding='utf-8')
 ai_source = (root / 'index.html').read_text(encoding='utf-8').replace('src="market.js"', 'src="ai-market.js"')
 ai_source = ai_source.replace('<script src="ai-market.js"></script>', '<script src="ai-category-data.js"></script><script src="ai-market.js"></script>')

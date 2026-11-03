@@ -504,6 +504,8 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 .ai-ranking-table th:first-child{width:8%}.ai-ranking-table th:nth-child(2){width:31%}.ai-ranking-table.is-compact{min-width:500px}.ai-ranking-table.is-compact th:nth-child(2){width:39%}.ai-ranking-table th,.ai-ranking-table td{font-size:11px;padding:6px 8px;vertical-align:middle}.ai-ranking-product{line-height:1.6}.ai-ranking-product .external-link{display:inline-block;margin-left:0;white-space:nowrap}.ai-ranking-source .ai-data-source{display:block}.ai-ranking-source .ai-data-source span{display:block}.ai-ranking-source .ai-data-note{margin:4px 0}.ai-ranking-more{text-align:right;margin-top:5px}.ai-ranking-more button{font-size:11px}.ai-data-drawer .ai-ranking-table{min-width:930px}.ai-ranking-report>section{margin:14px 0 20px}.ai-ranking-report .ai-ranking-table{min-width:0}.ai-ranking-report .ai-category-shot img{max-height:350px}
 
 /* Local toolbar refinement: a single primary action in the category input row. */
+.ai-import-icon{width:15px;height:15px;flex:none}#aiGetCategory{display:inline-flex;align-items:center;gap:5px}
+.ai-import-dialog{width:min(700px,94vw)}.ai-import-context{font-size:11px;color:#8793a3;margin-bottom:18px;line-height:1.7}.ai-import-field{margin-bottom:16px}.ai-import-field>label{display:block;margin-bottom:8px}.ai-import-upload{display:flex;align-items:center;gap:12px;width:100%;padding:14px;text-align:left;border:1px solid #dfe5eb;border-radius:3px;background:#fff;font:inherit}.ai-import-upload:hover{border-color:var(--teal)}.ai-import-upload>span:nth-child(2){min-width:0;flex:1}.ai-import-upload strong{display:block;overflow-wrap:anywhere;font-weight:400}.ai-import-upload small{display:block;color:#8793a3;margin-top:5px;line-height:1.6}.ai-import-check{color:#15966b;white-space:nowrap}.ai-import-tip{font-size:12px;color:#8793a3;line-height:1.8;margin-bottom:0}.ai-material-kind{font-size:16px;color:#8491a2}.ai-material-kind.excel{color:#15966b}.ai-analysis-materials{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 0 0}.ai-analysis-materials[hidden]{display:none}.ai-material-file{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;font-size:11px}.ai-material-name{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:380px}.ai-material-file .link{font-size:11px}#dimensions .ai-data-footer{justify-content:flex-end}
 .ai-standard-footer{position:static;display:flex;justify-content:flex-end;padding:16px 4px 0;font-size:11px}.ai-standard-footer a{color:#8b97a6;text-decoration:none}.ai-standard-footer a:hover{color:var(--teal);text-decoration:underline}
 .ai-op-summary{margin-bottom:16px}.ai-op-summary-main{display:flex;align-items:center;gap:12px;min-width:0;font-size:14px}.ai-op-summary-main strong,.ai-op-summary-main .pending-profit-result{flex:none}.ai-op-product-name{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ai-op-summary-meta{display:flex;gap:24px;margin-top:10px;color:#8592a3;font-size:12px}.op-detail-dialog .op-sku-result:first-child{margin-top:0}
 .ai-op-result-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid #dfe5eb;border-radius:3px;font-size:12px;line-height:18px}.ai-op-result-tag.pass{color:#15966b;border-color:#b9e5d4;background:#eefaf4}.ai-op-result-tag.fail{color:#d95564;border-color:#f2cbd1;background:#fff2f3}.ai-op-result-icon{display:inline-grid;place-items:center;width:14px;height:14px;border:1px solid currentColor;border-radius:50%;font-size:11px;line-height:1;font-weight:600}.op-detail-dialog .op-profit-details th:nth-child(3){width:120px}.op-detail-dialog .op-profit-details th:last-child,.op-detail-dialog .op-profit-details td:last-child{text-align:right}
@@ -2156,7 +2158,7 @@ document.addEventListener('input',event=>{
 },true);
 document.addEventListener('click',event=>{
  const el=event.target.closest('button');if(!el||readOnly)return;
- if(el.id==='aiGetCategory'){aiRunAll();return;}
+ if(el.id==='aiGetCategory'){if(!el.disabled)aiOpenImportDialog();return;}
  if(el.hasAttribute('data-ai-category')){if(!aiBusy.has('category'))aiRunCategory(el.dataset.aiCategory);return;}
  if(el.hasAttribute('data-ai-get-competitor')){aiRunCompetitor(el.dataset.aiGetCompetitor);return;}
  if(el.hasAttribute('data-category-delete'))aiMarkCategory(el.dataset.categoryDelete.split(':')[0],'image');
@@ -2187,9 +2189,9 @@ function aiCategoryTable(data,compact=false){
 function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>获取日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)}</span>`:''}</div>`;}
 function aiCategoryEvidenceMarkup(i,report=false){
  const state=aiCategoryState(String(i)),data=state.structured;
- if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
- if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请获取AI数据或上传截图。</div>';
- return aiCategoryTable(data,true)+`<div class="ai-data-footer">${aiCategorySource(data)}${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
+ if(!data?.rows?.length&&state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
+ if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请导入类目分析资料后进行AI辅助分析。</div>';
+ return aiCategoryTable(data,true)+`<div class="ai-data-footer">${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
 }
 function aiCategoryCanGenerate(){
  const site=$('#marketSite'),level=$('#marketLevel'),category=$('#marketCategory'),value=category?.value.trim()||'';
@@ -2197,9 +2199,9 @@ function aiCategoryCanGenerate(){
 }
 function aiUpdateCategoryPrimary(){
  const button=$('#aiGetCategory');if(!button)return;
- const busy=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'),generated=ai.categoryGenerated||source.dimensions.some((_,i)=>{const state=ai.category[String(i)];return state?.generatedAt||state?.status==='done'&&state?.attempts>0;});
- button.disabled=readOnly||busy||!aiCategoryCanGenerate();button.hidden=readOnly;button.textContent=aiBusy.has('category')?'AI生成中…':generated?'AI重新生成':'AI生成分析';
- button.title=!aiCategoryCanGenerate()?'请先选择有效的站点、品类等级和调研品类':'';
+ const busy=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running');
+ button.disabled=readOnly||busy||!aiCategoryCanGenerate();button.hidden=readOnly;aiSetMarkup(button,aiImportIcon()+'<span>AI辅助分析</span>');
+ button.title=!aiCategoryCanGenerate()?'请先选择有效的站点、品类等级和调研品类':'';aiRenderMaterials();
 }
 function refreshAiCategoryUI(){
  const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head'),row=$('.category-meta-bottom');
@@ -2214,15 +2216,12 @@ function refreshAiCategoryUI(){
   const key=String(i),card=$('#dim-'+i),header=card?.querySelector('.field-head');if(!card||!header)return;
   const state=i<6?aiCategoryInit(i):aiCategoryState(key);
   card.querySelectorAll(':scope > .ai-evidence,[data-ai-module-status]').forEach(node=>node.remove());
-  if(!header.querySelector('[data-ai-category]'))header.insertAdjacentHTML('beforeend',`<button type="button" class="ai-retry market-write" data-ai-category="${i}">AI重新获取</button>`);
-  const button=header.querySelector('[data-ai-category]');button.disabled=state.status==='running'||aiBusy.has('category');button.hidden=readOnly;
+  header.querySelectorAll('[data-ai-category]').forEach(node=>node.remove());
   const body=card.querySelector('.category-item-body');
   if(i<6){
-   if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span><div class="ai-basis-actions"><button type="button" class="link" data-ai-restore-data="${i}">恢复AI数据</button><button type="button" class="link market-write" data-category-upload="${i}">替换为截图</button></div></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
+   if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
    const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);aiSetMarkup(area,markup);
-   const restore=body.querySelector('[data-ai-restore-data]');restore.hidden=state.evidenceMode!=='screenshot'||!state.structured||readOnly;
-   const upload=body.querySelector('[data-category-upload]');upload.hidden=readOnly;upload.disabled=categoryUploadJobs[i]?.[0]?.status==='uploading';upload.textContent=upload.disabled?'上传中…':state.evidenceMode==='screenshot'?'更换截图':'替换为截图';
-   const job=categoryUploadJobs[i]?.[0],shotStatus=body.querySelector('[data-ai-shot-status]');if(shotStatus){const error=job?.status==='error'?`截图上传失败 <button type="button" class="link" data-category-image-retry="${i}:${job.id}">重试</button>`:'';if(shotStatus.innerHTML!==error)shotStatus.innerHTML=error;}
+
 
   }
   const input=$('#category-conclusion-'+i);if(input){input.disabled=readOnly;input.style.height='136px';}
@@ -2267,9 +2266,9 @@ async function aiRunAll(){
  if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;document.activeElement?.blur();
  if(!aiCategoryCanGenerate()){showToast('请先选择有效的站点、品类等级和调研品类','error');return;}
  const modules=source.dimensions.map((_,i)=>String(i)),scopeKey=aiScopeKey(),decision=await aiCategoryAskOverwrite(modules);if(decision==='cancel'||readOnly||scopeKey!==aiScopeKey()||aiBusy.has('category'))return;
- aiBusy.add('category');aiRefresh();const response=aiService({kind:'category-batch',scope:aiScope(),taskId:'AI-CAT-BATCH-'+(++ai.sequence),modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
+ aiBusy.add('category');aiRefresh();const response=aiService({kind:'category-batch',scope:aiScope(),materials:structuredClone(aiMaterials()),taskId:'AI-CAT-BATCH-'+(++ai.sequence),modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
  await Promise.all(modules.map(key=>aiRunCategory(key,true,response.then(result=>{const module=result.modules?.[key];if(!module||module.error)throw new Error('获取失败');return module;}),decision)));
- aiBusy.delete('category');if(modules.some(key=>aiCategoryState(key).status==='done'))ai.categoryGenerated=true;const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，可单独重新获取`:'类目分析已更新';persist();aiRefresh();
+ aiBusy.delete('category');if(modules.some(key=>aiCategoryState(key).status==='done'))ai.categoryGenerated=true;const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，请通过AI辅助分析重试`:'类目分析已更新';persist();aiRefresh();
 }
 function aiOpenCategoryData(i){
  const data=aiCategoryState(String(i)).structured;if(!data)return;aiCloseCategoryData();const origin=document.activeElement,mask=document.createElement('div');mask.className='ai-data-drawer-mask';mask.id='aiCategoryDataDrawer';mask.innerHTML=`<aside class="ai-data-drawer" role="dialog" aria-modal="true" aria-labelledby="aiDataDrawerTitle"><header><div><h3 id="aiDataDrawerTitle">${esc(source.dimensions[i].title)} · 完整数据</h3><span class="subtle">Amazon US · Refillable Containers · 节点11062781</span></div><button type="button" class="close" data-ai-data-close aria-label="关闭完整数据">×</button></header><div class="ai-data-drawer-body">${aiCategoryTable(data)}${aiCategorySource(data,true)}<p class="ai-data-note">${esc(data.notes||'')}</p>${(data.extra||[]).map(extra=>`<section><h4>${esc(extra.title)}</h4>${aiCategoryTable(extra)}${aiCategorySource(extra)}</section>`).join('')}</div></aside>`;
@@ -2345,6 +2344,77 @@ document.addEventListener('click',event=>{const button=event.target.closest('but
  if(button.dataset.aiRankRestore||button.dataset.aiRankRemove){const key=button.dataset.aiRankRestore||button.dataset.aiRankRemove,state=aiRankingState(key);state.evidenceMode='table';state.imageVersion=(state.imageVersion||0)+1;state.uploadVersion=(state.uploadVersion||0)+1;if(button.dataset.aiRankRemove){state.screenshot=null;state.manual.image=false;m.rankingImages[key]=null;}persist();aiRefresh();}
 });
 renderRankings();persist();
+
+/* Files stay in browser storage; the prototype retains its existing analysis service. */
+function aiImportIcon(){return '<svg class="ai-import-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 6.3L21 12l-6.3 2.7L12 21l-2.7-6.3L3 12l6.3-2.7L12 3Z"/><path d="m20 2 .6 1.4L22 4l-1.4.6L20 6l-.6-1.4L18 4l1.4-.6L20 2Z"/></svg>';}
+function aiMaterials(scope=aiScopeKey()){ai.materials||={};return ai.materials[scope]||={};}
+function aiMaterialStorage(action,id,file){
+ return new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(new Error('文件存储不可用，请检查浏览器设置后重试'));return;}
+  const request=window.indexedDB.open('ac-ai-analysis-materials',1);
+  request.onupgradeneeded=()=>request.result.createObjectStore('files');
+  request.onerror=()=>reject(new Error('无法打开文件存储，请重试'));
+  request.onblocked=()=>reject(new Error('文件存储被其他页面占用，请关闭旧页面后重试'));
+  request.onsuccess=()=>{
+   const db=request.result,tx=db.transaction('files',action==='get'?'readonly':'readwrite'),store=tx.objectStore('files');
+   let value;
+   const operation=action==='put'?store.put(file,id):action==='delete'?store.delete(id):store.get(id);
+   operation.onsuccess=()=>{value=operation.result;};
+   tx.oncomplete=()=>{db.close();resolve(value);};
+   tx.onerror=tx.onabort=()=>{db.close();reject(new Error('文件保存失败，请检查浏览器存储空间后重试'));};
+  };
+ });
+}
+function aiRenderMaterials(){
+ const row=$('.category-meta-bottom');if(!row)return;
+ let area=$('#aiAnalysisMaterials');if(!area){area=document.createElement('div');area.id='aiAnalysisMaterials';area.className='ai-analysis-materials';row.after(area);}
+ const files=aiMaterials(),entries=['excel','pdf'].filter(key=>files[key]);area.hidden=!entries.length;
+ aiSetMarkup(area,entries.length?'<span class="subtle">分析资料</span>'+entries.map(key=>`<span class="ai-material-file"><span class="ai-material-kind ${key}" aria-hidden="true">${key==='excel'?'▦':'▤'}</span><span class="ai-material-name" title="${esc(files[key].name)}">${esc(files[key].name)}</span><button type="button" class="link" data-ai-material-download="${key}">下载</button></span>`).join(''):'');
+ area.querySelectorAll('[data-ai-material-download]').forEach(button=>button.onclick=()=>aiDownloadMaterial(button.dataset.aiMaterialDownload));
+}
+async function aiDownloadMaterial(key){
+ const file=aiMaterials()[key];if(!file)return;
+ try{const blob=await aiMaterialStorage('get',file.id);if(!blob)throw new Error('未找到已上传文件，请重新上传');const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=file.name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+ catch(error){showToast(error.message||'文件下载失败，请重试','error');}
+}
+function aiOpenImportDialog(){
+ if(readOnly||!aiCategoryCanGenerate()||aiBusy.has('category')||$('.ai-import-dialog'))return;
+ const scope=aiScopeKey(),dialog=openDialog('导入类目分析资料',`<div class="ai-import-context">${esc(m.site)} · Amazon${categoryLevelText(m.categoryLevel)} · ${esc(m.category)}</div><div class="ai-import-field"><label>市场数据Excel <span class="required">*</span></label><button type="button" class="ai-import-upload" data-ai-import-pick="excel"><span class="ai-material-kind excel" aria-hidden="true">▦</span><span><strong data-ai-import-name="excel">上传Excel文件</strong><small>主要用于统计数据及分析依据，仅支持 .xlsx、.xls</small></span><span class="ai-import-check" data-ai-import-check="excel" aria-hidden="true"></span></button><input type="file" accept=".xlsx,.xls" data-ai-import-input="excel" hidden></div><div class="ai-import-field"><label>AI文字分析报告 <span class="subtle">（选填）</span></label><button type="button" class="ai-import-upload" data-ai-import-pick="pdf"><span class="ai-material-kind pdf" aria-hidden="true">▤</span><span><strong data-ai-import-name="pdf">上传PDF文件</strong><small>用于补充市场判断、消费者画像、使用场景等，仅支持 .pdf</small></span><span class="ai-import-check" data-ai-import-check="pdf" aria-hidden="true"></span></button><input type="file" accept=".pdf" data-ai-import-input="pdf" hidden></div><p class="ai-import-tip">请确保文件与当前调研品类、站点一致，统计周期及样本范围一致或可明确区分。上传PDF分析报告可补充更多市场信息，使分析更丰富、准确。</p><p class="field-error" data-ai-import-error role="alert"></p>`, '<button type="button" class="btn" data-ai-import-cancel>取消</button><button type="button" class="btn primary" data-ai-import-start>开始分析并填充</button>', 'ai-import-dialog');
+ let uploading=false;
+ const start=dialog.querySelector('[data-ai-import-start]');start.textContent='开始分析并填充';
+ const error=dialog.querySelector('[data-ai-import-error]');
+ function refresh(){
+  const files=aiMaterials(scope);
+  for(const key of ['excel','pdf']){dialog.querySelector(`[data-ai-import-name="${key}"]`).textContent=files[key]?.name||(key==='excel'?'上传Excel文件':'上传PDF文件');dialog.querySelector(`[data-ai-import-check="${key}"]`).textContent=files[key]?'✓':'';dialog.querySelector(`[data-ai-import-pick="${key}"]`).disabled=uploading;}
+  start.disabled=uploading||!files.excel||scope!==aiScopeKey();
+ }
+ for(const key of ['excel','pdf']){
+  const input=dialog.querySelector(`[data-ai-import-input="${key}"]`);
+  dialog.querySelector(`[data-ai-import-pick="${key}"]`).onclick=()=>{input.value='';input.click();};
+  input.onchange=async()=>{
+   const file=input.files?.[0];if(!file||uploading)return;error.textContent='';
+   if(!(key==='excel'?/\.(xlsx|xls)$/i:/\.pdf$/i).test(file.name)){error.textContent=key==='excel'?'请选择Excel文件（.xlsx、.xls）':'请选择PDF文件（.pdf）';input.value='';return;}
+   if(!file.size){error.textContent='文件为空，请重新选择';return;}
+   uploading=true;refresh();dialog.querySelector(`[data-ai-import-check="${key}"]`).textContent='上传中…';
+   const id=scope+'|'+key+'|'+Date.now()+'|'+(++ai.sequence),old=aiMaterials(scope)[key];
+   try{
+    await aiMaterialStorage('put',id,file);
+    if(scope!==aiScopeKey()||readOnly)throw new Error('当前调研口径或权限已变化，请重新导入');
+    aiMaterials(scope)[key]={id,name:file.name,size:file.size,type:file.type};
+    if(!persist()){if(old)aiMaterials(scope)[key]=old;else delete aiMaterials(scope)[key];throw new Error('资料信息保存失败，请重试');}
+    aiRenderMaterials();if(old)aiMaterialStorage('delete',old.id).catch(()=>{});
+   }catch(e){aiMaterialStorage('delete',id).catch(()=>{});error.textContent=e.message||'上传失败，请重试';}
+   finally{uploading=false;if(dialog.isConnected)refresh();}
+  };
+ }
+ dialog.querySelector('[data-ai-import-cancel]').onclick=()=>close(dialog);
+ start.onclick=async()=>{
+  if(uploading||!aiMaterials(scope).excel)return;
+  if(readOnly||scope!==aiScopeKey()||!aiCategoryCanGenerate()){error.textContent='当前调研口径或权限已变化，请关闭后重新打开';return;}
+  close(dialog);await aiRunAll();
+ };
+ refresh();
+}
 
 /* Detail presentation changes are confined to the AI version. */
 const aiOriginalOpDetails=opDetailsHtml;

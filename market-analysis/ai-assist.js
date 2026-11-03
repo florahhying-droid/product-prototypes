@@ -72,7 +72,7 @@ document.addEventListener('input',event=>{
 },true);
 document.addEventListener('click',event=>{
  const el=event.target.closest('button');if(!el||readOnly)return;
- if(el.id==='aiGetCategory'){aiRunAll();return;}
+ if(el.id==='aiGetCategory'){if(!el.disabled)aiOpenImportDialog();return;}
  if(el.hasAttribute('data-ai-category')){if(!aiBusy.has('category'))aiRunCategory(el.dataset.aiCategory);return;}
  if(el.hasAttribute('data-ai-get-competitor')){aiRunCompetitor(el.dataset.aiGetCompetitor);return;}
  if(el.hasAttribute('data-category-delete'))aiMarkCategory(el.dataset.categoryDelete.split(':')[0],'image');

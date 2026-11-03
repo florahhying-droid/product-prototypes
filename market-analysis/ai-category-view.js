@@ -18,9 +18,9 @@ function aiCategoryTable(data,compact=false){
 function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>获取日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)}</span>`:''}</div>`;}
 function aiCategoryEvidenceMarkup(i,report=false){
  const state=aiCategoryState(String(i)),data=state.structured;
- if(state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
- if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请获取AI数据或上传截图。</div>';
- return aiCategoryTable(data,true)+`<div class="ai-data-footer">${aiCategorySource(data)}${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
+ if(!data?.rows?.length&&state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
+ if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请导入类目分析资料后进行AI辅助分析。</div>';
+ return aiCategoryTable(data,true)+`<div class="ai-data-footer">${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
 }
 function aiCategoryCanGenerate(){
  const site=$('#marketSite'),level=$('#marketLevel'),category=$('#marketCategory'),value=category?.value.trim()||'';
@@ -28,9 +28,9 @@ function aiCategoryCanGenerate(){
 }
 function aiUpdateCategoryPrimary(){
  const button=$('#aiGetCategory');if(!button)return;
- const busy=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'),generated=ai.categoryGenerated||source.dimensions.some((_,i)=>{const state=ai.category[String(i)];return state?.generatedAt||state?.status==='done'&&state?.attempts>0;});
- button.disabled=readOnly||busy||!aiCategoryCanGenerate();button.hidden=readOnly;button.textContent=aiBusy.has('category')?'AI生成中…':generated?'AI重新生成':'AI生成分析';
- button.title=!aiCategoryCanGenerate()?'请先选择有效的站点、品类等级和调研品类':'';
+ const busy=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running');
+ button.disabled=readOnly||busy||!aiCategoryCanGenerate();button.hidden=readOnly;aiSetMarkup(button,aiImportIcon()+'<span>AI辅助分析</span>');
+ button.title=!aiCategoryCanGenerate()?'请先选择有效的站点、品类等级和调研品类':'';aiRenderMaterials();
 }
 function refreshAiCategoryUI(){
  const head=$('#categoryAnalysisBlock > .sub-head')||$('#marketSection > .sub-head'),row=$('.category-meta-bottom');
@@ -45,15 +45,12 @@ function refreshAiCategoryUI(){
   const key=String(i),card=$('#dim-'+i),header=card?.querySelector('.field-head');if(!card||!header)return;
   const state=i<6?aiCategoryInit(i):aiCategoryState(key);
   card.querySelectorAll(':scope > .ai-evidence,[data-ai-module-status]').forEach(node=>node.remove());
-  if(!header.querySelector('[data-ai-category]'))header.insertAdjacentHTML('beforeend',`<button type="button" class="ai-retry market-write" data-ai-category="${i}">AI重新获取</button>`);
-  const button=header.querySelector('[data-ai-category]');button.disabled=state.status==='running'||aiBusy.has('category');button.hidden=readOnly;
+  header.querySelectorAll('[data-ai-category]').forEach(node=>node.remove());
   const body=card.querySelector('.category-item-body');
   if(i<6){
-   if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span><div class="ai-basis-actions"><button type="button" class="link" data-ai-restore-data="${i}">恢复AI数据</button><button type="button" class="link market-write" data-category-upload="${i}">替换为截图</button></div></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
+   if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
    const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);aiSetMarkup(area,markup);
-   const restore=body.querySelector('[data-ai-restore-data]');restore.hidden=state.evidenceMode!=='screenshot'||!state.structured||readOnly;
-   const upload=body.querySelector('[data-category-upload]');upload.hidden=readOnly;upload.disabled=categoryUploadJobs[i]?.[0]?.status==='uploading';upload.textContent=upload.disabled?'上传中…':state.evidenceMode==='screenshot'?'更换截图':'替换为截图';
-   const job=categoryUploadJobs[i]?.[0],shotStatus=body.querySelector('[data-ai-shot-status]');if(shotStatus){const error=job?.status==='error'?`截图上传失败 <button type="button" class="link" data-category-image-retry="${i}:${job.id}">重试</button>`:'';if(shotStatus.innerHTML!==error)shotStatus.innerHTML=error;}
+
 
   }
   const input=$('#category-conclusion-'+i);if(input){input.disabled=readOnly;input.style.height='136px';}
@@ -98,9 +95,9 @@ async function aiRunAll(){
  if(readOnly||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running'))return;document.activeElement?.blur();
  if(!aiCategoryCanGenerate()){showToast('请先选择有效的站点、品类等级和调研品类','error');return;}
  const modules=source.dimensions.map((_,i)=>String(i)),scopeKey=aiScopeKey(),decision=await aiCategoryAskOverwrite(modules);if(decision==='cancel'||readOnly||scopeKey!==aiScopeKey()||aiBusy.has('category'))return;
- aiBusy.add('category');aiRefresh();const response=aiService({kind:'category-batch',scope:aiScope(),taskId:'AI-CAT-BATCH-'+(++ai.sequence),modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
+ aiBusy.add('category');aiRefresh();const response=aiService({kind:'category-batch',scope:aiScope(),materials:structuredClone(aiMaterials()),taskId:'AI-CAT-BATCH-'+(++ai.sequence),modules,attempts:Object.fromEntries(modules.map(key=>[key,aiCategoryState(key).attempts+1]))});
  await Promise.all(modules.map(key=>aiRunCategory(key,true,response.then(result=>{const module=result.modules?.[key];if(!module||module.error)throw new Error('获取失败');return module;}),decision)));
- aiBusy.delete('category');if(modules.some(key=>aiCategoryState(key).status==='done'))ai.categoryGenerated=true;const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，可单独重新获取`:'类目分析已更新';persist();aiRefresh();
+ aiBusy.delete('category');if(modules.some(key=>aiCategoryState(key).status==='done'))ai.categoryGenerated=true;const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，请通过AI辅助分析重试`:'类目分析已更新';persist();aiRefresh();
 }
 function aiOpenCategoryData(i){
  const data=aiCategoryState(String(i)).structured;if(!data)return;aiCloseCategoryData();const origin=document.activeElement,mask=document.createElement('div');mask.className='ai-data-drawer-mask';mask.id='aiCategoryDataDrawer';mask.innerHTML=`<aside class="ai-data-drawer" role="dialog" aria-modal="true" aria-labelledby="aiDataDrawerTitle"><header><div><h3 id="aiDataDrawerTitle">${esc(source.dimensions[i].title)} · 完整数据</h3><span class="subtle">Amazon US · Refillable Containers · 节点11062781</span></div><button type="button" class="close" data-ai-data-close aria-label="关闭完整数据">×</button></header><div class="ai-data-drawer-body">${aiCategoryTable(data)}${aiCategorySource(data,true)}<p class="ai-data-note">${esc(data.notes||'')}</p>${(data.extra||[]).map(extra=>`<section><h4>${esc(extra.title)}</h4>${aiCategoryTable(extra)}${aiCategorySource(extra)}</section>`).join('')}</div></aside>`;
