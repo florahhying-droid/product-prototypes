@@ -9,7 +9,8 @@ opDetailsHtml=function(product,skuId=''){
   const timestamps=(run.results||[]).map(result=>result.calculatedAt).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a));
   const title=run.request?.spuTitle||product.title,time=timestamps[0];
   section.querySelector('h3')?.remove();
-  section.insertAdjacentHTML('afterbegin',`<header class="ai-op-summary"><div class="ai-op-summary-main"><strong>${esc(product.spu)}</strong><span class="ai-op-product-name">${esc(title)}</span><span class="pending-profit-result ${assessment.state}">${esc(assessment.label)}</span></div><div class="ai-op-summary-meta"><span>测算季节：${esc(run.request?.saleSeason||'旺季')}</span><span>测算时间：${time?opDateText(time):'待测算'}</span></div></header>`);
+  section.querySelectorAll('.op-profit-details tr').forEach(row=>row.children[2]?.remove());
+  section.insertAdjacentHTML('afterbegin',`<header class="ai-op-summary"><div class="ai-op-summary-main"><strong>${esc(product.spu)}</strong><span class="ai-op-product-name">${esc(title)}</span><span class="pending-profit-result ai-op-result-tag ${assessment.state}">${['pass','fail'].includes(assessment.state)?`<span class="ai-op-result-icon" aria-hidden="true">${assessment.state==='pass'?'✓':'×'}</span>`:''}${esc(assessment.label)}</span></div><div class="ai-op-summary-meta"><span>测算季节：${esc(run.request?.saleSeason||'旺季')}（默认）</span><span>测算时间：${time?opDateText(time):'待测算'}</span></div></header>`);
  });
  return content.innerHTML;
 };

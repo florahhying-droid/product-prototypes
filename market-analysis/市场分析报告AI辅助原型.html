@@ -506,6 +506,7 @@ body{padding-bottom:0}.main{padding-bottom:24px}.demo-controls{display:none}.mar
 /* Local toolbar refinement: a single primary action in the category input row. */
 .ai-standard-footer{position:static;display:flex;justify-content:flex-end;padding:16px 4px 0;font-size:11px}.ai-standard-footer a{color:#8b97a6;text-decoration:none}.ai-standard-footer a:hover{color:var(--teal);text-decoration:underline}
 .ai-op-summary{margin-bottom:16px}.ai-op-summary-main{display:flex;align-items:center;gap:12px;min-width:0;font-size:14px}.ai-op-summary-main strong,.ai-op-summary-main .pending-profit-result{flex:none}.ai-op-product-name{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ai-op-summary-meta{display:flex;gap:24px;margin-top:10px;color:#8592a3;font-size:12px}.op-detail-dialog .op-sku-result:first-child{margin-top:0}
+.ai-op-result-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid #dfe5eb;border-radius:3px;font-size:12px;line-height:18px}.ai-op-result-tag.pass{color:#15966b;border-color:#b9e5d4;background:#eefaf4}.ai-op-result-tag.fail{color:#d95564;border-color:#f2cbd1;background:#fff2f3}.ai-op-result-icon{display:inline-grid;place-items:center;width:14px;height:14px;border:1px solid currentColor;border-radius:50%;font-size:11px;line-height:1;font-weight:600}.op-detail-dialog .op-profit-details th:nth-child(3){width:120px}.op-detail-dialog .op-profit-details th:last-child,.op-detail-dialog .op-profit-details td:last-child{text-align:right}
 .save-mark:not([data-state]),.category-save-status[data-state="saved"]{display:none!important}
 .ai-pending-readonly input:disabled,.ai-pending-readonly select:disabled,.ai-pending-readonly textarea:disabled{color:var(--text,#34435b);opacity:1;-webkit-text-fill-color:currentColor;background:#f7f9fb}
 .ai-pending-readonly .pending-upload-tile:disabled{opacity:1;cursor:default}
@@ -2355,7 +2356,8 @@ opDetailsHtml=function(product,skuId=''){
   const timestamps=(run.results||[]).map(result=>result.calculatedAt).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a));
   const title=run.request?.spuTitle||product.title,time=timestamps[0];
   section.querySelector('h3')?.remove();
-  section.insertAdjacentHTML('afterbegin',`<header class="ai-op-summary"><div class="ai-op-summary-main"><strong>${esc(product.spu)}</strong><span class="ai-op-product-name">${esc(title)}</span><span class="pending-profit-result ${assessment.state}">${esc(assessment.label)}</span></div><div class="ai-op-summary-meta"><span>测算季节：${esc(run.request?.saleSeason||'旺季')}</span><span>测算时间：${time?opDateText(time):'待测算'}</span></div></header>`);
+  section.querySelectorAll('.op-profit-details tr').forEach(row=>row.children[2]?.remove());
+  section.insertAdjacentHTML('afterbegin',`<header class="ai-op-summary"><div class="ai-op-summary-main"><strong>${esc(product.spu)}</strong><span class="ai-op-product-name">${esc(title)}</span><span class="pending-profit-result ai-op-result-tag ${assessment.state}">${['pass','fail'].includes(assessment.state)?`<span class="ai-op-result-icon" aria-hidden="true">${assessment.state==='pass'?'✓':'×'}</span>`:''}${esc(assessment.label)}</span></div><div class="ai-op-summary-meta"><span>测算季节：${esc(run.request?.saleSeason||'旺季')}（默认）</span><span>测算时间：${time?opDateText(time):'待测算'}</span></div></header>`);
  });
  return content.innerHTML;
 };
