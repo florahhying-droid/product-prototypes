@@ -1,4 +1,18 @@
 /* Detail presentation changes are confined to the AI version. */
+const aiOriginalOpDetails=opDetailsHtml;
+opDetailsHtml=function(product,skuId=''){
+ const content=document.createElement('div');content.innerHTML=aiOriginalOpDetails(product,skuId);
+ content.querySelectorAll('.op-plan-summary,.op-rule-note,.op-example-note').forEach(node=>node.remove());
+ const runs=(product.opCalculation?.runs||[]).filter(run=>!skuId||run.sku===skuId);
+ content.querySelectorAll('.op-sku-result').forEach((section,index)=>{
+  const run=runs[index],sku=product.skus.find(row=>row.sku===run.sku),assessment=opAssessment(product,sku);
+  const timestamps=(run.results||[]).map(result=>result.calculatedAt).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a));
+  const title=run.request?.spuTitle||product.title,time=timestamps[0];
+  section.querySelector('h3')?.remove();
+  section.insertAdjacentHTML('afterbegin',`<header class="ai-op-summary"><div class="ai-op-summary-main"><strong>${esc(product.spu)}</strong><span class="ai-op-product-name">${esc(title)}</span><span class="pending-profit-result ${assessment.state}">${esc(assessment.label)}</span></div><div class="ai-op-summary-meta"><span>测算季节：${esc(run.request?.saleSeason||'旺季')}</span><span>测算时间：${time?opDateText(time):'待测算'}</span></div></header>`);
+ });
+ return content.innerHTML;
+};
 // Keep the archived standard version reachable without a floating switch entry.
 const aiStandardLink=$('.demo-suite-switch a[href="市场分析报告交互原型.html"]');
 if(aiStandardLink){const footer=document.createElement('footer');footer.className='ai-standard-footer';footer.setAttribute('aria-label','历史版本');aiStandardLink.textContent='标准版';if(/^https?:$/.test(window.location.protocol))aiStandardLink.href='index.html';footer.append(aiStandardLink);$('.main').append(footer);}

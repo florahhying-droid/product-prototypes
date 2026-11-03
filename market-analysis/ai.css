@@ -35,6 +35,7 @@
 
 /* Local toolbar refinement: a single primary action in the category input row. */
 .ai-standard-footer{position:static;display:flex;justify-content:flex-end;padding:16px 4px 0;font-size:11px}.ai-standard-footer a{color:#8b97a6;text-decoration:none}.ai-standard-footer a:hover{color:var(--teal);text-decoration:underline}
+.ai-op-summary{margin-bottom:16px}.ai-op-summary-main{display:flex;align-items:center;gap:12px;min-width:0;font-size:14px}.ai-op-summary-main strong,.ai-op-summary-main .pending-profit-result{flex:none}.ai-op-product-name{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ai-op-summary-meta{display:flex;gap:24px;margin-top:10px;color:#8592a3;font-size:12px}.op-detail-dialog .op-sku-result:first-child{margin-top:0}
 .save-mark:not([data-state]),.category-save-status[data-state="saved"]{display:none!important}
 .ai-pending-readonly input:disabled,.ai-pending-readonly select:disabled,.ai-pending-readonly textarea:disabled{color:var(--text,#34435b);opacity:1;-webkit-text-fill-color:currentColor;background:#f7f9fb}
 .ai-pending-readonly .pending-upload-tile:disabled{opacity:1;cursor:default}
