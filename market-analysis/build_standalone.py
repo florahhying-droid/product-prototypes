@@ -62,7 +62,7 @@ ai_controller = ai_controller.replace('<p class="subtle op-example-note">利润�
 ai_controller = ai_controller.replace('利润通过示例', '硅胶旅行分装瓶 · 浅色4件套').replace('利润未通过示例', '硅胶旅行分装瓶 · 深色4件套')
 ai_controller = ai_controller.replace("if(key==='newTop'&&!m.rankingImages?.[key])", "if(key==='newTop'&&!aiRankingHasEvidence(key))")
 cut = ai_controller.rindex('})();')
-ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
+ai_controller = ai_controller[:cut] + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 (root / 'ai-market.js').write_text(ai_controller, encoding='utf-8')
 ai_source = (root / 'index.html').read_text(encoding='utf-8').replace('src="market.js"', 'src="ai-market.js"')
 ai_source = ai_source.replace('<script src="ai-market.js"></script>', '<script src="ai-category-data.js"></script><script src="ai-market.js"></script>')

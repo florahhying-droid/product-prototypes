@@ -36,7 +36,7 @@ function refreshAiCategoryUI(){
  if(row&&!$('#aiGetCategory'))row.insertAdjacentHTML('beforeend','<div class="ai-category-tools" id="aiCategoryTools"><button type="button" class="btn primary ai-action market-write" id="aiGetCategory">AI生成分析</button></div>');
  if(row&&$('#aiCategoryTools')?.parentElement!==row)row.append($('#aiCategoryTools'));
  $('#aiCategoryStatus')?.remove();$('#categoryProgress')?.remove();
- const toggle=$('#toggleCategoryItems');if(head&&toggle){toggle.classList.remove('btn');toggle.classList.add('link','ai-collapse-text');const title=head.querySelector('h3');if(title?.nextElementSibling!==toggle)title?.after(toggle);}
+ $('#toggleCategoryItems')?.remove();
  const tools=head?.querySelector('.category-head-tools');if(tools&&!tools.children.length)tools.remove();
  aiUpdateCategoryPrimary();
  $('#categoryRankings')?.querySelectorAll('.ai-evidence,[data-ai-module-status],[data-ai-category]').forEach(node=>node.remove());
