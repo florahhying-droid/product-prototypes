@@ -72,7 +72,6 @@ function aiCategoryAskOverwrite(keys){
  });
 }
 async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
- if(['newTop','monthTop'].includes(key))return aiRunRanking(key,batch,batchResult,decision);
  if(!/^\d$/.test(key)||+key>7||readOnly)return;const state=aiCategoryState(key);if(state.status==='running')return;
  document.activeElement?.blur();if(!decision)decision=await aiCategoryAskOverwrite([key]);if(decision==='cancel'||readOnly||state.status==='running')return;
  const scopeKey=aiScopeKey(),scope=aiScope();if(!scope.site||!scope.level||!scope.category){showToast('请先选择站点、品类等级和调研品类','error');return;}
@@ -105,7 +104,7 @@ function aiOpenCategoryData(i){
 }
 function aiCloseCategoryData(){const node=$('#aiCategoryDataDrawer');if(node){document.body.style.overflow=node._overflow||'';node.remove();if(node._origin?.isConnected)node._origin.focus();}}
 const aiCategoryOriginalStatus=categoryStatusLabel;categoryStatusLabel=function(i){const state=aiCategoryState(String(i));if(state.status==='running')return 'AI获取中…';if(state.status==='error')return 'AI获取失败';if(state.status==='interrupted')return state.message||'获取已中断';if(i>=6)return aiCategoryOriginalStatus(i);if(categorySaveStates[i]==='saving')return '保存中…';if(categorySaveStates[i]==='dirty')return '未保存';if(categorySaveStates[i]==='error')return '保存失败 · 重试';if(!$('#category-conclusion-'+i)?.value.trim())return '未填写';return aiCategoryHasEvidence(i)?'✓ 已保存':'待获取依据';};
-refreshCategoryControls=function(){const cards=[...document.querySelectorAll('#dimensions > .category-analysis-item')],collapsed=cards.filter(card=>card.classList.contains('module-collapsed')).length;const toggle=$('#toggleCategoryItems');if(toggle)toggle.textContent=$('#categoryAnalysisBlock')?.classList.contains('module-collapsed')||collapsed===cards.length&&$('#categoryRankings').classList.contains('is-collapsed')?'全部展开':'全部收起';$('#categoryProgress')?.remove();aiUpdateCategoryPrimary();};
+refreshCategoryControls=function(){$('#toggleCategoryItems')?.remove();$('#categoryProgress')?.remove();aiUpdateCategoryPrimary();};
 sizeCategoryText=function(){$$('#dimensions .category-conclusion').forEach(input=>input.style.height='136px');};
 const aiCategoryOriginalGallery=renderCategoryGallery;renderCategoryGallery=function(i){aiCategoryOriginalGallery(i);if(i<6)refreshAiCategoryUI();};
 uploadCategoryImage=async function(i,job,retry=false){if(readOnly)return;aiMarkCategory(String(i),'image');const state=aiCategoryState(String(i));await aiOriginalUpload(i,job,retry);if(!job.cancelled&&!readOnly&&job.status!=='error'&&dimensionImages[i]?.[0]?.src===job.src){state.screenshot=structuredClone(dimensionImages[i][0]);state.evidenceMode='screenshot';persist();}refreshAiCategoryUI();};

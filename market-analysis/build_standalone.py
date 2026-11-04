@@ -62,7 +62,8 @@ ai_controller = ai_controller.replace("if(i<6&&!dimensionImages[i]?.length)", "i
 ai_controller = ai_controller.replace("'请上传'+source.dimensions[i].title+'分析图片'", "'请获取'+source.dimensions[i].title+'AI数据或上传截图'")
 ai_controller = ai_controller.replace('<p class="subtle op-example-note">利润率为原型演示数据。</p>', '')
 ai_controller = ai_controller.replace('利润通过示例', '硅胶旅行分装瓶 · 浅色4件套').replace('利润未通过示例', '硅胶旅行分装瓶 · 深色4件套')
-ai_controller = ai_controller.replace("if(key==='newTop'&&!m.rankingImages?.[key])", "if(key==='newTop'&&!aiRankingHasEvidence(key))")
+ai_controller = ai_controller.replace("const rankingDefinitions=[['newTop','新品TOP10'],['monthTop','小类近30天TOP']];", "const rankingDefinitions=[];")
+ai_controller = ai_controller.replace("!m.rankingImages?.newTop||dimensionImages.slice(0,6)", "dimensionImages.slice(0,6)")
 # The AI version no longer includes shared competitor positioning or keyword analysis.
 position_start = ai_controller.index('<section class="comp-position ${')
 position_end = ai_controller.index('<div class="comp-workspace">', position_start)
