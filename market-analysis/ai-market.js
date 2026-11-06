@@ -132,9 +132,9 @@ function fieldControl(asin,d){const [k,label,,type]=d;const required=k==='AB';co
 // Competitor analysis uses task-local snapshots; reference refreshes never overwrite edits.
 const compFieldDefinitions=[
  ['name','产品名称','text'],['date','上架时间','date'],['rating','市场评分','number'],
- ['reviews','Review数量','number'],['price','竞品售价（USD）','number'],['sales','近30天销量','text'],
- ['bsr','BSR小类排名','text'],['specs','产品规格 / 尺寸','textarea'],
- ['selling','核心卖点','textarea'],['negative','核心差评点','textarea'],['direction','差异化开发方向','textarea']
+ ['reviews','Review数量','number'],['price','竞品售价（USD）','number'],['sales','近30天销量','number'],
+ ['bsr','BSR小类排名','text'],['specs','产品规格 / 尺寸','text'],
+ ['targetUsers','目标用户','textarea'],['userPainPoints','用户痛点','textarea'],['usageScenarios','使用场景','textarea'],['negative','核心差评点','textarea'],['direction','差异化开发方向','textarea']
 ];
 const compPositionPlaceholders={season:'请填写具体周期/时段（如圣诞节：11月-12月，旺季12月前）',scene:'请填写核心消费场景',audience:'请填写目标客群（如北美家庭/性别/职业身份等）'};
 const compPositionDefinitions=[['season','节日周期/流量时段',1],['scene','核心消费场景',7],['audience','目标客群',6]];
@@ -150,7 +150,7 @@ function makeCompRecord(asin,origin='reference'){
  const words=String(d.H||s?.H||'').split(/\n/).map(w=>w.replace(/^\s*\d+[.、]\s*/,'').trim()).filter(Boolean);
  return {asin,origin,name:r?.title||s?.F||'',english:s?titles[source.competitors.indexOf(s)]:'',
   image:r?.img?'assets/'+r.img:s?.img?'assets/'+s.img:'',systemImage:!!(r?.img||s?.img),date:clean(r?.date),rating:clean(r?.rating),reviews:clean(r?.reviews),price:clean(r?.price),sales:clean(r?.sales),
-  bsr:clean(d.P||s?.P),specs:clean(d.O||s?.O),selling:plainCompText(d.N||s?.N),negative:plainCompText(d.T||s?.T),direction:plainCompText(d.AB||s?.AB),remark:plainCompText(d.AF||s?.AF),
+  bsr:clean(d.P||s?.P),specs:clean(d.O||s?.O),selling:plainCompText(d.N||s?.N),targetUsers:'',userPainPoints:'',usageScenarios:'',negative:plainCompText(d.T||s?.T),direction:plainCompText(d.AB||s?.AB),remark:plainCompText(d.AF||s?.AF),
   keywords:(words.length?words.slice(0,3):['']).map((word,i)=>({word,count:i?'5000以上':clean(d.R||s?.R),volume:i?'3800+':clean(d.S||s?.S)})),
   feedback:s?.feedback?[{src:'assets/'+s.feedback,alt:'用户反馈图片'}]:[]};
 }
@@ -166,7 +166,7 @@ async function syncCompPositionWithConfirmation(){
 function ensureCompetitorState(){
  if(!m.competitorAnalysis)m.competitorAnalysis={items:(m.selected||[]).map(a=>makeCompRecord(a)),active:m.selected?.[0]||'',position:Object.fromEntries(compPositionDefinitions.map(([key,,dim])=>[key,plainCompText(m.dims[dim])]))};
  const c=m.competitorAnalysis;syncCompPositionFromCategory();m.selected=c.items.map(r=>r.asin);
- c.items.forEach(r=>{if(!r.origin)r.origin=refs.some(ref=>ref.asin===r.asin)?'reference':'manual';});
+ c.items.forEach(r=>{for(const key of ['targetUsers','userPainPoints','usageScenarios'])r[key]??='';if(!r.origin)r.origin=refs.some(ref=>ref.asin===r.asin)?'reference':'manual';});
  if(!c.items.some(r=>r.asin===c.active))c.active=c.items[0]?.asin||'';
  return c;
 }
@@ -191,13 +191,13 @@ function refreshCompScope(){
 }
 function compMissing(r){
  const fields=compFieldDefinitions.filter(([k])=>!String(r[k]??'').trim()).map(([k,label])=>({key:k,message:'请填写'+label}));
- if(r.rating!==''&&(!Number.isFinite(+r.rating)||+r.rating<0||+r.rating>5))fields.push({key:'rating',message:'市场评分应为0～5之间的数字'});
+ if(r.rating!==''&&(!/^\d+(?:\.\d)?$/.test(String(r.rating))||+r.rating>5))fields.push({key:'rating',message:'市场评分应为0～5之间的非负数字，最多一位小数'});
  if(r.reviews!==''&&(!/^\d+$/.test(String(r.reviews))))fields.push({key:'reviews',message:'Review数量应为非负整数'});
- if(r.price!==''&&(!Number.isFinite(+r.price)||+r.price<0))fields.push({key:'price',message:'请输入有效的非负售价'});
+ if(r.price!==''&&!/^\d+(?:\.\d{1,2})?$/.test(String(r.price)))fields.push({key:'price',message:'售价应为非负数字，最多两位小数'});if(r.sales!==''&&!/^\d+$/.test(String(r.sales)))fields.push({key:'sales',message:'近30天销量应为非负整数'});
  if(r.specs&&!/((?:^|[^a-z])(?:cm|mm|m|in|inch|inches|ft|oz|ounces|lb|lbs|pounds|g|kg|ml|l)\b|厘米|毫米|英寸|英尺|克|千克|毫升|磅|盎司|升)/i.test(r.specs))fields.push({key:'specs',message:'产品规格 / 尺寸需注明单位'});
  return fields;
 }
-function compCompletion(r){const total=11;return `${Math.max(0,total-new Set(compMissing(r).map(e=>e.key)).size)}/${total}`;}
+function compCompletion(r){const total=13;return `${Math.max(0,total-new Set(compMissing(r).map(e=>e.key)).size)}/${total}`;}
 function compStatusHtml(){return '';}
 function updateCompStatus(){}
 function saveComp(group){
@@ -215,7 +215,7 @@ function renderCompList(){
 function compGroupProgress(key,r){
  const c=ensureCompetitorState();let total,filled;
  if(key==='position'){total=3;filled=compPositionDefinitions.filter(([k])=>c.position[k]?.trim()).length;}
- else{const fields={base:['name','date','rating','reviews','price','sales','bsr','specs'],feedback:['selling','negative'],advice:['direction']};
+ else{const fields={base:['name','date','rating','reviews','price','sales','bsr','specs'],feedback:['targetUsers','userPainPoints','usageScenarios','negative'],advice:['direction']};
   if(key==='keywords'){total=3;filled=Math.max(0,...r.keywords.map(row=>['word','count','volume'].filter(k=>String(row[k]||'').trim()).length));}
   else{const keys=fields[key]||[];const missing=new Set(compMissing(r).map(e=>e.key));total=keys.length;filled=keys.filter(k=>!missing.has(k)).length;}
  }
@@ -226,8 +226,8 @@ function refreshCompProgress(){const c=ensureCompetitorState(),r=c.items.find(r=
 const compDisplayLabels={specs:'产品规格/尺寸（注明单位）',selling:'核心卖点（功能/场景/设计）',negative:'核心差评点（高频问题）',direction:'差异化开发方向（设计/功能/组合）'};
 function compControl(r,key,label,type='text',optional=false){
  label=compDisplayLabels[key]||label;
- const attrs=`${type==='date'?`class="${r[key]?'':'is-empty-date'}"`:''} data-cfield="${key}" data-comp-group="${key==='selling'||key==='negative'?'feedback':key==='direction'||key==='remark'?'advice':'base'}-${r.asin}" aria-label="${esc(label)}" ${optional?'':'aria-required="true"'} ${readOnly?'disabled':''}`;
- return `<div class="comp-form-field ${type==='textarea'?'comp-field-wide':''}" id="cf-${key}"><label for="ci-${key}">${label}${optional?'':' <span class="required">*</span>'}</label><div class="comp-control">${type==='textarea'?`<textarea id="ci-${key}" ${attrs}>${esc(r[key])}</textarea>`:`<input id="ci-${key}" type="${type}" ${attrs} value="${esc(r[key])}" ${type==='number'?`min="0" ${key==='rating'?'max="5" step="0.1"':key==='reviews'?'step="1"':'step="0.01"'}`:''}>`}</div></div>`;
+ const attrs=`${type==='date'?`class="${r[key]?'':'is-empty-date'}"`:''} data-cfield="${key}" data-comp-group="${['targetUsers','userPainPoints','usageScenarios','negative'].includes(key)?'feedback':key==='direction'||key==='remark'?'advice':'base'}-${r.asin}" aria-label="${esc(label)}" ${optional?'':'aria-required="true"'} ${readOnly?'disabled':''}`;
+ return `<div class="comp-form-field ${type==='textarea'?'comp-field-wide':''}" id="cf-${key}"><label for="ci-${key}">${label}${optional?'':' <span class="required">*</span>'}</label><div class="comp-control">${type==='textarea'?`<textarea id="ci-${key}" ${attrs}>${esc(r[key])}</textarea>`:`<input id="ci-${key}" type="${type}" ${attrs} value="${esc(r[key])}" ${type==='number'?`min="0" ${key==='rating'?'max="5" step="0.1"':['reviews','sales'].includes(key)?'step="1"':'step="0.01"'}`:''}>`}</div></div>`;
 }
 function compModule(key,title,body,r){const group=key+'-'+r.asin;return `<section class="comp-detail-module ${compFolded.has(group)?'is-collapsed':''}" data-comp-module="${group}"><div class="comp-module-head"><button type="button" class="comp-module-toggle" data-comp-fold="${group}" aria-expanded="${!compFolded.has(group)}"><span class="comp-chevron">›</span>${title}</button>${compProgressHtml(key,r)}</div><div class="comp-module-body">${body}</div></section>`;}
 function renderCompKeywords(r){return `<div id="cf-keywords"><table class="comp-keyword-table"><thead><tr><th>核心关键词（英文） <span class="required">*</span></th><th>搜索竞品数量（核心词下） <span class="required">*</span></th><th>核心关键词搜索量（月） <span class="required">*</span></th><th>操作</th></tr></thead><tbody>${r.keywords.map((row,i)=>`<tr>${['word','count','volume'].map(k=>`<td id="cf-kw-${i}-${k}"><input data-comp-kw="${i}:${k}" data-comp-group="keywords-${r.asin}" value="${esc(row[k])}" aria-label="${{word:'核心关键词',count:'搜索竞品数量（核心词下）',volume:'核心关键词搜索量（月）'}[k]}" aria-required="true" ${readOnly?'disabled':''}></td>`).join('')}<td><button class="link danger market-write" data-comp-keyword-delete="${i}" ${readOnly?'hidden':''}>删除</button></td></tr>`).join('')}</tbody></table><button type="button" class="btn primary market-write" data-comp-keyword-add ${readOnly?'hidden':''}>＋ 添加关键词</button></div>`;}
@@ -235,9 +235,9 @@ function renderCompDetail(){
  const c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active),target=$('#compDetail');if(!target)return;
  if(!r){target.innerHTML='<div class="comp-detail-empty">请选择或添加竞品</div>';refreshCompFoldControl();return;}
  const overview=`<div class="comp-product-overview"><div class="comp-overview-image">${r.image?`<img loading="lazy" decoding="async" src="${esc(compImage(r.image))}" alt="${esc(r.name)}">${!r.systemImage?`<button type="button" class="link market-write" data-comp-product-upload ${readOnly?'hidden':''}>重新上传</button>`:''}`:readOnly?'<span>暂无图片</span>':`<button type="button" class="comp-product-empty-upload market-write" data-comp-product-upload aria-label="上传商品图片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 16 5-5 5 5 4-4 4 4M15 7h4M17 5v4"/></svg><span>上传图片</span></button>`}</div><div class="comp-overview-copy">${compControl(r,'name','产品名称')}<div class="comp-original-title">英文名：${r.english?esc(r.english):'—'}</div><div class="comp-original-title comp-category-path">品类：${esc(compCategoryPath(r))}</div>${compMismatchHtml(r)}</div></div>`;
- const base=overview+`<div class="comp-form-grid">${['date','rating','reviews','price','sales','bsr'].map(key=>compFieldDefinitions.find(d=>d[0]===key)).map(([k,l,t])=>compControl(r,k,l,t)).join('')}${compControl(r,'specs','产品规格 / 尺寸','textarea')}</div>`;
- const feedback=compControl(r,'selling','核心卖点','textarea')+`<div class="comp-feedback-group">${compControl(r,'negative','核心差评点','textarea').replace('</textarea></div></div>','</textarea>')}<div class="comp-feedback-images"><div class="comp-feedback-tools"><span>用户反馈图片（最多3张）</span><button type="button" class="btn primary market-write" data-comp-feedback-upload ${readOnly?'hidden':''} ${r.feedback.length>=3?'disabled':''}>上传图片</button></div><div class="comp-feedback-thumbs">${r.feedback.map((img,i)=>`<div class="comp-feedback-thumb"><img loading="lazy" decoding="async" src="${esc(compImage(img.src))}" alt="用户反馈图片"><button type="button" class="category-image-delete market-write" data-comp-feedback-delete="${i}" aria-label="删除用户反馈图片" ${readOnly?'hidden':''}>×</button></div>`).join('')||'<span class="comp-no-feedback">暂无图片</span>'}</div></div></div></div></div>`;
- target.innerHTML=compModule('base','基础信息',base,r)+compModule('feedback','产品卖点与用户反馈',feedback,r)+compModule('advice','开发建议',compControl(r,'direction','差异化开发方向','textarea')+compControl(r,'remark','备注','textarea',true).replace('<textarea id="ci-remark"','<textarea placeholder="采购注意事项、利润优化建议等" id="ci-remark"'),r);
+ const base=overview+`<div class="comp-form-grid">${['date','rating','reviews','price','sales','bsr'].map(key=>compFieldDefinitions.find(d=>d[0]===key)).map(([k,l,t])=>compControl(r,k,l,t)).join('')}${compControl(r,'specs','产品规格 / 尺寸','text')}</div>`;
+ const feedback=`<div class="comp-positioning-grid">${compControl(r,'targetUsers','目标用户','textarea')}${compControl(r,'userPainPoints','用户痛点','textarea')}${compControl(r,'usageScenarios','使用场景','textarea')}</div>`+`<div class="comp-feedback-group">${compControl(r,'negative','核心差评点','textarea').replace('</textarea></div></div>','</textarea>')}<div class="comp-feedback-images"><div class="comp-feedback-tools"><span>用户反馈图片（最多3张）</span><button type="button" class="btn primary market-write" data-comp-feedback-upload ${readOnly?'hidden':''} ${r.feedback.length>=3?'disabled':''}>上传图片</button></div><div class="comp-feedback-thumbs">${r.feedback.map((img,i)=>`<div class="comp-feedback-thumb"><img loading="lazy" decoding="async" src="${esc(compImage(img.src))}" alt="用户反馈图片"><button type="button" class="category-image-delete market-write" data-comp-feedback-delete="${i}" aria-label="删除用户反馈图片" ${readOnly?'hidden':''}>×</button></div>`).join('')||'<span class="comp-no-feedback">暂无图片</span>'}</div></div></div></div></div>`;
+ target.innerHTML=compModule('base','基础信息',base,r)+compModule('feedback','市场定位与用户反馈',feedback,r)+compModule('advice','开发建议',compControl(r,'direction','差异化开发方向','textarea')+compControl(r,'remark','备注','textarea',true).replace('<textarea id="ci-remark"','<textarea placeholder="采购注意事项、利润优化建议等" id="ci-remark"'),r);
  refreshCompFoldControl();refreshCompScope();
 }
 function setCompPositionCollapsed(collapsed){
@@ -293,7 +293,7 @@ function reconcileCompetitorReferences(){
 }
 function chooseCompetitors(){
  if(readOnly)return;const c=ensureCompetitorState();let mode='reference';
- const dlg=openDialog('添加竞品',`<div class="comp-add-tabs" role="tablist" aria-label="添加方式"><button type="button" role="tab" aria-selected="true" aria-controls="compAddReferences" id="compAddRefTab" data-add-mode="reference" class="is-active">从参考产品选择</button><button type="button" role="tab" aria-selected="false" aria-controls="compAddDirect" id="compAddDirectTab" data-add-mode="direct">直接添加ASIN</button></div><div id="compAddReferences" role="tabpanel" aria-labelledby="compAddRefTab"><input type="search" id="compAddReferenceSearch" class="comp-add-search" placeholder="搜索ASIN / 产品名称" aria-label="搜索参考产品ASIN或产品名称" autocomplete="off"><div class="comp-add-reference-list" id="compAddReferenceList">${refs.map(r=>`<label data-reference-search="${esc((r.asin+' '+(r.title||'')).toLowerCase())}" class="comp-add-option ${c.items.some(x=>x.asin===r.asin)?'is-added':''}"><input type="checkbox" data-comp-ref="${r.asin}" ${c.items.some(x=>x.asin===r.asin)?'checked disabled':''}><span><strong>${esc(r.asin)}</strong><span class="comp-add-product-name">${esc(r.title||'未填写产品名称')}</span></span>${c.items.some(x=>x.asin===r.asin)?'<span class="comp-add-existing">已添加</span>':''}</label>`).join('')}<div class="comp-add-empty" id="compAddSearchEmpty" ${refs.length?'hidden':''}>${refs.length?'未找到匹配的参考产品':'暂无参考产品'}</div></div></div><div id="compAddDirect" role="tabpanel" aria-labelledby="compAddDirectTab" hidden><div class="comp-add-direct"><label for="directCompAsin">ASIN <span class="required">*</span></label><input id="directCompAsin" maxlength="10" autocomplete="off" placeholder="请输入10位ASIN"></div></div><div class="field-error" id="compAddError" role="alert"></div>`,`<button type="button" class="btn" data-comp-add-cancel>取消</button><button type="button" class="btn primary" data-comp-add-confirm disabled>确认添加</button>`,'comp-add-dialog');
+ const dlg=openDialog('添加竞品',`<div class="comp-add-tabs" role="tablist" aria-label="添加方式"><button type="button" role="tab" aria-selected="true" aria-controls="compAddReferences" id="compAddRefTab" data-add-mode="reference" class="is-active">从参考产品选择</button><button type="button" role="tab" aria-selected="false" aria-controls="compAddDirect" id="compAddDirectTab" data-add-mode="direct">直接添加ASIN</button></div><div id="compAddReferences" role="tabpanel" aria-labelledby="compAddRefTab"><input type="search" id="compAddReferenceSearch" class="comp-add-search" placeholder="搜索ASIN / 产品名称" aria-label="搜索参考产品ASIN或产品名称" autocomplete="off"><div class="comp-add-reference-list" id="compAddReferenceList">${refs.map(r=>`<label data-reference-search="${esc((r.asin+' '+(r.title||'')).toLowerCase())}" class="comp-add-option ${c.items.some(x=>x.asin===r.asin)?'is-added':''}"><input type="checkbox" data-comp-ref="${r.asin}" ${c.items.some(x=>x.asin===r.asin)?'checked disabled':''}><span><strong>${esc(r.asin)}</strong><span class="comp-add-product-name">${esc(r.title||'未填写产品名称')}</span></span>${c.items.some(x=>x.asin===r.asin)?'<span class="comp-add-existing">已添加</span>':''}</label>`).join('')}<div class="comp-add-empty" id="compAddSearchEmpty" ${refs.length?'hidden':''}>${refs.length?'未找到匹配的参考产品':'暂无参考产品'}</div></div></div><div id="compAddDirect" role="tabpanel" aria-labelledby="compAddDirectTab" hidden><div class="comp-add-direct"><label for="directCompAsin">ASIN <span class="required">*</span></label><input id="directCompAsin" maxlength="10" autocomplete="off" placeholder="请输入10位ASIN"></div></div><p class="subtle comp-add-ai-tip">确认添加后，系统将自动获取AI竞品分析。已有内容将保留，差异项可逐项采用AI值。</p><div class="field-error" id="compAddError" role="alert"></div>`,`<button type="button" class="btn" data-comp-add-cancel>取消</button><button type="button" class="btn primary" data-comp-add-confirm disabled>确认添加</button>`,'comp-add-dialog');
  const confirm=dlg.querySelector('[data-comp-add-confirm]'),input=dlg.querySelector('#directCompAsin');
  const selected=()=>[...dlg.querySelectorAll('[data-comp-ref]')].filter(e=>e.checked&&!e.disabled).map(e=>e.dataset.compRef);
  const update=()=>{confirm.disabled=mode==='reference'?!selected().length:!input.value.trim();dlg.querySelector('#compAddError').textContent='';};
@@ -312,7 +312,7 @@ function chooseCompetitors(){
   asins.forEach(asin=>{if(mode==='direct')linkDirectCompAsin(asin);if(!c.items.some(r=>r.asin===asin))c.items.push(makeCompRecord(asin,mode==='direct'?'manual':'reference'));});
   c.active=asins[0];m.selected=c.items.map(r=>r.asin);compQuery='';
   if(!persist()){c.items=snapshot.items;c.active=snapshot.active;m.selected=c.items.map(r=>r.asin);refs.splice(0,refs.length,...snapshot.refs);m.asinPool=snapshot.pool;compQuery=snapshot.query;dlg.querySelector('#compAddError').textContent='保存失败，请重试';return;}
-  renderCompetitors();renderRefs();close(dlg);
+  renderCompetitors();renderRefs();close(dlg);const added=asins.filter(asin=>!snapshot.items.some(item=>item.asin===asin));added.forEach(asin=>{const state=aiCompetitorState(asin);state.status='idle';state.comparison=null;void aiFetchCompetitorComparison(asin);});
  };
 }
 function uploadCompImages(r,product=false){
@@ -362,11 +362,11 @@ function reportPairs(fields){const rows=[];for(let i=0;i<fields.length;i+=2){con
 function reportLongText(title,value,required=true){return `<div class="report-text-block"><h4>${esc(title)}</h4><div class="comp-report-text">${reportValue(value,required)}</div></div>`;}
 function categoryReportHtml(dims,rankings){return rankingReportHtml(rankings)+source.dimensions.map((d,i)=>{const parts=dimensionParts(dims[i]);return `<article class="report-analysis"><h3>${i+1}. ${esc(d.title)}</h3><div class="report-rich comp-report-text">${reportValue(parts.text)}</div>${i<6?`<div class="report-analysis-image">${reportImageList(parts.images,true,'分析图片')}</div>`:''}</article>`;}).join('');}
 function competitorReportHtml(){const c=ensureCompetitorState();return `${c.items.length?c.items.map((r,i)=>{
- const basic=[['产品名称',reportValue(r.name)+`<div class="report-english-name">${reportValue(r.english)}</div>`],['产品图片',reportImageHtml(r.image,true,'竞品产品图片')],...['date','rating','reviews','price','sales','bsr'].map(key=>{const [,label]=compFieldDefinitions.find(d=>d[0]===key);return [label,reportValue(r[key])];}),['产品规格 / 尺寸',reportValue(r.specs)]];
+ const basic=[['产品名称',reportValue(r.name)+`<div class="report-english-name">${reportValue(r.english,false)}</div>`],['产品图片',reportImageHtml(r.image,true,'竞品产品图片')],...['date','rating','reviews','price','sales','bsr'].map(key=>{const [,label]=compFieldDefinitions.find(d=>d[0]===key);return [label,reportValue(r[key])];}),['产品规格 / 尺寸',reportValue(r.specs)]];
  const keywords=(r.keywords||[]).filter(row=>[row.word,row.count,row.volume].some(v=>String(v??'').trim()));
- return `<article class="report-competitor"><h3>${i+1}. ASIN：${reportValue(r.asin)}</h3><h4>基础信息</h4>${reportPairs(basic)}${reportLongText('核心卖点',r.selling)}${reportLongText('核心差评点',r.negative)}<div class="report-text-block"><h4>用户反馈图片</h4>${reportImageList(r.feedback,false,'用户反馈图片')}</div>${reportLongText('差异化开发方向',r.direction)}${reportLongText('备注',r.remark,false)}</article>`;
+ return `<article class="report-competitor"><h3>${i+1}. ASIN：${reportValue(r.asin)}</h3><h4>基础信息</h4>${reportPairs(basic)}<h4>市场定位与用户反馈</h4>${reportLongText('目标用户',r.targetUsers)}${reportLongText('用户痛点',r.userPainPoints)}${reportLongText('使用场景',r.usageScenarios)}${reportLongText('核心差评点',r.negative)}<div class="report-text-block"><h4>用户反馈图片</h4>${reportImageList(r.feedback,false,'用户反馈图片')}</div>${reportLongText('差异化开发方向',r.direction)}${reportLongText('备注',r.remark,false)}</article>`;
  }).join(''):`<p>${reportValue('')}</p>`}`;}
-function pendingProductsReportHtml(){return products.length?products.map((p,i)=>{const offer=candidates.find(c=>c.id===p.offerId),link=p.purchaseLink??(p.url||offer?.promotionURL||(p.offerId?offerUrl(p.offerId):''));const fields=[['SPU',reportValue(p.spu)],['产品标题',reportValue(p.title)],['系统品类',reportValue(p.category)],['供应商名称',reportValue(p.supplier)],['产品图片',reportImageHtml(p.img,true,'SPU产品图片')],['采购链接',reportValue(link,false)],['采购备注',reportValue(p.purchaseNotes)]];return `<article class="report-product"><h3>${i+1}. ${esc(p.spu||'待完善')} · ${esc(p.title||'待完善')}</h3><h4>SPU概要</h4>${reportPairs(fields)}<h4>SKU明细（${p.skus?.length||0}个）</h4><div class="report-table-wrap"><table class="report-skus"><thead><tr>${['SKU','产品标题','产品图片','参考产品','采购价（CNY）','预计售价（USD）','起订量','配件搭配清单','利润测算'].map(title=>`<th>${title}</th>`).join('')}</tr></thead><tbody>${p.skus?.length?p.skus.map(sku=>`<tr><td>${reportValue(sku.sku)}</td><td>${reportValue(sku.variantTitle||p.title)}</td><td>${reportImageHtml(sku.img||p.img,true,'SKU产品图片')}</td><td>${reportValue(sku.reference||p.asin)}<br>${reportValue(sku.referenceType)}</td><td>${reportValue(sku.price===null||sku.price===undefined||sku.price===''?'':Number.isFinite(Number(sku.price))?Number(sku.price).toFixed(2):sku.price)}</td><td>${reportValue(pendingSalePrice(sku)===null?'':pendingSalePrice(sku).toFixed(2))}</td><td>${reportValue(sku.moq)}</td><td>${reportValue(sku.accessoryList??sku.packagingList??sku.competitor)}</td><td>${esc(opSummary(p,sku))}</td></tr>`).join(''):'<tr><td colspan="9">'+reportValue('')+'</td></tr>'}</tbody></table></div></article>`;}).join(''):`<p>${reportValue('')}</p>`;}
+function pendingProductsReportHtml(){return products.length?products.map((p,i)=>{const offer=candidates.find(c=>c.id===p.offerId),link=p.purchaseLink??(p.url||offer?.promotionURL||(p.offerId?offerUrl(p.offerId):''));const fields=[['SPU',reportValue(p.spu)],['产品标题',reportValue(p.title)],['系统品类',reportValue(p.category)],['供应商名称',reportValue(p.supplier)],['产品图片',reportImageHtml(p.img,true,'SPU产品图片')],['采购链接',reportValue(link)],['采购备注',reportValue(p.purchaseNotes)]];return `<article class="report-product"><h3>${i+1}. ${esc(p.spu||'待完善')} · ${esc(p.title||'待完善')}</h3><h4>SPU概要</h4>${reportPairs(fields)}<h4>SKU明细（${p.skus?.length||0}个）</h4><div class="report-table-wrap"><table class="report-skus"><thead><tr>${['SKU','产品标题','产品图片','参考产品','采购价（CNY）','预计售价（USD）','起订量','产品包装清单','利润测算'].map(title=>`<th>${title}</th>`).join('')}</tr></thead><tbody>${p.skus?.length?p.skus.map(sku=>`<tr><td>${reportValue(sku.sku)}</td><td>${reportValue(sku.variantTitle||p.title)}</td><td>${reportImageHtml(sku.img||p.img,true,'SKU产品图片')}</td><td>${reportValue(sku.reference||p.asin)}<br>${reportValue(sku.referenceType)}</td><td>${reportValue(sku.price===null||sku.price===undefined||sku.price===''?'':Number.isFinite(Number(sku.price))?Number(sku.price).toFixed(2):sku.price)}</td><td>${reportValue(pendingSalePrice(sku)===null?'':pendingSalePrice(sku).toFixed(2))}</td><td>${reportValue(sku.moq)}</td><td>${reportValue(sku.accessoryList??sku.packagingList??sku.competitor)}</td><td>${esc(opSummary(p,sku))}</td></tr>`).join(''):'<tr><td colspan="9">'+reportValue('')+'</td></tr>'}</tbody></table></div></article>`;}).join(''):`<p>${reportValue('')}</p>`;}
 
 function renderDimensions(){
  m.dims=m.dims.map(normalizeSingleCategoryImage);
@@ -388,9 +388,9 @@ $('#taskOrigin').onchange=()=>{m.origin=$('#taskOrigin').value;persist();showToa
 $('#currentUser').onchange=applyWorkflow;
 // Reference product facts are the single source of ASIN identity and basic metrics.
 renderRefs=function(){$('#referenceSection thead').innerHTML='<tr><th><input id="refAll" type="checkbox"></th><th>ASIN</th><th>图片</th><th style="min-width:210px">产品标题</th><th>平台 / 站点</th><th>Amazon品类</th><th>售价</th><th>近30天销量</th><th>评分 / 评分数</th><th>目标采购量</th><th>目标采购价</th><th>1688溯源</th><th>操作</th></tr>';
-$('#referenceBody').innerHTML=refs.map(r=>`<tr><td><input type="checkbox" class="ref-check" ${canWrite()?'':'disabled'}></td><td><a class="external-link" href="${amazonUrl(r.asin)}" target="_blank" rel="noopener">${esc(r.asin)} ${asinLinkIcon}</a>${r.companyCode||m.selected.includes(r.asin)||r.dataStatus==='loading'||(!r.dataStatus&&!r.title&&!r.img)?`<div class="reference-asin-status"><div class="reference-identity-tags">${r.companyCode?`<span class="reference-company-code">${esc(r.companyCode)}</span>`:''}${m.selected.includes(r.asin)?'<span class="tag teal">竞品分析</span>':''}</div>${r.dataStatus==='loading'||(!r.dataStatus&&!r.title&&!r.img)?'<span class="reference-data-loading">数据获取中</span>':''}</div>`:''}</td><td><div class="thumb">${r.img?`<img loading="lazy" decoding="async" src="${asset(r.img)}" alt="${esc(r.title)}">`:'<span class="subtle">暂无图片</span>'}</div></td><td class="left">${esc(r.title)}</td><td>Amazon / ${esc(m.site)}</td><td>${esc(r.category)}</td><td>$${esc(r.price||'--')}</td><td>${esc(r.sales||'--')}</td><td>${esc(r.rating||'--')} / ${esc(r.reviews||'--')}</td><td>${r.targetQty||200}</td><td>${targetText(r)}</td><td><span class="tag ${statusClass(r)}">${statusText(r)}</span><br>${countFor(r.asin)} 条</td><td><button class="link" data-view-source="${r.asin}">查看货源</button>${canWrite()?`<br><button class="link danger" data-delete-ref="${r.asin}">删除</button>`:''}</td></tr>`).join('');$('#refTotal').textContent=`共 ${refs.length} 条`;$('#refPages').innerHTML='<button class="page-btn active">1</button>';$('#refPrev').disabled=true;$('#refNext').disabled=true;$('#refAll').disabled=!canWrite();$('#refAll').onchange=e=>$$('.ref-check').forEach(c=>c.checked=e.target.checked);};
+$('#referenceBody').innerHTML=refs.map(r=>`<tr><td><input type="checkbox" class="ref-check" ${canWrite()?'':'disabled'}></td><td><a class="external-link" href="${amazonUrl(r.asin)}" target="_blank" rel="noopener">${esc(r.asin)} ${asinLinkIcon}</a>${r.companyCode||m.selected.includes(r.asin)||r.dataStatus==='loading'||(!r.dataStatus&&!r.title&&!r.img)?`<div class="reference-asin-status"><div class="reference-identity-tags">${r.companyCode?`<span class="reference-company-code">${esc(r.companyCode)}</span>`:''}${m.selected.includes(r.asin)?'<span class="tag teal">已加入竞品</span>':''}</div>${r.dataStatus==='loading'||(!r.dataStatus&&!r.title&&!r.img)?'<span class="reference-data-loading">数据获取中</span>':''}</div>`:''}</td><td><div class="thumb">${r.img?`<img loading="lazy" decoding="async" src="${asset(r.img)}" alt="${esc(r.title)}">`:'<span class="subtle">暂无图片</span>'}</div></td><td class="left">${esc(r.title)}</td><td>Amazon / ${esc(m.site)}</td><td>${esc(r.category)}</td><td>$${esc(r.price||'--')}</td><td>${esc(r.sales||'--')}</td><td>${esc(r.rating||'--')} / ${esc(r.reviews||'--')}</td><td>${r.targetQty||200}</td><td>${targetText(r)}</td><td><span class="tag ${statusClass(r)}">${statusText(r)}</span><br>${countFor(r.asin)} 条</td><td><button class="link" data-view-source="${r.asin}">查看货源</button>${canWrite()?`<br><button class="link danger" data-delete-ref="${r.asin}">删除</button>`:''}</td></tr>`).join('');$('#refTotal').textContent=`共 ${refs.length} 条`;$('#refPages').innerHTML='<button class="page-btn active">1</button>';$('#refPrev').disabled=true;$('#refNext').disabled=true;$('#refAll').disabled=!canWrite();$('#refAll').onchange=e=>$$('.ref-check').forEach(c=>c.checked=e.target.checked);};
 const originalDeleteRef=deleteReference;
-deleteReference=function(a){if(m.selected.includes(a))return showToast('该ASIN正在进行竞品分析，请先从市场分析中移除','error');originalDeleteRef(a);persist();};
+deleteReference=function(a){if(m.selected.includes(a))return showToast('当前ASIN已有竞品分析，无法删除参考产品。请先删除对应的竞品分析，再删除参考产品。','error');originalDeleteRef(a);persist();};
 const origRenderProducts=renderProducts;renderProducts=function(){origRenderProducts();renderChannels();};
 let pendingEditSession=0;
 // The prototype service returns example rates, never production financial results.
@@ -415,7 +415,7 @@ function startOpCalculation(product,skuId=''){
  promise.then(response=>{if(!current())return;run.results=normalizeOpResults(response,run.request);run.status='done';run.planId=response.planId;update();}).catch(()=>{if(!current())return;run.status='error';update();});
  }
 }
-function openOpCalculation(spu,skuId=''){const product=products.find(row=>row.spu===spu);if(!product)return;const dialog=openDialog('海运-多渠道利润测算（OP）',opDetailsHtml(product,skuId),'','op-detail-dialog');dialog.dataset.opDetailSpu=spu;dialog.dataset.opDetailSku=skuId;}
+function openOpCalculation(spu,skuId=''){const product=products.find(row=>row.spu===spu);if(!product)return;const dialog=openDialog('利润测算结果',opDetailsHtml(product,skuId),'','op-detail-dialog');dialog.dataset.opDetailSpu=spu;dialog.dataset.opDetailSku=skuId;}
 document.addEventListener('click',event=>{const view=event.target.closest('[data-view-op]'),retry=event.target.closest('[data-retry-op]');if(view)openOpCalculation(view.dataset.viewOp,view.dataset.opSku||'');if(retry&&canWrite()){const product=products.find(row=>row.spu===retry.dataset.retryOp);if(product&&product.opCalculation?.runs?.find(run=>run.sku===retry.dataset.opSku)?.status==='error')startOpCalculation(product,retry.dataset.opSku);}});
 function clearPendingRequiredError(field){if(!field)return;field.classList.remove('pending-field-invalid');field.querySelectorAll('.pending-required-error').forEach(el=>el.remove());field.querySelectorAll('[aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));}
 function pendingNumberError(input){
@@ -440,7 +440,7 @@ function validatePendingRequiredFields(){
  $$('#editModal .pending-field-invalid').forEach(clearPendingRequiredError);const errors=[];
  const flag=(field,control,message)=>{field.classList.add('pending-field-invalid');control?.setAttribute('aria-invalid','true');field.insertAdjacentHTML('beforeend',`<div class="inline-error pending-required-error">${esc(message)}</div>`);errors.push(control||field);};
  if(!$('#editPurchaseNotes').value.trim())flag($('#editPurchaseNotes').closest('.pending-basic-field'),$('#editPurchaseNotes'),'请填写采购备注');
- $$('#editVariantBody [data-field="competitor"]').forEach(input=>{if(!input.value.trim())flag(input.closest('td'),input,'请填写配件搭配清单');});
+ $$('#editVariantBody [data-field="competitor"]').forEach(input=>{if(!input.value.trim())flag(input.closest('td'),input,'请填写产品包装清单');});
  $$('#editVariantBody .pending-packing-input').filter(input=>!input.disabled).forEach(input=>{const message=!input.value.trim()?'请填写'+(input.dataset.field==='cartonQuantity'?'整箱数量':'适用装箱尺寸或重量'):Number(input.value)<=0?'请输入大于0的数值':pendingNumberError(input);if(message)flag(input.closest('td'),input,message);});
  $$('#editVariantBody [data-pending-number]').filter(input=>!input.disabled&&!input.classList.contains('pending-packing-input')).forEach(input=>{const message=pendingNumberError(input);if(message)flag(input.closest('td'),input,message);});
  if(errors.length){showToast('请补全待开发产品必填信息','error');errors[0].scrollIntoView({behavior:'smooth',block:'center'});errors[0].focus();return false;}return true;
@@ -504,8 +504,8 @@ $('#saveProduct').onclick=()=>{
  const p=products.find(p=>p.spu===editingSpu)||newPendingProduct;if(!p)return;
  p.purchaseLink=$('#editPurchaseLink').value.trim();p.purchaseNotes=$('#editPurchaseNotes').value.trim();
  origSave();
- p.spuDraft={...(p.spuDraft||{}),purchaseLink:p.purchaseLink,purchaseNotes:p.purchaseNotes,skus:p.skus.map(s=>({...p.spuDraft?.skus?.find(row=>row.sku===s.sku),sku:s.sku,packagingList:s.packagingList||'',saleSeason:'旺季',cartonMode:s.cartonMode||'multiple',cartonQuantity:s.cartonMode==='single'?1:s.cartonQuantity??'',cartonLength:s.cartonLength??'',cartonWidth:s.cartonWidth??'',cartonHeight:s.cartonHeight??'',cartonWeight:s.cartonWeight??'',productLength:s.productLength??'',productWidth:s.productWidth??'',productHeight:s.productHeight??'',productWeight:s.productWeight??'',salePrice:s.salePrice}))};
- p.spuDraft.skus.forEach(sku=>delete sku.cartons);
+ p.spuDraft={...(p.spuDraft||{}),purchaseLink:p.purchaseLink,purchaseNotes:p.purchaseNotes,skus:p.skus.map(s=>({...p.spuDraft?.skus?.find(row=>row.sku===s.sku),sku:s.sku,packagingList:s.packagingList||'',saleSeason:'旺季',cartonMode:s.cartonMode||'multiple',cartonQuantity:s.cartonMode==='single'?1:s.cartonQuantity??'',cartonLength:s.cartonLength??'',cartonWidth:s.cartonWidth??'',cartonHeight:s.cartonHeight??'',cartonWeight:s.cartonWeight??'',productLength:s.productLength??'',productWidth:s.productWidth??'',productHeight:s.productHeight??'',productWeight:s.productWeight??''}))};
+ p.spuDraft.skus.forEach(sku=>{delete sku.cartons;delete sku.salePrice;delete sku.price;});
  persist();renderChannels();startOpCalculation(p);
 };
 
@@ -543,7 +543,7 @@ $('#fromAsin').onclick=()=>{
  const level=m.categoryLevel,grouped=new Map();
  refs.forEach(ref=>{const category=referenceCategories[ref.asin],path=category?.paths[level],categoryId=category?.ids?.[level];if(category?.site!==m.site||!path||!categoryId)return;if(!grouped.has(categoryId))grouped.set(categoryId,{categoryId,path,refs:[]});const row=grouped.get(categoryId);if(!row.refs.some(item=>item.asin===ref.asin))row.refs.push(ref);});
  const rows=[...grouped.values()];let selected=null;
- const dlg=openDialog('使用参考ASIN品类',`<div class="category-dialog-context">${esc(m.site)} · Amazon${categoryLevelText(level)}</div>${rows.length?`<table class="reference-category-table reference-category-grouped"><colgroup><col style="width:54px"><col style="width:60%"><col></colgroup><thead><tr><th>选择</th><th>品类</th><th>关联ASIN</th></tr></thead><tbody>${rows.map(({categoryId,path,refs},index)=>`<tr data-category-id="${esc(categoryId)}"><td><input type="radio" name="referenceCategory" value="${index}" aria-label="选择${esc(path)}"></td><td class="reference-category-path"><span>${esc(path)}</span></td><td><div class="reference-category-asins">${refs.map(ref=>`<span class="reference-category-asin" title="${esc(ref.title||ref.asin)}">${esc(ref.asin)}</span>`).join(', ')}</div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂无符合当前站点和品类等级的参考产品</div>'}`, '<button type="button" class="btn" data-cancel-reference>取消</button><button type="button" class="btn primary" data-use-reference disabled>确定使用</button>');
+ const dlg=openDialog('使用参考ASIN品类',`<div class="category-dialog-context">${esc(m.site)} · Amazon${categoryLevelText(level)}</div>${rows.length?`<table class="reference-category-table reference-category-grouped"><colgroup><col style="width:54px"><col style="width:60%"><col></colgroup><thead><tr><th>选择</th><th>品类</th><th>关联ASIN</th></tr></thead><tbody>${rows.map(({categoryId,path,refs},index)=>`<tr data-category-id="${esc(categoryId)}"><td><input type="radio" name="referenceCategory" value="${index}" aria-label="选择${esc(path)}"></td><td class="reference-category-path"><span>${esc(path)}</span></td><td><div class="reference-category-asins">${refs.map(ref=>`<span class="reference-category-asin">${esc(ref.asin)}</span>`).join(',')}</div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂无符合当前站点和品类等级的参考产品</div>'}`, '<button type="button" class="btn" data-cancel-reference>取消</button><button type="button" class="btn primary" data-use-reference disabled>确定使用</button>');
  dlg.querySelector('[data-cancel-reference]').onclick=()=>close(dlg);
  dlg.querySelector('[data-use-reference]').onclick=()=>{if(!selected)return;m.categoryLevel=level;$('#marketLevel').value=level;chooseResearchCategory(selected.path);close(dlg);};
  dlg.querySelectorAll('[name=referenceCategory]').forEach(radio=>{radio.onchange=()=>{if(!radio.checked)return;dlg.querySelectorAll('[name=referenceCategory]').forEach(other=>other.checked=other===radio);selected=rows[Number(radio.value)];dlg.querySelector('[data-use-reference]').disabled=false;};radio.closest('tr').addEventListener('click',e=>{if(e.target===radio)return;radio.checked=true;radio.onchange();});});
@@ -565,20 +565,16 @@ function reuseCategoryAnalysis(){
  dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);
  dlg.querySelectorAll('[name=categoryHistory]').forEach(radio=>radio.onchange=()=>{if(radio.checked){selected=matches.find(record=>record.id===radio.value);dlg.querySelector('[data-use-category-history]').disabled=false;}});
  dlg.querySelectorAll('[data-category-task-detail]').forEach(link=>link.onclick=event=>{const record=matches.find(record=>record.id===link.dataset.categoryTaskDetail);if(!record?.canViewTask){event.preventDefault();showToast('无权限查看该任务','error');}});
- function applyHistory(){
-  if(!selected)return;
-  source.dimensions.forEach((_,i)=>{categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';if(i<6)categoryUploadJobs[i]=[];});
-  m.rankingImages=structuredClone(selected.rankings||{newTop:null,monthTop:null});rankingSaveStates.newTop='saved';rankingSaveStates.monthTop='saved';m.dims=[...selected.dimensions];m.categoryReuse=selected.id+' · '+selected.reviewedAt;renderDimensions();syncCompPositionFromCategory();syncReadOnly();
-  if(!persist())source.dimensions.forEach((_,i)=>{categorySaveStates[i]='error';refreshCategoryStatus(i);});
-  close(dlg);showToast('历史类目分析已预填');
+ function applyHistory(mode='overwrite'){
+  if(!selected||readOnly)return;aiApplyCategoryHistory(selected,mode);close(dlg);showToast('历史类目分析已填充');
  }
- dlg.querySelector('[data-use-category-history]').onclick=()=>{
-  if(!selected)return;
-  const hasContent=!!(m.rankingImages?.newTop||m.rankingImages?.monthTop)||source.dimensions.some((_,i)=>$('#category-conclusion-'+i)?.value.trim()||(dimensionImages[i]||[]).length||(categoryUploadJobs[i]||[]).length);
-  if(!hasContent){applyHistory();return;}
-  const confirm=openDialog('覆盖当前类目分析','<p>当前已填写分析内容，复用将覆盖类目榜单图片及8项分析结论和图片，是否继续？</p>','<button type="button" class="btn" data-keep-category>取消</button><button type="button" class="btn primary" data-overwrite-category>确认覆盖</button>');
-  confirm.querySelector('[data-keep-category]').onclick=()=>close(confirm);confirm.querySelector('[data-overwrite-category]').onclick=()=>{close(confirm);applyHistory();};
+ dlg.querySelector('[data-use-category-history]').onclick=async()=>{
+  if(!selected)return;document.activeElement?.blur();const scope=aiScopeKey(),record=selected;
+  const decision=await aiCategoryAskOverwrite(source.dimensions.map((_,i)=>String(i)),'复用历史分析');
+  if(decision==='cancel'||readOnly||scope!==aiScopeKey()||!dlg.isConnected)return;
+  selected=record;applyHistory(decision);
  };
+
 }
 function reuse(kind,asin){const cat=kind==='category';const r=refs.find(r=>r.asin===asin);const dlg=openDialog(cat?'复用历史类目分析':'复用本人历史竞品分析',`<div class="market-note">${cat?'查询范围：同部门 · 已审核通过的结构化分析':'查询范围：本人 · 相同站点、ASIN · 已审核通过'}</div><div class="m-filter"><label>站点<select id="historySite"><option>US</option><option>UK</option><option>DE</option></select></label>${cat?'<label>品类层级<select id="historyLevel"><option value="3">三级品类</option><option value="4">四级品类</option></select></label><label>品类<select id="historyCategory"><option>Refillable Containers</option><option>Refillable Cosmetic Container Kits</option><option>Refillable Cosmetic Pump Dispensers</option><option>Travel Storage</option></select></label>':`<label>ASIN<input disabled value="${esc(asin)}"></label>`}<button class="btn primary" id="historySearch">查询</button></div><div id="historyResults"></div><div class="history-warning">预填会覆盖${cat?'当前调研品类与8个维度':'当前ASIN的分析字段'}；参考产品基础信息保持引用。确认前请检查已有内容，预填后可继续编辑。</div>`,`<button class="btn" data-cancel>取消</button><button class="btn primary" data-apply disabled>使用所选分析预填</button>`);
 dlg.querySelector('#historySite').value=m.site;
@@ -603,10 +599,10 @@ $('#previewReport').onclick=preview;$('#previewInline').onclick=preview;
 $('#preproject').onclick=()=>{openDialog('预立项 · 引用结构化报告',`<div class="review-banner"><div><strong>旅行分装瓶 · 市场分析报告</strong><br>DT202609280018　${esc(m.site)}　${m.selected.length}个竞品</div><span class="tag teal">结构化报告</span></div><p>将当前任务的类目分析与竞品分析关联到预立项资料，无需重复上传报告。</p>`,`<button class="btn" data-preview>查看报告</button><button class="btn primary" data-ref>确认引用</button>`);const dlg=document.querySelector('.modal-mask[id^=m-dialog-]:last-of-type');dlg.querySelector('[data-preview]').onclick=preview;dlg.querySelector('[data-ref]').onclick=()=>{close(dlg);showToast('已引用 DT202609280018 的结构化市场分析报告');};};
 const hasText=html=>{const t=document.createElement('div');t.innerHTML=html||'';return !!t.textContent.trim();};
 function validationError(el,message){el.classList.add('invalid');el.insertAdjacentHTML('beforeend',`<div class="field-error">${esc(message)}</div>`);return el;}
-function validate(){document.activeElement?.blur();$$('#marketSection .invalid').forEach(e=>e.classList.remove('invalid'));$$('#marketSection .field-error').forEach(e=>e.remove());$('#categoryError')?.remove();let errors=[];if(isVisible){if(!m.site)errors.push(validationError($('#marketSite').closest('label'),'请选择站点'));if(!m.categoryLevel)errors.push(validationError($('#marketLevel').closest('label'),'请选择品类等级'));if(!m.category.trim()){$('#marketCategory').style.borderColor='#e6656e';$('#marketCategory').insertAdjacentHTML('afterend','<span id="categoryError" class="field-error">请选择或输入调研品类</span>');errors.push($('#marketCategory'));}rankingDefinitions.forEach(([key,title])=>{if(key==='newTop'&&!m.rankingImages?.[key]){revealRankingRequired();errors.push(validationError($('#ranking-'+key),'请上传'+title+'图片'));}});m.dims.forEach((html,i)=>{const text=$('#category-conclusion-'+i)?.value;if(text!==undefined?!text.trim():!hasText(html))errors.push(validationError($('#dim-'+i),'请填写'+source.dimensions[i].title));if(i<6&&!aiCategoryHasEvidence(i))errors.push(validationError($('#dim-'+i),'请获取'+source.dimensions[i].title+'AI数据或上传截图'));});errors.push(...validateCompetitorAnalysis());}
+function validate(){document.activeElement?.blur();$$('#marketSection .invalid').forEach(e=>e.classList.remove('invalid'));$$('#marketSection .field-error').forEach(e=>e.remove());$('#categoryError')?.remove();let errors=[];if(isVisible){if(!m.site)errors.push(validationError($('#marketSite').closest('label'),'请选择站点'));if(!m.categoryLevel)errors.push(validationError($('#marketLevel').closest('label'),'请选择品类等级'));if(!m.category.trim()){$('#marketCategory').style.borderColor='#e6656e';$('#marketCategory').insertAdjacentHTML('afterend','<span id="categoryError" class="field-error">请选择或输入调研品类</span>');errors.push($('#marketCategory'));}rankingDefinitions.forEach(([key,title])=>{if(key==='newTop'&&!m.rankingImages?.[key]){revealRankingRequired();errors.push(validationError($('#ranking-'+key),'请上传'+title+'图片'));}});m.dims.forEach((html,i)=>{const text=$('#category-conclusion-'+i)?.value;if(text!==undefined?!text.trim():!hasText(html))errors.push(validationError($('#dim-'+i),'请填写'+source.dimensions[i].title));if(i<6&&!aiCategoryHasEvidence(i))errors.push(validationError($('#dim-'+i),'请补全'+source.dimensions[i].title+'分析依据'));});errors.push(...validateCompetitorAnalysis());}
 if(!products.length||products.some(p=>!p.skus.length||!p.category||p.skus.some(s=>!s.sale))){errors.push($('#pendingSection'));showToast(isVisible&&(dimensionImages.slice(0,6).some(images=>!images?.length))?'市场分析未完成':'请补全待开发产品品类、SKU和预计售价','error');}else if(errors.length)showToast(isVisible&&(dimensionImages.slice(0,6).some(images=>!images?.length))?'市场分析未完成':`有 ${errors.length} 项未完成，请检查红色标记字段`,'error');if(errors.length){let node=errors[0];while(node&&node!==main){if(node.classList.contains('module-collapsed')){node.classList.remove('module-collapsed');const toggle=node.querySelector(':scope > .field-head .module-toggle,:scope > .sub-head .module-toggle,:scope > .section-head .module-toggle');toggle?.setAttribute('aria-expanded','true');}node=node.parentElement;}errors[0].scrollIntoView({behavior:'smooth',block:'center'});const input=errors[0].matches('input')?errors[0]:errors[0].querySelector('.editor,input,textarea');setTimeout(()=>input?.focus({preventScroll:true}),300);return false;}return true;}
-$('#submitTask').onclick=()=>{if(readOnly||!validate())return;const dlg=openDialog('提交审核',`<p>类目分析、${m.selected.length}个竞品分析与待开发产品将一起提交审核。</p>`,`<button class="btn" data-cancel>继续编辑</button><button class="btn primary" data-submit>确认提交</button>`);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-submit]').onclick=()=>{m.frozenVisibility=isVisible;m.stage='review';$('#workflowState').value='review';persist();applyWorkflow();close(dlg);showToast('任务已提交审核，市场分析进入只读状态');openReview();};};
-function openReview(){const channels=[];const dlg=openDialog('开发任务审核',`<div class="review-banner"><div><strong>旅行分装瓶开发</strong><br>DT202609280018　开发人：林悦　任务状态：${esc($('#taskStatusTag').textContent)}</div>${isVisible?'<button class="btn" data-report>查看市场分析报告</button>':''}</div><h3 style="font-size:14px">待开发产品 <span class="subtle">${products.length}个SPU / ${products.reduce((n,p)=>n+p.skus.length,0)}个SKU</span></h3><div class="review-table"><table><thead><tr><th>SPU / SKU</th><th>图片</th><th>产品名称</th><th>参考ASIN</th><th>供应商</th><th>采购价</th><th>预计售价</th></tr></thead><tbody>${products.map(p=>`<tr><td class="left"><strong>▾ ${esc(p.spu)}</strong></td><td><img loading="lazy" decoding="async" width="42" height="42" src="${asset(p.img)}"></td><td class="left">${esc(p.title)}</td><td>${esc(p.asin)}</td><td>${esc(p.supplier)}</td><td>—</td><td>—</td></tr>${p.skus.map(s=>`<tr><td>　${esc(s.sku)}</td><td><img loading="lazy" decoding="async" width="38" height="38" src="${asset(s.img||p.img)}"></td><td class="left">${esc(s.variantTitle||p.title)}</td><td>${esc(p.asin)}</td><td>${esc(p.supplier)}</td><td>¥${Number(s.price).toFixed(2)}</td><td>${esc(s.sale)}</td></tr>`).join('')}`).join('')}</tbody></table></div>${isVisible&&channels.length?`<div class="review-readonly">${channels.map(([spu,c])=>`<b>${esc(spu)} · 星渠开发信息</b><br>差异化设计：${esc(c.design)}<br>样品状态：${esc(c.sample)}　计划上线日期：${esc(c.launch)}`).join('<hr>')}</div>`:''}<h3 style="font-size:14px">审核意见</h3><textarea class="review-opinion" placeholder="填写审核意见；驳回时需填写" ${m.stage!=='review'?'disabled':''}></textarea><div class="field-error" id="reviewError"></div>`,`<button class="btn" data-cancel>关闭</button>${m.stage==='review'?'<button class="btn" data-reject>驳回</button><button class="btn primary" data-approve>审核通过</button>':''}`);dlg.querySelector('[data-report]')?.addEventListener('click',preview);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-approve]')?.addEventListener('click',()=>{m.stage='done';$('#workflowState').value='done';persist();applyWorkflow();close(dlg);showToast('审核通过，任务已完成');});dlg.querySelector('[data-reject]')?.addEventListener('click',()=>{if(!dlg.querySelector('textarea').value.trim()){dlg.querySelector('#reviewError').textContent='请填写驳回意见';dlg.querySelector('textarea').style.borderColor='#e6656e';return;}m.stage='research';$('#workflowState').value='research';persist();applyWorkflow();close(dlg);showToast('已驳回，任务返回调研中');});}
+$('#submitTask').onclick=()=>{if(readOnly||!validate())return;const dlg=openDialog('提交审核',`<p>类目分析、${m.selected.length}个竞品分析与待开发产品将一起提交审核。</p>`,`<button class="btn" data-cancel>继续编辑</button><button class="btn primary" data-submit>确认提交</button>`);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-submit]').onclick=()=>{m.frozenVisibility=isVisible;m.stage='review';$('#workflowState').value='review';applyWorkflow();m.submittedReportHtml=reportHtml();m.submittedProducts=structuredClone(products);persist();close(dlg);showToast('任务已提交审核，市场分析进入只读状态');openReview();};};
+function openReview(){const channels=[];const dlg=openDialog('开发任务审核',`<div class="review-banner"><div><strong>旅行分装瓶开发</strong><br>DT202609280018　开发人：林悦　任务状态：${esc($('#taskStatusTag').textContent)}</div>${isVisible?'<button class="btn" data-report>查看市场分析报告</button>':''}</div><h3 style="font-size:14px">待开发产品 <span class="subtle">${products.length}个SPU / ${products.reduce((n,p)=>n+p.skus.length,0)}个SKU</span></h3><div class="review-table"><table><thead><tr><th>SPU / SKU</th><th>图片</th><th>产品名称</th><th>参考ASIN</th><th>供应商</th><th>采购价</th><th>预计售价</th></tr></thead><tbody>${products.map(p=>`<tr><td class="left"><strong>▾ ${esc(p.spu)}</strong></td><td><img loading="lazy" decoding="async" width="42" height="42" src="${asset(p.img)}"></td><td class="left">${esc(p.title)}</td><td>${esc(p.asin)}</td><td>${esc(p.supplier)}</td><td>—</td><td>—</td></tr>${p.skus.map(s=>`<tr><td>　${esc(s.sku)}</td><td><img loading="lazy" decoding="async" width="38" height="38" src="${asset(s.img||p.img)}"></td><td class="left">${esc(s.variantTitle||p.title)}</td><td>${esc(p.asin)}</td><td>${esc(p.supplier)}</td><td>¥${Number(s.price).toFixed(2)}</td><td>${esc(s.sale)}</td></tr>`).join('')}`).join('')}</tbody></table></div>${isVisible&&channels.length?`<div class="review-readonly">${channels.map(([spu,c])=>`<b>${esc(spu)} · 星渠开发信息</b><br>差异化设计：${esc(c.design)}<br>样品状态：${esc(c.sample)}　计划上线日期：${esc(c.launch)}`).join('<hr>')}</div>`:''}<h3 style="font-size:14px">审核意见</h3><textarea class="review-opinion" placeholder="填写审核意见；驳回时需填写" ${m.stage!=='review'?'disabled':''}></textarea><div class="field-error" id="reviewError"></div>`,`<button class="btn" data-cancel>关闭</button>${m.stage==='review'?'<button class="btn" data-reject>驳回</button><button class="btn primary" data-approve>审核通过</button>':''}`);dlg.querySelector('[data-report]')?.addEventListener('click',preview);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-approve]')?.addEventListener('click',()=>{m.stage='done';m.approvedReportHtml=m.submittedReportHtml||reportHtml();$('#workflowState').value='done';persist();applyWorkflow();close(dlg);showToast('审核通过，任务已完成');});dlg.querySelector('[data-reject]')?.addEventListener('click',()=>{if(!dlg.querySelector('textarea').value.trim()){dlg.querySelector('#reviewError').textContent='请填写驳回意见';dlg.querySelector('textarea').style.borderColor='#e6656e';return;}m.stage='research';delete m.submittedReportHtml;delete m.approvedReportHtml;delete m.submittedProducts;delete m.approvedSkuCodes;$('#workflowState').value='research';persist();applyWorkflow();close(dlg);showToast('已驳回，任务返回调研中');});}
 $('#openReview').onclick=openReview;
 $('#addAsin').onclick=()=>{if(!canWrite())return;const dlg=openDialog('新增参考ASIN',`<div class="new-reference-form"><label>ASIN <span class="required">*</span></label><input id="newAsin" maxlength="10" placeholder="10位字母和数字"><label>产品标题 <span class="required">*</span></label><input id="newTitle" placeholder="输入参考产品标题"><label>售价（USD）</label><input id="newPrice" type="number" min="0" value="19.99"></div><div class="field-error" id="newRefError"></div><p class="subtle">添加后，可在市场分析中选择该参考产品。</p>`,`<button class="btn" data-cancel>取消</button><button class="btn primary" data-add>添加参考产品</button>`);dlg.querySelector('[data-cancel]').onclick=()=>close(dlg);dlg.querySelector('[data-add]').onclick=()=>{const a=dlg.querySelector('#newAsin').value.trim().toUpperCase(),title=dlg.querySelector('#newTitle').value.trim();if(!/^[A-Z0-9]{10}$/.test(a)||!title||refs.some(r=>r.asin===a)){dlg.querySelector('#newRefError').textContent='请输入有效的10位ASIN和产品标题，且ASIN不可重复';return;}refs.push({asin:a,title,img:'image11.jpeg',category:'Refillable Containers',price:dlg.querySelector('#newPrice').value,rating:'--',reviews:'--',sales:'--',date:'--',targetQty:200,targetRange:[20,30],zeroPrice:25,status:'pending',sourcingAt:''});persist();renderRefs();renderCandidates();renderCompetitors();close(dlg);showToast('已添加参考ASIN，可前往市场分析增选');};};
 // Basic interactions are scoped to the eight category analysis items.
@@ -669,10 +665,162 @@ if(!activeHistoryTask){
  renderProducts();
  products.filter(product=>product.opCalculation&&(product.opCalculation.runs?.some(run=>run.status==='running')||product.opCalculation.ruleVersion!==3)).forEach(product=>startOpCalculation(product));
 }
+function aiWarningIcon(){return '<span class="ai-warning-icon" aria-hidden="true">!</span>';}
+/* Agent supplies independent results. AC owns reconciliation and field-level decisions. */
+const AI_COMP_KEYS=['name','english','categoryPath','date','price','rating','reviews','sales','bsr','specs','targetUsers','userPainPoints','usageScenarios','negative','feedback','direction','remark'];
+const AI_COMP_SOURCE_KEYS={name:'productName',english:'englishTitle',date:'listingDate',price:'priceUsd',reviews:'reviewCount',sales:'estimatedSales30d',bsr:'bsrSmallCategoryRank',specs:'specifications',negative:'coreNegativeReviews',feedback:'reviewImages',direction:'differentiationDirection'};
+function aiCompEmpty(value){return value===null||value===undefined||Array.isArray(value)&&!value.length||typeof value==='string'&&['','--','—'].includes(value.trim());}
+function aiCompText(value){return String(value??'').normalize('NFKC').replace(/\s+/g,' ').trim();}
+function aiCompNumber(value,key,meta={}){
+ let text=aiCompText(value),unit=meta.unit||'',qualifier=/[+＋]|至少|以上|at least/i.test(text)?'at-least':/约|估算|预估|estimated|approx/i.test(text)?'estimated':'';
+ if(key==='price'){const currency=text.match(/USD|CNY|EUR|GBP|US\$|人民币|美元|欧元|英镑|[$€£¥￥]/i)?.[0];unit=currency?({'US$':'USD','$':'USD','美元':'USD','人民币':'CNY','¥':'CNY','￥':'CNY','€':'EUR','欧元':'EUR','£':'GBP','英镑':'GBP'}[currency]||currency.toUpperCase()):unit||'USD';}
+ if(key==='rating')unit=/%|百分比/.test(text)?'percent':unit||'stars';
+ if(key==='reviews')unit=unit||'count';
+ text=text.replace(/(?<=\d)[,，](?=\d{3}(?:\D|$))/g,'');
+ const match=text.match(/[-+]?\d+(?:\.\d+)?/);if(!match)return null;
+ let number=Number(match[0]),tail=text.slice(match.index+match[0].length);if(/^\s*[kK]/.test(tail))number*=1000;if(/^\s*万/.test(tail))number*=10000;
+ if(!Number.isFinite(number))return null;
+ if(key==='rating'&&(number<0||number>5||Math.abs(number*10-Math.round(number*10))>1e-8)||key==='reviews'&&(!Number.isInteger(number)||number<0)||key==='price'&&(number<0||Math.abs(number*100-Math.round(number*100))>1e-8))return null;
+ unit=({'美元':'USD','$':'USD','usd':'USD','星':'stars','star':'stars','条':'count','reviews':'count'}[unit]||unit);
+ return {number,unit,qualifier};
+}
+function aiCompDate(value){const match=aiCompText(value).match(/^(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})(?:日|(?:T|\s).*)?$/);if(!match)return null;const y=+match[1],m=+match[2],d=+match[3],date=new Date(Date.UTC(y,m-1,d));return date.getUTCFullYear()===y&&date.getUTCMonth()===m-1&&date.getUTCDate()===d?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:null;}
+function aiCompSales(value,meta={}){
+ const text=aiCompText(value),n=aiCompNumber(value,'sales',meta);if(!n)return null;
+ const period=meta.period||(/非精确30天/.test(text)?'month':/月|month|\/mo\b/i.test(text)?'month':/30\s*(天|days)|30d/i.test(text)?'30d':'unspecified');
+ const unit=/kg|千克|公斤/i.test(text)?'kg':/件|units?|个|pcs/i.test(text)?'units':meta.unit||'units';
+ return {...n,unit,period,qualifier:n.qualifier==='at-least'?'at-least':'',estimated:meta.estimated??/估算|预估|estimated|approx/i.test(text)};
+}
+function aiCompBsr(value,meta={}){const n=aiCompNumber(value,'bsr',meta);if(!n)return null;const text=aiCompText(value),category=meta.category||text.replace(/^.*?\d+[\s.)]*/,'').replace(/Sorftime|SellerSprite|卖家精灵|^in\s+/gi,'').replace(/[()（）;；#]/g,'').trim().toLowerCase();return {number:n.number,category};}
+function aiCompEquivalent(key,current,result){
+ const value=result.value;if(['price','rating','reviews'].includes(key)){const a=aiCompNumber(current,key),b=aiCompNumber(value,key,result);return !!(a&&b&&Math.abs(a.number-b.number)<1e-9&&a.unit===b.unit&&a.qualifier===b.qualifier);}
+ if(key==='date'){const a=aiCompDate(current),b=aiCompDate(value);return a&&b?a===b:aiCompText(current)===aiCompText(value);}
+ if(key==='sales'){const a=aiCompSales(current,/^\d+$/.test(String(current).trim())?result:{}),b=aiCompSales(value,result);return a&&b?Math.abs(a.number-b.number)<1e-9&&a.period===b.period&&a.unit===b.unit&&a.estimated===b.estimated&&a.qualifier===b.qualifier:aiCompText(current)===aiCompText(value);}
+ if(key==='bsr'){const a=aiCompBsr(current),b=aiCompBsr(value,result);return a&&b?a.number===b.number&&(!a.category||!b.category||a.category===b.category):aiCompText(current)===aiCompText(value);}
+ if(Array.isArray(value))return aiSame(current,value);
+ return aiCompText(current)===aiCompText(value);
+}
+function aiCompStoredValue(key,result){
+ if(['price','rating','reviews'].includes(key))return String(aiCompNumber(result.value,key,result).number);
+ if(key==='date')return aiCompDate(result.value);
+ if(key==='sales')return String(aiCompSales(result.value,result).number);
+ return structuredClone(result.value);
+}
+function aiNormalizeCompResponse(response,asin,site){
+ if(!response||response.asin&&response.asin!==asin||response.marketplace&&response.marketplace!==site||!response.fields||typeof response.fields!=='object')throw Error('AI返回数据与请求不匹配');
+ const fields={};
+ for(const key of AI_COMP_KEYS){
+  const raw=response.fields[key];if(raw===undefined)continue;
+  const result=raw&&typeof raw==='object'&&!Array.isArray(raw)&&'status' in raw?structuredClone(raw):{status:aiCompEmpty(raw)?'missing':'success',value:structuredClone(raw)};
+  if(!['success','missing','failed','unavailable'].includes(result.status))throw Error('AI字段状态无效');
+  if(result.status==='success'&&!aiCompEmpty(result.value)){
+   if(['price','rating','reviews'].includes(key)){const number=aiCompNumber(result.value,key,result);if(!number||key==='price'&&number.unit!=='USD'||key==='rating'&&number.unit!=='stars'||key==='reviews'&&number.unit!=='count')throw Error('AI数值类型或单位无效');}
+   if(key==='sales'){const sales=aiCompSales(result.value,result);if(!sales||sales.number<0||!Number.isInteger(sales.number)||sales.unit!=='units')throw Error('AI销量应为非负整数');}
+   if(key==='date'&&!aiCompDate(result.value))throw Error('AI日期格式无效');
+   if(key==='feedback'&&!Array.isArray(result.value))throw Error('AI图片格式无效');
+  }else{result.status='missing';delete result.value;}
+  fields[key]=result;
+ }
+ if(!Object.keys(fields).length)throw Error('AI未返回可识别字段');
+ return {marketplace:site,fields,sourceStatus:response.status||response.sourceStatus||'done',dataQuality:structuredClone(response.dataQuality||{}),receivedAt:new Date().toISOString()};
+}
+function aiCompRelation(record,key,result){if(!result)return '';if(result.status!=='success')return aiCompEmpty(record[key])?'missing':'';if(aiCompEmpty(record[key]))return '';return aiCompEquivalent(key,record[key],result)?'':'difference';}
+function aiReconcileCompetitor(record,response,site){
+ const comparison=aiNormalizeCompResponse(response,record.asin,site);
+ for(const [key,result]of Object.entries(comparison.fields))if(result.status==='success'&&aiCompEmpty(record[key]))record[key]=aiCompStoredValue(key,result);
+ comparison.outcomes=Object.fromEntries(Object.entries(comparison.fields).map(([key,result])=>[key,aiCompRelation(record,key,result)]));
+ const state=aiCompetitorState(record.asin);state.comparison=comparison;state.sourceStatus=comparison.sourceStatus;state.dataQuality=comparison.dataQuality;
+ return comparison;
+}
+function aiMockCompetitorSource(request){
+ // This provider uses fixed fixtures only. Never read AC records/drafts to form AI output.
+ const asin=request.asin,site=request.marketplace||request.scope?.site,sample=window.AI_COMPETITOR_SAMPLE;
+ if(sample&&asin===sample.asin&&site===sample.marketplace){
+  const b=sample.basicInfo,p=sample.marketPosition,d=sample.developmentAdvice;
+  const values={name:b.productName,english:b.englishTitle,categoryPath:b.categoryPath,date:b.listingDate,price:b.priceUsd,rating:b.rating,reviews:b.reviewCount,sales:b.estimatedSales30d,bsr:b.bsrSmallCategoryRank,specs:b.specifications,...p,direction:d.differentiationDirection,remark:d.remark};
+  const fields=Object.fromEntries(Object.entries(values).map(([key,value])=>[key,{status:aiCompEmpty(value)?'missing':'success',value,source:sample.dataQuality.fieldSources[AI_COMP_SOURCE_KEYS[key]||key]||'',...(key==='price'?{unit:'USD'}:key==='rating'?{unit:'stars'}:key==='reviews'?{unit:'count'}:{})}]));
+  fields.negative={status:'missing',reason:sample.userFeedback.coreNegativeReviews,source:sample.dataQuality.fieldSources.coreNegativeReviews};
+  fields.feedback={status:'missing',reason:sample.dataQuality.fieldSources.reviewImages,source:'Sorftime product_reviews'};
+  Object.assign(fields.sales,{value:1448,unit:'units',period:'month',estimated:true,scope:'Sorftime月销量估算，非精确30天订单数'});
+  return {scene:'competitor_analysis',asin,marketplace:site,status:'partial',fields,dataQuality:structuredClone(sample.dataQuality)};
+ }
+ const fields=Object.fromEntries(AI_COMP_KEYS.map(key=>[key,{status:'missing',reason:'未获取到当前ASIN在该站点的对应字段数据，请人工补充。'}]));
+ return {scene:'competitor_analysis',asin,marketplace:site,status:'partial',fields,dataQuality:{sourcesUsed:[],missingFields:AI_COMP_KEYS.slice()}};
+}
+function aiInitCompetitorComparison(){
+ const sample=window.AI_COMPETITOR_SAMPLE;if(activeHistoryTask||!sample||sample.marketplace!==m.site)return;
+ for(const item of ensureCompetitorState().items){const itemState=aiCompetitorState(item.asin);if(itemState.numericSalesVersion===1)continue;const sales=aiCompSales(item.sales);if(!itemState.manual.sales&&!aiCompEmpty(item.sales)&&sales&&sales.unit==='units'&&Number.isInteger(sales.number)&&sales.number>=0){itemState.previousSalesValue=item.sales;item.sales=String(sales.number);}itemState.numericSalesVersion=1;}
+ const record=ensureCompetitorState().items.find(r=>r.asin===sample.asin);if(!record)return;
+ const state=aiCompetitorState(record.asin);if(state.comparisonVersion===2)return;
+ // Migrate only the previous automatic placeholder, never genuine manual review content.
+ if(!state.manual.negative&&record.negative===sample.userFeedback.coreNegativeReviews)record.negative='';
+ if(!state.manual.sales&&record.sales===sample.basicInfo.estimatedSales30d)record.sales='1448';
+ state.comparison=null;
+ state.comparisonVersion=2;state.status='done';state.message='';persist();
+}
+function aiCompFieldHost(key){
+ if(key==='english')return $('#compDetail .comp-original-title:not(.comp-category-path)');
+ if(key==='categoryPath')return $('#compDetail .comp-category-path');
+ if(key==='feedback')return $('#compDetail .comp-feedback-images');
+ return $('#cf-'+key+' .comp-control');
+}
+function aiCompDisplay(value){return Array.isArray(value)?`${value.length}张图片`:String(value??'');}
+function aiRenderCompetitorComparison(){
+ const target=$('#compDetail'),c=ensureCompetitorState(),record=c.items.find(r=>r.asin===c.active);if(!target||!record)return;
+ const state=aiCompetitorState(record.asin),comparison=state.comparison?.marketplace===m.site?state.comparison:null;
+ target.querySelectorAll('[data-ai-field-note]').forEach(node=>node.remove());
+ target.querySelectorAll('[data-ai-described]').forEach(input=>{input.removeAttribute('aria-describedby');input.removeAttribute('data-ai-described');});
+ let count=0;
+ if(comparison)for(const [key,result]of Object.entries(comparison.fields)){
+  const relation=comparison.outcomes?.[key];if(!relation)continue;
+  const host=aiCompFieldHost(key);if(!host)continue;
+  if(relation==='missing'&&(!result.reason||!compFieldDefinitions.some(([name])=>name===key)))continue;
+  const note=document.createElement('div');note.id='ai-note-'+key;note.dataset.aiFieldNote=key;note.className='ai-field-note '+(relation==='difference'?'ai-field-difference':'ai-field-missing');note.setAttribute('role','status');
+  if(relation==='difference'){
+   count++;
+   note.innerHTML=`<div class="ai-difference-line">${aiWarningIcon()}<span class="ai-difference-preview" title="${esc(aiCompDisplay(result.value))}">AI值：${esc(aiCompDisplay(result.value))}</span>${readOnly?'':`<button type="button" class="link ai-adopt-value" data-ai-adopt-field="${key}" ${state.status==='running'?'disabled':''}>采用AI值</button>`}</div>`;
+  }else note.innerHTML=`<span class="ai-missing-icon ai-warning-icon" aria-hidden="true">!</span><span>${esc(result.reason)}</span>`;
+  host.append(note);const input=$('#ci-'+key);if(input){input.setAttribute('aria-describedby',note.id);input.dataset.aiDescribed='true';}
+ }
+ const status=target.querySelector('[data-ai-comp-status]');if(status)status.dataset.hasDifferences=String(count>0&&state.status!=='running');if(status&&state.status!=='running'){const text=count?`待处理差异 ${count}项`:state.message||'';status.innerHTML=(text&&(count||['error','interrupted'].includes(state.status))?aiWarningIcon():'')+esc(text);}
+}
+async function aiFetchCompetitorComparison(asin){
+ const record=ensureCompetitorState().items.find(r=>r.asin===asin),state=aiCompetitorState(asin),site=m.site;
+ if(!record||readOnly||state.status==='running')return;document.activeElement?.blur();
+ const token=++ai.sequence;state.status='running';state.hasRequested=true;state.requestSite=site;state.token=token;state.message='';aiRefresh();
+ try{
+  const response=await aiService({kind:'competitor',scene:'competitor_analysis',asin,marketplace:site,scope:{site},taskId:'AI-COMP-'+token});if(state.token!==token)return;
+  if(readOnly||activeHistoryTask||m.site!==site||!ensureCompetitorState().items.includes(record)){state.status='interrupted';state.message='站点或权限已变化，结果未回填';return;}
+  aiReconcileCompetitor(record,response,site);state.status='done';state.message='';if(!persist())throw Error('保存失败，请重试');
+  renderCompList();if(ensureCompetitorState().active===asin)renderCompDetail();
+ }catch{state.status='error';state.message='获取失败，请重试';state.comparison=null;}
+ finally{persist();aiRefresh();}
+}
+document.addEventListener('input',event=>{if(!event.target.closest('#compDetail')||!event.target.hasAttribute('data-cfield'))return;const state=aiCompetitorState(ensureCompetitorState().active);if(state.comparison?.outcomes)delete state.comparison.outcomes[event.target.dataset.cfield];aiRenderCompetitorComparison();});
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-ai-adopt-field]');if(!button||readOnly||button.disabled)return;
+ const c=ensureCompetitorState(),record=c.items.find(r=>r.asin===c.active),state=aiCompetitorState(c.active),key=button.dataset.aiAdoptField;
+ if(state.status==='running'||state.comparison?.marketplace!==m.site)return;
+ const result=state.comparison.fields[key];if(!record||!result||result.status!=='success')return;
+ const old=structuredClone(record[key]),oldManual=state.manual[key];record[key]=aiCompStoredValue(key,result);state.manual[key]=false;
+ const group=['targetUsers','userPainPoints','usageScenarios','negative','feedback'].includes(key)?'feedback':key==='direction'||key==='remark'?'advice':'base';
+ const saveGroup=group+'-'+record.asin;compSaveVersions[saveGroup]=(compSaveVersions[saveGroup]||0)+1;const saved=persist();compSaveStates[saveGroup]=saved?'saved':'error';if(!saved){record[key]=old;state.manual[key]=oldManual;}else{delete state.comparison.outcomes[key];persist();}
+ renderCompList();renderCompDetail();
+});
+
+// History fixtures use the same structured payload as the AI-assisted sample.
+categoryHistoryRecords.forEach(record=>{
+ record.structured=structuredClone(window.AI_CATEGORY_SAMPLE.modules);
+ record.dimensions=source.dimensions.map((_,i)=>`<p>${esc(i<6?record.structured[i].conclusion:window.AI_CATEGORY_SAMPLE.textConclusions[i-6]).replace(/\n/g,'<br>')}</p>`);
+ record.rankings={};record.analysisFormat='structured';
+});
+if(activeHistoryTask)m.dims=[...activeHistoryTask.dimensions];
+
 
 /* Injected into the copied market controller; the original controller stays unchanged. */
 const ai=m.aiAssist||=( {category:{},competitors:{},sequence:0} );
 const aiBusy=new Set();
+let aiCategorySubmitting=false;
 const aiMarkupCache=new WeakMap();
 const aiScope=()=>({site:m.site,level:String(m.categoryLevel),category:m.category.trim()});
 const aiScopeKey=()=>JSON.stringify(aiScope());
@@ -681,6 +829,8 @@ function aiCategoryState(key){return ai.category[key]||=( {manual:{},status:'idl
 function aiCompetitorState(asin){return ai.competitors[asin]||=( {manual:{},status:'idle',basis:''} );}
 function aiTextStatus(state){return state.status==='running'?'AI获取中…':state.message||'';}
 function aiMarkCategory(key,field){aiCategoryState(key).manual[field]=true;persist();}
+function aiCompetitorSampleResult(asin,site=m.site){return aiMockCompetitorSource({asin,marketplace:site});}
+function aiApplyCompetitorSample(){aiInitCompetitorComparison();}
 
 function aiFormalText(value){return typeof value==='string'?value.replace(/【AI演示】/g,'').replace(/模拟商品详情/g,'商品详情').replace(/模拟样本/g,'样本').replace(/数据仅用于(?:交互)?演示[。.]?/g,'').replace(/利润率为原型演示数据[。.]?/g,'').replace(/测试样例口径/g,'数据口径').replace(/(?:原)?调用记录/g,'来源数据').replace(/记录日期/g,'获取日期'):value;}
 function aiCleanSavedCopy(){
@@ -695,17 +845,18 @@ aiCleanSavedCopy();
 // Preserve pre-existing edits when copying a saved original prototype into this version.
 if(!ai.initialized){
  source.dimensions.forEach((dim,i)=>{const current=dimensionParts(m.dims[i]),original=dimensionParts(dim.html),state=aiCategoryState(String(i));if(current.text!==original.text)state.manual.text=true;if(!aiSame(current.images.map(x=>x.src),original.images.map(x=>x.src)))state.manual.image=true;});
- for(const record of ensureCompetitorState().items){const original=makeCompRecord(record.asin),state=aiCompetitorState(record.asin);for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','selling','negative','direction','keywords'])if(!aiSame(record[key],original[key]))state.manual[key]=true;}
+ for(const record of ensureCompetitorState().items){const original=makeCompRecord(record.asin),state=aiCompetitorState(record.asin);for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','targetUsers','userPainPoints','usageScenarios','negative','direction','keywords'])if(!aiSame(record[key],original[key]))state.manual[key]=true;}
  const rankingState=aiCategoryState('rankings');if(m.rankingImages?.newTop?.src!=='assets/image10.png')rankingState.manual.newTop=true;if(m.rankingImages?.monthTop)rankingState.manual.monthTop=true;
  ai.initialized=true;persist();
 }
 function aiRefresh(){
  refreshAiCategoryUI();
  const target=$('#compDetail'),record=ensureCompetitorState().items.find(row=>row.asin===ensureCompetitorState().active);
- if(target&&record){const state=aiCompetitorState(record.asin);if(!target.querySelector('.ai-competitor-bar'))target.insertAdjacentHTML('afterbegin',`<div class="ai-competitor-bar"><span>当前ASIN：${esc(record.asin)}</span><span class="ai-status" data-ai-comp-status role="status" aria-live="polite"></span><button type="button" class="btn ai-action market-write" data-ai-get-competitor="${esc(record.asin)}">AI获取竞品分析</button></div>`);const button=target.querySelector('[data-ai-get-competitor]');button.disabled=state.status==='running';button.hidden=readOnly;button.textContent=state.status==='running'?'AI获取中…':'AI获取竞品分析';const status=target.querySelector('[data-ai-comp-status]');status.textContent=aiTextStatus(state);status.dataset.status=state.status;}
+ if(target&&record){const state=aiCompetitorState(record.asin);if(!target.querySelector('.ai-competitor-bar'))target.insertAdjacentHTML('afterbegin',`<div class="ai-competitor-bar"><span>当前ASIN：${esc(record.asin)}</span><span class="ai-status" data-ai-comp-status role="status" aria-live="polite"></span><button type="button" class="btn primary ai-action market-write" data-ai-get-competitor="${esc(record.asin)}">AI获取竞品分析</button></div>`);const button=target.querySelector('[data-ai-get-competitor]');button.disabled=state.status==='running'&&state.requestSite===m.site;button.hidden=readOnly;button.classList.add('primary');button.setAttribute('aria-busy',String(button.disabled));aiSetMarkup(button,aiImportIcon()+'<span>'+(button.disabled?'AI分析中':state.hasRequested||state.comparison?'AI重新分析':'AI分析')+'</span>');const status=target.querySelector('[data-ai-comp-status]');status.textContent=state.status==='running'?'':aiTextStatus(state);status.dataset.status=state.status;}
+ aiRenderCompetitorComparison();
 }
 const aiOriginalRenderDimensions=renderDimensions;renderDimensions=function(){aiOriginalRenderDimensions();aiRefresh();};
-const aiOriginalRenderCompDetail=renderCompDetail;renderCompDetail=function(){aiOriginalRenderCompDetail();aiRefresh();};
+const aiOriginalRenderCompDetail=renderCompDetail;renderCompDetail=function(){aiApplyCompetitorSample();aiOriginalRenderCompDetail();aiRefresh();};
 const aiOriginalSyncReadonly=syncReadOnly;syncReadOnly=function(){aiOriginalSyncReadonly();aiRefresh();};
 const aiOriginalUpload=uploadCategoryImage;uploadCategoryImage=function(i,...args){aiMarkCategory(String(i),'image');return aiOriginalUpload(i,...args);};
 const aiOriginalSaveRanking=saveRanking;saveRanking=function(key){aiMarkCategory('rankings',key);return aiOriginalSaveRanking(key);};
@@ -714,27 +865,12 @@ function aiMock(request){if(request.kind==='category-batch')return Promise.all(r
  const scope=request.scope,context=`${scope.site} · Amazon${categoryLevelText(scope.level)} · ${scope.category}`,time=new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
  if(request.kind==='category'){
   resolve(aiCategorySampleResult(request));
- }else{
-  const record=ensureCompetitorState().items.find(row=>row.asin===request.asin),original=makeCompRecord(request.asin);
-  resolve({basis:`${scope.site} · ASIN ${request.asin}；商品详情、关键词与评论样本，获取时间：${time}。`,fields:{...Object.fromEntries(['name','date','rating','reviews','price','sales','bsr','specs'].map(key=>[key,original[key]||record?.[key]||''])),selling:`${record?.name||request.asin}\n功能：关注核心使用需求与产品可靠性。\n场景：围绕主要使用场景优化组合与便携性。\n设计：通过材质、颜色与配件组合体现差异。`,negative:'高频问题：密封与耐用性、清洁便利程度、包装保护及配件完整性。建议结合真实评论复核问题频次，优先解决影响使用体验的问题。',direction:'优先优化结构可靠性与包装保护，测试不同规格、配件及组合套装；以小批量验证用户反馈后再扩大备货。',keywords:[{word:'travel containers',count:'9000+',volume:'7500'},{word:'refillable bottles',count:'5000+',volume:'3800'}]}});
- }
+ }else{resolve(aiMockCompetitorSource(request));}
 },180));}
 function aiService(request){return window.aiPrototypeService?Promise.resolve().then(()=>window.aiPrototypeService(structuredClone(request))):aiMock(request);}
 function aiContextValid(key){return !readOnly&&!activeHistoryTask&&key===aiScopeKey();}
-async function aiRunCompetitor(asin){
- const record=ensureCompetitorState().items.find(row=>row.asin===asin),state=aiCompetitorState(asin);if(!record||readOnly||state.status==='running')return;
- document.activeElement?.blur();const before=structuredClone(record),scopeKey=aiScopeKey(),beforeBasis=state.basis,token=++ai.sequence;state.status='running';state.token=token;state.message='';aiRefresh();
- try{
-  const result=await aiService({kind:'competitor',asin,scope:aiScope(),taskId:'AI-COMP-'+token});if(state.token!==token)return;
-  if(!aiContextValid(scopeKey)||!ensureCompetitorState().items.includes(record)){state.status='interrupted';state.message='口径或竞品已变化，结果未回填';return;}
-  if(!result.fields||typeof result.basis!=='string')throw new Error('返回结果不完整');let protectedCount=0;
-  for(const key of ['name','date','rating','reviews','price','sales','bsr','specs','selling','negative','direction']){if(result.fields[key]===undefined)continue;if(state.manual[key]||!aiSame(record[key],before[key])){protectedCount++;continue;}if(key==='keywords'&&!Array.isArray(result.fields[key]))continue;record[key]=structuredClone(result.fields[key]);}
-  if(!state.manual.basis&&state.basis===beforeBasis)state.basis=result.basis;else protectedCount++;
-  state.status='done';state.message=protectedCount?'AI已更新 · 保留人工修改':'AI已更新';if(!persist()){state.status='error';state.message='保存失败，请重新获取';}
-  renderCompList();if(ensureCompetitorState().active===asin)renderCompDetail();
- }catch(error){state.status='error';state.message='获取失败，可重新获取';}
- finally{persist();aiRefresh();}
-}
+async function aiRunCompetitor(asin){return aiFetchCompetitorComparison(asin);}
+
 document.addEventListener('input',event=>{
  if(readOnly)return;const el=event.target;
  if(el.matches('.category-conclusion'))aiMarkCategory(el.dataset.key.split(':')[1],'text');
@@ -746,6 +882,7 @@ document.addEventListener('click',event=>{
  if(el.id==='aiGetCategory'){if(!el.disabled)aiOpenImportDialog();return;}
  if(el.hasAttribute('data-ai-category')){if(!aiBusy.has('category'))aiRunCategory(el.dataset.aiCategory);return;}
  if(el.hasAttribute('data-ai-get-competitor')){aiRunCompetitor(el.dataset.aiGetCompetitor);return;}
+ if(el.hasAttribute('data-comp-feedback-upload')||el.hasAttribute('data-comp-feedback-delete'))aiCompetitorState(ensureCompetitorState().active).manual.feedback=true;
  if(el.hasAttribute('data-category-delete'))aiMarkCategory(el.dataset.categoryDelete.split(':')[0],'image');
  if(el.hasAttribute('data-comp-keyword-delete')||el.hasAttribute('data-comp-keyword-add')){aiCompetitorState(ensureCompetitorState().active).manual.keywords=true;persist();}
 },true);
@@ -758,25 +895,27 @@ renderCompetitors();aiRefresh();persist();
 /* Category-only presentation; competitor and pending product controllers are untouched. */
 function aiSetMarkup(node,markup){if(aiMarkupCache.get(node)===markup)return;node.innerHTML=markup;aiMarkupCache.set(node,markup);}
 function aiCategoryFixture(i){return window.AI_CATEGORY_SAMPLE?.modules[i];}
-function aiCategoryHasEvidence(i){const state=aiCategoryState(String(i));return !!(state.structured?.rows?.length||state.screenshot?.src);}
+function aiCategoryHasEvidence(i){const state=aiCategoryState(String(i));return !!state.structured?.rows?.length;}
 function aiCategoryInit(i){
- const state=aiCategoryState(String(i));if(state.structuredVersion!==1){
-  state.structured=structuredClone(aiCategoryFixture(i));state.evidenceMode='table';
-  state.screenshot=state.manual.image?structuredClone(dimensionImages[i]?.[0]||null):null;
-  if(!state.manual.text){const input=$('#category-conclusion-'+i);if(input){input.value=state.structured.conclusion;m.dims[i]=dimensionHtml(i);categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';}}
-  state.structuredVersion=1;
+ const state=aiCategoryState(String(i)),sample=window.AI_CATEGORY_SAMPLE,input=$('#category-conclusion-'+i);
+ if(activeHistoryTask){state.structured=i<6?structuredClone(activeHistoryTask.structured[i]):null;state.evidenceMode='table';state.screenshot=null;state.sampleVersion=sample.version;if(input)input.value=dimensionParts(activeHistoryTask.dimensions[i]).text;return state;}
+ if(state.sampleVersion!==sample.version){
+  const previous=state.structured?.conclusion,original=dimensionParts(source.dimensions[i].html).text;
+  const replace=!state.manual.text||input?.value===previous||input?.value===original;
+  if(i<6)state.structured=structuredClone(aiCategoryFixture(i));
+  state.evidenceMode='table';state.sampleVersion=sample.version;state.structuredVersion=1;state.status='idle';state.message='';
+  if(input&&replace){input.value=i<6?sample.modules[i].conclusion:sample.textConclusions[i-6];state.manual.text=false;m.dims[i]=dimensionHtml(i);categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';}
  }return state;
 }
-function aiCategoryTable(data,compact=false){
- const rows=compact?(data.preview||data.rows.map((_,i)=>i).slice(0,6)).map(i=>data.rows[i]).filter(Boolean):data.rows;
- return `<div class="ai-data-table-wrap"><table class="ai-data-table"><thead><tr>${data.columns.map(label=>`<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+function aiCategoryTable(data){
+ return `<div class="ai-data-table-wrap"><table class="ai-data-table"><thead><tr>${data.columns.map(label=>`<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>${data.rows.map(row=>`<tr>${row.map(value=>`<td>${esc(value)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
-function aiCategorySource(data,full=false){return `<div class="ai-data-source"><span>数据来源：${esc(data.source)}</span><span>样本口径：${esc(data.sample)}</span><span>统计时间：${esc(data.period)}</span>${full?`<span>获取日期：${esc(window.AI_CATEGORY_SAMPLE.retrievedAt)}</span>`:''}</div>`;}
 function aiCategoryEvidenceMarkup(i,report=false){
  const state=aiCategoryState(String(i)),data=state.structured;
- if(!data?.rows?.length&&state.evidenceMode==='screenshot'&&state.screenshot?.src)return `<figure class="ai-category-shot">${reportImageHtml(state.screenshot,true,'人工分析截图')}<figcaption>人工上传截图${!report&&!readOnly?` <button type="button" class="link danger" data-ai-remove-shot="${i}">删除截图</button>`:''}</figcaption></figure>`;
- if(!data?.rows?.length)return '<div class="ai-data-empty">暂无分析依据，请导入类目分析资料后进行AI辅助分析。</div>';
- return aiCategoryTable(data,true)+`<div class="ai-data-footer">${report?'':`<button type="button" class="link" data-ai-full-data="${i}">查看完整数据</button>`}</div>`;
+
+ if(!data?.rows?.length)return report?reportValue(''):'<div class="ai-data-empty">暂无分析依据，请导入类目分析资料后进行AI辅助分析。</div>';
+ const tables=data.tables?.length?`<div class="ai-seller-tables">${data.tables.map(table=>`<section class="ai-seller-table"><h5>${esc(table.title)}</h5>${aiCategoryTable(table)}${table.note?`<p class="ai-table-note">数据说明：${esc(table.note)}</p>`:''}</section>`).join('')}</div>`:aiCategoryTable(data);
+ return tables+(data.note?`<p class="ai-table-note">数据说明：${esc(data.note)}</p>`:'');
 }
 function aiCategoryCanGenerate(){
  const site=$('#marketSite'),level=$('#marketLevel'),category=$('#marketCategory'),value=category?.value.trim()||'';
@@ -785,7 +924,7 @@ function aiCategoryCanGenerate(){
 function aiUpdateCategoryPrimary(){
  const button=$('#aiGetCategory');if(!button)return;
  const busy=aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running');
- button.disabled=readOnly||busy||!aiCategoryCanGenerate();button.hidden=readOnly;aiSetMarkup(button,aiImportIcon()+'<span>AI辅助分析</span>');
+ button.disabled=readOnly||aiCategorySubmitting||busy||!aiCategoryCanGenerate();button.hidden=readOnly;button.setAttribute('aria-busy',String(busy));aiSetMarkup(button,aiImportIcon()+'<span>'+(busy?'AI分析中':'AI辅助分析')+'</span>');
  button.title=!aiCategoryCanGenerate()?'请先选择有效的站点、品类等级和调研品类':'';aiRenderMaterials();
 }
 function refreshAiCategoryUI(){
@@ -799,16 +938,14 @@ function refreshAiCategoryUI(){
  $('#categoryRankings')?.querySelectorAll('.ai-evidence,[data-ai-module-status],[data-ai-category]').forEach(node=>node.remove());
  source.dimensions.forEach((_,i)=>{
   const key=String(i),card=$('#dim-'+i),header=card?.querySelector('.field-head');if(!card||!header)return;
-  const state=i<6?aiCategoryInit(i):aiCategoryState(key);
+  const state=aiCategoryInit(i);
   card.querySelectorAll(':scope > .ai-evidence,[data-ai-module-status]').forEach(node=>node.remove());
   header.querySelectorAll('[data-ai-category]').forEach(node=>node.remove());
   const body=card.querySelector('.category-item-body');
   if(i<6){
-   if(!body.classList.contains('ai-category-stack')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-stack';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span></div><div data-ai-evidence-area="${i}"></div><div class="ai-shot-status" data-ai-shot-status="${i}" role="status"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
-   const area=body.querySelector('[data-ai-evidence-area]'),markup=aiCategoryEvidenceMarkup(i);aiSetMarkup(area,markup);
-
-
-  }
+   if(!body.classList.contains('ai-category-layout')){const value=$('#category-conclusion-'+i).value;body.className='category-item-body ai-category-layout';body.innerHTML=`<div class="ai-analysis-basis"><div class="ai-basis-head"><span>分析依据 <span class="required">*</span></span></div><div data-ai-evidence-area="${i}"></div></div><div class="category-text-panel ai-analysis-conclusion"><label for="category-conclusion-${i}">分析结论 <span class="required">*</span></label><textarea class="category-conclusion" id="category-conclusion-${i}" data-key="dim:${i}" aria-label="${esc(source.dimensions[i].title)}" rows="5" placeholder="请输入分析结论">${esc(value)}</textarea></div>`;}
+   aiSetMarkup(body.querySelector('[data-ai-evidence-area]'),aiCategoryEvidenceMarkup(i));
+  }else if(!body.classList.contains('ai-text-only-body')){const input=$('#category-conclusion-'+i);body.className='category-item-body ai-text-only-body';body.replaceChildren(input);}
   const input=$('#category-conclusion-'+i);if(input){input.disabled=readOnly;input.style.height='136px';}
   refreshCategoryStatus(i);const mark=card.querySelector('.category-save-status');if(mark&&['error','running','interrupted'].includes(state.status))mark.dataset.state=state.status==='running'?'saving':'error';
  });
@@ -817,11 +954,11 @@ function refreshAiCategoryUI(){
 function aiCategorySampleResult(request){
  const i=Number(request.key),sample=window.AI_CATEGORY_SAMPLE;
  if(i<6){const structured=structuredClone(sample.modules[i]);return {basis:`${structured.source}；${structured.sample}；${structured.period}`,structured,conclusion:structured.conclusion};}
- return {basis:'基于商品标题和用途推断，非买家人口统计',conclusion:sample.textConclusions[i-6]};
+ return {basis:sample.record,conclusion:sample.textConclusions[i-6]};
 }
-function aiCategoryAskOverwrite(keys){
- if(!keys.some(key=>{const state=aiCategoryState(String(key));return state.manual.text||state.manual.image||state.evidenceMode==='screenshot';}))return Promise.resolve('keep');
- return new Promise(resolve=>{const dialog=openDialog('重新获取分析','<p>所选分析项已有人工填写的结论或截图，是否覆盖？</p><p class="subtle">保留时只更新AI数据，不改动人工结论及当前截图；覆盖时使用AI初稿和表格。获取期间的新修改仍会保留。</p>','<button type="button" class="btn" data-ai-cover-cancel>取消</button><button type="button" class="btn" data-ai-cover-keep>保留人工内容并获取</button><button type="button" class="btn primary" data-ai-cover-confirm>覆盖并重新获取</button>');
+function aiCategoryAskOverwrite(keys,action='AI辅助分析'){
+ if(!keys.some(key=>{const i=Number(key);return !!$('#category-conclusion-'+i)?.value.trim()||i<6&&aiCategoryHasEvidence(i);}))return Promise.resolve('keep');
+ return new Promise(resolve=>{const dialog=openDialog('确认填充方式',`<p>当前类目分析已有内容，请选择${esc(action)}的填充方式。</p><p class="subtle">全部覆盖将替换现有分析依据及结论；仅填充空值项将保留已有内容。</p>`,'<button type="button" class="btn" data-ai-cover-cancel>取消</button><button type="button" class="btn" data-ai-cover-keep>仅填充空值项</button><button type="button" class="btn primary" data-ai-cover-confirm>全部覆盖</button>');
   let answered=false;const answer=value=>{if(answered)return;answered=true;document.removeEventListener('keydown',escape);close(dialog);resolve(value);};
   const escape=e=>{if(e.key==='Escape')answer('cancel');};document.addEventListener('keydown',escape);
   dialog.querySelector('[data-ai-cover-cancel]').onclick=()=>answer('cancel');dialog.querySelector('[data-ai-cover-keep]').onclick=()=>answer('keep');dialog.querySelector('[data-ai-cover-confirm]').onclick=()=>answer('overwrite');dialog.querySelector('.close').onclick=()=>answer('cancel');dialog.addEventListener('click',e=>{if(e.target===dialog)answer('cancel');});
@@ -831,15 +968,15 @@ async function aiRunCategory(key,batch=false,batchResult=null,decision=null){
  if(!/^\d$/.test(key)||+key>7||readOnly)return;const state=aiCategoryState(key);if(state.status==='running')return;
  document.activeElement?.blur();if(!decision)decision=await aiCategoryAskOverwrite([key]);if(decision==='cancel'||readOnly||state.status==='running')return;
  const scopeKey=aiScopeKey(),scope=aiScope();if(!scope.site||!scope.level||!scope.category){showToast('请先选择站点、品类等级和调研品类','error');return;}
- const i=Number(key),input=$('#category-conclusion-'+i),before={text:input.value,version:categorySaveVersions[i]||0,shot:JSON.stringify(state.screenshot),mode:state.evidenceMode},token=++ai.sequence;
+ const i=Number(key),input=$('#category-conclusion-'+i),before={text:input.value,version:categorySaveVersions[i]||0,shot:JSON.stringify(state.screenshot),mode:state.evidenceMode,hasEvidence:aiCategoryHasEvidence(i)},token=++ai.sequence;
  state.status='running';state.token=token;state.attempts++;state.message='';if(!batch)aiRefresh();
  try{
   const result=await(batchResult||aiService({kind:'category',key,scope,batch,attempt:state.attempts,taskId:'AI-CAT-'+token}));if(state.token!==token)return;
   if(!aiContextValid(scopeKey)){state.status='interrupted';state.message='口径已变化，结果未回填';return;}
   if(typeof result.conclusion!=='string'||i<6&&(!result.structured?.rows?.length||!Array.isArray(result.structured.columns)))throw new Error('返回数据不完整');
   const current=$('#category-conclusion-'+i);let kept=false;
-  if((!state.manual.text||decision==='overwrite')&&current.value===before.text&&(categorySaveVersions[i]||0)===before.version){current.value=result.conclusion;state.manual.text=false;}else kept=true;
-  if(i<6){state.structured=structuredClone(result.structured);state.structuredVersion=1;
+  if((!before.text.trim()||decision==='overwrite')&&current.value===before.text&&(categorySaveVersions[i]||0)===before.version){current.value=result.conclusion;state.manual.text=false;}else kept=true;
+  if(i<6&&(decision==='overwrite'||!before.hasEvidence)&&JSON.stringify(state.screenshot)===before.shot&&state.evidenceMode===before.mode){state.structured=structuredClone(result.structured);state.structuredVersion=1;state.sampleVersion=window.AI_CATEGORY_SAMPLE.version;
    if(decision==='overwrite'&&JSON.stringify(state.screenshot)===before.shot&&state.evidenceMode===before.mode){state.evidenceMode='table';state.manual.image=false;}else if(state.evidenceMode==='screenshot')kept=true;
   }
   categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;m.dims[i]=dimensionHtml(i);syncCompPositionFromCategory();categorySaveStates[i]='saved';state.status='done';state.generatedAt=Date.now();state.message=kept?'已保留人工内容':'';if(!persist())throw new Error('保存失败');
@@ -854,23 +991,39 @@ async function aiRunAll(){
  await Promise.all(modules.map(key=>aiRunCategory(key,true,response.then(result=>{const module=result.modules?.[key];if(!module||module.error)throw new Error('获取失败');return module;}),decision)));
  aiBusy.delete('category');if(modules.some(key=>aiCategoryState(key).status==='done'))ai.categoryGenerated=true;const failed=modules.filter(key=>aiCategoryState(key).status==='error').length;ai.categoryMessage=failed?`${failed}项获取失败，请通过AI辅助分析重试`:'类目分析已更新';persist();aiRefresh();
 }
-function aiOpenCategoryData(i){
- const data=aiCategoryState(String(i)).structured;if(!data)return;aiCloseCategoryData();const origin=document.activeElement,mask=document.createElement('div');mask.className='ai-data-drawer-mask';mask.id='aiCategoryDataDrawer';mask.innerHTML=`<aside class="ai-data-drawer" role="dialog" aria-modal="true" aria-labelledby="aiDataDrawerTitle"><header><div><h3 id="aiDataDrawerTitle">${esc(source.dimensions[i].title)} · 完整数据</h3><span class="subtle">Amazon US · Refillable Containers · 节点11062781</span></div><button type="button" class="close" data-ai-data-close aria-label="关闭完整数据">×</button></header><div class="ai-data-drawer-body">${aiCategoryTable(data)}${aiCategorySource(data,true)}<p class="ai-data-note">${esc(data.notes||'')}</p>${(data.extra||[]).map(extra=>`<section><h4>${esc(extra.title)}</h4>${aiCategoryTable(extra)}${aiCategorySource(extra)}</section>`).join('')}</div></aside>`;
- document.body.append(mask);mask._origin=origin;mask._overflow=document.body.style.overflow;document.body.style.overflow='hidden';mask.querySelector('[data-ai-data-close]').focus();
-}
-function aiCloseCategoryData(){const node=$('#aiCategoryDataDrawer');if(node){document.body.style.overflow=node._overflow||'';node.remove();if(node._origin?.isConnected)node._origin.focus();}}
 const aiCategoryOriginalStatus=categoryStatusLabel;categoryStatusLabel=function(i){const state=aiCategoryState(String(i));if(state.status==='running')return 'AI获取中…';if(state.status==='error')return 'AI获取失败';if(state.status==='interrupted')return state.message||'获取已中断';if(i>=6)return aiCategoryOriginalStatus(i);if(categorySaveStates[i]==='saving')return '保存中…';if(categorySaveStates[i]==='dirty')return '未保存';if(categorySaveStates[i]==='error')return '保存失败 · 重试';if(!$('#category-conclusion-'+i)?.value.trim())return '未填写';return aiCategoryHasEvidence(i)?'✓ 已保存':'待获取依据';};
 refreshCategoryControls=function(){$('#toggleCategoryItems')?.remove();$('#categoryProgress')?.remove();aiUpdateCategoryPrimary();};
 sizeCategoryText=function(){$$('#dimensions .category-conclusion').forEach(input=>input.style.height='136px');};
 const aiCategoryOriginalGallery=renderCategoryGallery;renderCategoryGallery=function(i){aiCategoryOriginalGallery(i);if(i<6)refreshAiCategoryUI();};
 uploadCategoryImage=async function(i,job,retry=false){if(readOnly)return;aiMarkCategory(String(i),'image');const state=aiCategoryState(String(i));await aiOriginalUpload(i,job,retry);if(!job.cancelled&&!readOnly&&job.status!=='error'&&dimensionImages[i]?.[0]?.src===job.src){state.screenshot=structuredClone(dimensionImages[i][0]);state.evidenceMode='screenshot';persist();}refreshAiCategoryUI();};
 const aiCategoryOriginalReport=categoryReportHtml;categoryReportHtml=function(dims,rankings){
- if(activeHistoryTask||categoryHistoryRecords.some(record=>record.dimensions===dims))return aiCategoryOriginalReport(dims,rankings);
- return rankingReportHtml(rankings)+source.dimensions.map((module,i)=>`<article class="report-analysis"><h3>${i+1}. ${esc(module.title)}</h3>${i<6?`<h4>分析依据</h4>${aiCategoryEvidenceMarkup(i,true)}`:''}<h4>分析结论</h4><div class="report-rich comp-report-text">${reportValue(dimensionParts(m.dims[i]).text)}</div></article>`).join('');
+ const history=categoryHistoryRecords.find(record=>record.dimensions===dims)||activeHistoryTask;
+ if(history)return source.dimensions.map((module,i)=>`<article class="report-analysis"><h3>${i+1}. ${esc(module.title)}</h3>${i<6?`<h4>分析依据</h4>${aiCategoryHistoryEvidence(history.structured?.[i])}<h4>分析结论</h4>`:''}<div class="report-rich comp-report-text">${reportValue(dimensionParts(history.dimensions[i]).text)}</div></article>`).join('');
+ return rankingReportHtml(rankings)+source.dimensions.map((module,i)=>`<article class="report-analysis"><h3>${i+1}. ${esc(module.title)}</h3>${i<6?`<h4>分析依据</h4>${aiCategoryEvidenceMarkup(i,true)}<h4>分析结论</h4>`:''}<div class="report-rich comp-report-text">${reportValue(dimensionParts(m.dims[i]).text)}</div></article>`).join('');
 };
-document.addEventListener('click',event=>{const full=event.target.closest('[data-ai-full-data]'),restore=event.target.closest('[data-ai-restore-data]'),remove=event.target.closest('[data-ai-remove-shot]');if(full)aiOpenCategoryData(Number(full.dataset.aiFullData));if((restore||remove)&&!readOnly){const i=Number((restore||remove).dataset[restore?'aiRestoreData':'aiRemoveShot']),state=aiCategoryState(String(i));state.evidenceMode='table';for(const job of categoryUploadJobs[i]||[])job.cancelled=true;categoryUploadJobs[i]=[];if(remove){state.screenshot=null;dimensionImages[i]=[];state.manual.image=false;m.dims[i]=dimensionHtml(i);}persist();refreshAiCategoryUI();}if(event.target.closest('[data-ai-data-close]')||event.target.id==='aiCategoryDataDrawer')aiCloseCategoryData();});
-document.addEventListener('keydown',event=>{const drawer=$('#aiCategoryDataDrawer');if(!drawer)return;if(event.key==='Escape'){event.preventDefault();aiCloseCategoryData();}if(event.key==='Tab'){event.preventDefault();drawer.querySelector('[data-ai-data-close]').focus();}});
 refreshAiCategoryUI();persist();
+
+function aiApplyCategoryHistory(selected,mode){
+ source.dimensions.forEach((_,i)=>{
+  const existing=dimensionParts(m.dims[i]);existing.text=$('#category-conclusion-'+i)?.value??existing.text;const incoming=dimensionParts(selected.dimensions[i]),state=aiCategoryState(String(i));
+  const text=mode==='overwrite'||!existing.text.trim()?incoming.text:existing.text;
+  if(i<6&&(mode==='overwrite'||!aiCategoryHasEvidence(i))){
+   state.structured=selected.structured?.[i]?structuredClone(selected.structured[i]):null;
+   state.screenshot=null;
+   state.evidenceMode='table';state.manual.image=false;categoryUploadJobs[i]=[];
+  }
+  if(text!==existing.text||mode==='overwrite')state.manual.text=false;
+  m.dims[i]=text?`<p>${esc(text).replace(/\n/g,'<br>')}</p>`:'';
+  categorySaveVersions[i]=(categorySaveVersions[i]||0)+1;categorySaveStates[i]='saved';
+ });
+ m.categoryReuse=selected.id+' · '+selected.reviewedAt;renderDimensions();syncReadOnly();persist();
+}
+
+function aiCategoryHistoryEvidence(data){
+ if(!data?.rows?.length)return reportValue('');
+ const note=text=>text?`<p class="ai-table-note">数据说明：${esc(text)}</p>`:'';
+ return (data.tables?.length?`<div class="ai-seller-tables">${data.tables.map(table=>`<section class="ai-seller-table"><h5>${esc(table.title)}</h5>${aiCategoryTable(table)}${note(table.note)}</section>`).join('')}</div>`:aiCategoryTable(data))+note(data.note);
+}
 
 /* Ranking references are retired in the AI version; saved data remains intact. */
 renderRankings=function(){};
@@ -878,32 +1031,40 @@ refreshRankingProgress=function(){};
 rankingReportHtml=function(){return '';};
 $('#categoryRankings')?.remove();
 
+function aiPdfFileIcon(){return '<svg class="ai-pdf-file-icon" viewBox="0 0 24 28" fill="none" aria-hidden="true"><path d="M4 1h12l7 7v18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z" fill="#e74848"/><path d="M16 1v7h7" fill="#ffb9b9"/><rect x="0" y="12" width="24" height="11" rx="2" fill="#c92b32"/><text x="12" y="20" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" font-weight="700">PDF</text></svg>';}
 /* Files stay in browser storage; the prototype retains its existing analysis service. */
 function aiExcelFileIcon(){return '<svg class="ai-excel-file-icon" viewBox="0 0 24 28" fill="none" aria-hidden="true"><path d="M6 1h11l6 6v19a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z" fill="#21a366"/><path d="M17 1v6h6" fill="#a6dfbe"/><path d="M12 12h8M12 16h8M12 20h8M16 10v13" stroke="#fff" stroke-opacity=".65"/><rect y="8" width="13" height="15" rx="1.5" fill="#107c41"/><path d="m4 12 5 7m0-7-5 7" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>';}
 function aiImportIcon(){return '<svg class="ai-import-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 6.3L21 12l-6.3 2.7L12 21l-2.7-6.3L3 12l6.3-2.7L12 3Z"/><path d="m20 2 .6 1.4L22 4l-1.4.6L20 6l-.6-1.4L18 4l1.4-.6L20 2Z"/></svg>';}
 function aiMaterials(scope=aiScopeKey()){ai.materials||={};return ai.materials[scope]||={};}
 function aiMaterialStorage(action,id,file){
  return new Promise((resolve,reject)=>{
-  if(!window.indexedDB){reject(new Error('文件存储不可用，请检查浏览器设置后重试'));return;}
-  const request=window.indexedDB.open('ac-ai-analysis-materials',1);
+  let settled=false,db=null,tx=null;
+  const finish=(error,value)=>{if(settled)return;settled=true;clearTimeout(timeout);if(error&&tx){try{tx.abort();}catch{}}db?.close();error?reject(error):resolve(value);};
+  const timeout=setTimeout(()=>finish(new Error('文件保存超时，请重新选择文件上传')),5000);
+  if(!window.indexedDB){finish(new Error('文件存储不可用，请检查浏览器设置后重试'));return;}
+  let request;
+  try{request=window.indexedDB.open('ac-ai-analysis-materials',1);}catch(error){finish(error);return;}
   request.onupgradeneeded=()=>request.result.createObjectStore('files');
-  request.onerror=()=>reject(new Error('无法打开文件存储，请重试'));
-  request.onblocked=()=>reject(new Error('文件存储被其他页面占用，请关闭旧页面后重试'));
+  request.onerror=()=>finish(new Error('无法打开文件存储，请重试'));
+  request.onblocked=()=>finish(new Error('文件存储被其他页面占用，请关闭旧页面后重试'));
   request.onsuccess=()=>{
-   const db=request.result,tx=db.transaction('files',action==='get'?'readonly':'readwrite'),store=tx.objectStore('files');
-   let value;
-   const operation=action==='put'?store.put(file,id):action==='delete'?store.delete(id):store.get(id);
-   operation.onsuccess=()=>{value=operation.result;};
-   tx.oncomplete=()=>{db.close();resolve(value);};
-   tx.onerror=tx.onabort=()=>{db.close();reject(new Error('文件保存失败，请检查浏览器存储空间后重试'));};
+   db=request.result;if(settled){db.close();return;}
+   try{
+    tx=db.transaction('files',action==='get'?'readonly':'readwrite');const store=tx.objectStore('files');let value;
+    const operation=action==='put'?store.put(file,id):action==='delete'?store.delete(id):store.get(id);
+    operation.onsuccess=()=>{value=operation.result;};
+    tx.oncomplete=()=>finish(null,value);
+    tx.onerror=tx.onabort=()=>finish(new Error('文件保存失败，请检查浏览器存储空间后重试'));
+   }catch(error){finish(error);}
   };
  });
 }
+
 function aiRenderMaterials(){
  const row=$('.category-meta-bottom');if(!row)return;
  let area=$('#aiAnalysisMaterials');if(!area){area=document.createElement('div');area.id='aiAnalysisMaterials';area.className='ai-analysis-materials';row.after(area);}
  const files=aiMaterials(),entries=['excel','pdf'].filter(key=>files[key]);area.hidden=!entries.length;
- aiSetMarkup(area,entries.length?'<span class="subtle">分析资料</span>'+entries.map(key=>`<span class="ai-material-file"><span class="ai-material-kind ${key}" aria-hidden="true">${key==='excel'?aiExcelFileIcon():'▤'}</span><span class="ai-material-name" title="${esc(files[key].name)}">${esc(files[key].name)}</span><button type="button" class="link" data-ai-material-download="${key}">下载</button></span>`).join(''):'');
+ aiSetMarkup(area,entries.length?'<span class="subtle">分析资料</span>'+entries.map(key=>`<span class="ai-material-file"><span class="ai-material-kind ${key}" aria-hidden="true">${key==='excel'?aiExcelFileIcon():aiPdfFileIcon()}</span><span class="ai-material-name" title="${esc(files[key].name)}">${esc(files[key].name)}</span><button type="button" class="link" data-ai-material-download="${key}">下载</button></span>`).join(''):'');
  area.querySelectorAll('[data-ai-material-download]').forEach(button=>button.onclick=()=>aiDownloadMaterial(button.dataset.aiMaterialDownload));
 }
 async function aiDownloadMaterial(key){
@@ -912,43 +1073,89 @@ async function aiDownloadMaterial(key){
  catch(error){showToast(error.message||'文件下载失败，请重试','error');}
 }
 function aiOpenImportDialog(){
- if(readOnly||!aiCategoryCanGenerate()||aiBusy.has('category')||$('.ai-import-dialog'))return;
- const scope=aiScopeKey(),dialog=openDialog('导入类目分析资料',`<div class="ai-import-context">${esc(m.site)} · Amazon${categoryLevelText(m.categoryLevel)} · ${esc(m.category)}</div><div class="ai-import-field"><label>市场数据Excel <span class="required">*</span></label><button type="button" class="ai-import-upload" data-ai-import-pick="excel"><span class="ai-material-kind excel" aria-hidden="true">${aiExcelFileIcon()}</span><span><strong data-ai-import-name="excel">上传Excel文件</strong><small>主要用于统计数据及分析依据，仅支持 .xlsx、.xls</small></span><span class="ai-import-check" data-ai-import-check="excel" aria-hidden="true"></span></button><input type="file" accept=".xlsx,.xls" data-ai-import-input="excel" hidden></div><div class="ai-import-field"><label>AI文字分析报告 <span class="subtle">（选填）</span></label><button type="button" class="ai-import-upload" data-ai-import-pick="pdf"><span class="ai-material-kind pdf" aria-hidden="true">▤</span><span><strong data-ai-import-name="pdf">上传PDF文件</strong><small>用于补充市场判断、消费者画像、使用场景等，仅支持 .pdf</small></span><span class="ai-import-check" data-ai-import-check="pdf" aria-hidden="true"></span></button><input type="file" accept=".pdf" data-ai-import-input="pdf" hidden></div><p class="ai-import-tip">请确保资料的品类、站点、统计周期和样本口径一致。<br>补充PDF分析报告，有助于生成更全面、准确的分析。</p><p class="field-error" data-ai-import-error role="alert"></p>`, '<button type="button" class="btn" data-ai-import-cancel>取消</button><button type="button" class="btn primary" data-ai-import-start>开始分析并填充</button>', 'ai-import-dialog');
- let uploading=false;
+ if(readOnly||!aiCategoryCanGenerate()||aiCategorySubmitting||aiBusy.has('category')||Object.values(ai.category).some(state=>state.status==='running')||$('.ai-import-dialog'))return;
+ const scope=aiScopeKey(),dialog=openDialog('导入类目分析资料',`<div class="ai-import-context">${esc(m.site)} · Amazon${categoryLevelText(m.categoryLevel)} · ${esc(m.category)}</div><div class="ai-import-field"><label>市场数据Excel <span class="required">*</span></label><button type="button" class="ai-import-upload" data-ai-import-pick="excel"><span class="ai-material-kind excel" aria-hidden="true">${aiExcelFileIcon()}</span><span><strong data-ai-import-name="excel">上传Excel文件</strong><small>主要用于统计数据及分析依据，仅支持 .xlsx、.xls</small></span></button><div class="ai-import-check" data-ai-import-check="excel" role="status" aria-live="polite"></div><input type="file" accept=".xlsx,.xls" data-ai-import-input="excel" hidden></div><div class="ai-import-field"><label>AI文字分析报告 <span class="subtle">（选填）</span></label><button type="button" class="ai-import-upload" data-ai-import-pick="pdf"><span class="ai-material-kind pdf" aria-hidden="true">${aiPdfFileIcon()}</span><span><strong data-ai-import-name="pdf">上传PDF文件</strong><small>用于补充市场判断、消费者画像、使用场景等，仅支持 .pdf</small></span></button><div class="ai-import-check" data-ai-import-check="pdf" role="status" aria-live="polite"></div><input type="file" accept=".pdf" data-ai-import-input="pdf" hidden></div><p class="ai-import-tip">注：资料须与当前调研口径一致，补充PDF报告可使分析更全面、准确。</p><p class="field-error" data-ai-import-error role="alert"></p>`, '<button type="button" class="btn" data-ai-import-cancel>取消</button><button type="button" class="btn primary" data-ai-import-start>开始分析并填充</button>', 'ai-import-dialog');
+ let uploading=false;const uploadStates={excel:aiMaterials(scope).excel?'success':'idle',pdf:aiMaterials(scope).pdf?'success':'idle'},uploadNames={};
  const start=dialog.querySelector('[data-ai-import-start]');start.textContent='开始分析并填充';
  const error=dialog.querySelector('[data-ai-import-error]');
  function refresh(){
   const files=aiMaterials(scope);
-  for(const key of ['excel','pdf']){dialog.querySelector(`[data-ai-import-name="${key}"]`).textContent=files[key]?.name||(key==='excel'?'上传Excel文件':'上传PDF文件');dialog.querySelector(`[data-ai-import-check="${key}"]`).textContent=files[key]?'✓':'';dialog.querySelector(`[data-ai-import-pick="${key}"]`).disabled=uploading;}
+  for(const key of ['excel','pdf']){
+   const state=uploadStates[key],pick=dialog.querySelector(`[data-ai-import-pick="${key}"]`),status=dialog.querySelector(`[data-ai-import-check="${key}"]`);
+   dialog.querySelector(`[data-ai-import-name="${key}"]`).textContent=state==='uploading'?uploadNames[key]:files[key]?.name||(key==='excel'?'上传Excel文件':'上传PDF文件');
+   status.textContent=state==='uploading'?'上传中…':state==='success'?'✓ 上传成功':state==='error'?'! 上传失败':'';status.dataset.state=state;
+   pick.dataset.uploadState=state;pick.setAttribute('aria-busy',String(state==='uploading'));pick.disabled=uploading;pick.title=files[key]?'点击重新选择文件并上传，成功后替换当前文件':'点击选择文件上传';
+  }
   start.disabled=uploading||!files.excel||scope!==aiScopeKey();
  }
  for(const key of ['excel','pdf']){
   const input=dialog.querySelector(`[data-ai-import-input="${key}"]`);
   dialog.querySelector(`[data-ai-import-pick="${key}"]`).onclick=()=>{input.value='';input.click();};
-  input.onchange=async()=>{
+  input.onchange=async event=>{
+   event?.stopPropagation();
    const file=input.files?.[0];if(!file||uploading)return;error.textContent='';
-   if(!(key==='excel'?/\.(xlsx|xls)$/i:/\.pdf$/i).test(file.name)){error.textContent=key==='excel'?'请选择Excel文件（.xlsx、.xls）':'请选择PDF文件（.pdf）';input.value='';return;}
-   if(!file.size){error.textContent='文件为空，请重新选择';return;}
-   uploading=true;refresh();dialog.querySelector(`[data-ai-import-check="${key}"]`).textContent='上传中…';
+   if(!(key==='excel'?/\.(xlsx|xls)$/i:/\.pdf$/i).test(file.name)){uploadStates[key]='error';error.textContent=key==='excel'?'上传失败，请选择Excel文件（.xlsx、.xls）':'上传失败，请选择PDF文件（.pdf）';input.value='';refresh();return;}
+   if(!file.size){uploadStates[key]='error';error.textContent='上传失败，文件为空，请重新选择';refresh();return;}
+   uploading=true;uploadStates[key]='uploading';uploadNames[key]=file.name;refresh();
    const id=scope+'|'+key+'|'+Date.now()+'|'+(++ai.sequence),old=aiMaterials(scope)[key];
+   const statusVisible=new Promise(resolve=>setTimeout(resolve,650));
    try{
-    await aiMaterialStorage('put',id,file);
+    // Yield a browser frame before starting file storage, keeping progress visible.
+    await new Promise(resolve=>window.requestAnimationFrame?window.requestAnimationFrame(()=>setTimeout(resolve,0)):setTimeout(resolve,80));
+    await Promise.all([aiMaterialStorage('put',id,file),statusVisible]);
     if(scope!==aiScopeKey()||readOnly)throw new Error('当前调研口径或权限已变化，请重新导入');
     aiMaterials(scope)[key]={id,name:file.name,size:file.size,type:file.type};
     if(!persist()){if(old)aiMaterials(scope)[key]=old;else delete aiMaterials(scope)[key];throw new Error('资料信息保存失败，请重试');}
-    aiRenderMaterials();if(old)aiMaterialStorage('delete',old.id).catch(()=>{});
-   }catch(e){aiMaterialStorage('delete',id).catch(()=>{});error.textContent=e.message||'上传失败，请重试';}
+    uploadStates[key]='success';aiRenderMaterials();if(old)aiMaterialStorage('delete',old.id).catch(()=>{});
+   }catch(e){await statusVisible;aiMaterialStorage('delete',id).catch(()=>{});uploadStates[key]='error';error.textContent=(e.message||'上传失败，请重新选择文件')+(old?'；原文件已保留。':'');}
    finally{uploading=false;if(dialog.isConnected)refresh();}
   };
+  // File inputs dispatch input before change; update the view at the earliest event.
+  input.oninput=input.onchange;
  }
  dialog.querySelector('[data-ai-import-cancel]').onclick=()=>close(dialog);
  start.onclick=async()=>{
   if(uploading||!aiMaterials(scope).excel)return;
   if(readOnly||scope!==aiScopeKey()||!aiCategoryCanGenerate()){error.textContent='当前调研口径或权限已变化，请关闭后重新打开';return;}
-  close(dialog);await aiRunAll();
+  close(dialog);aiCategorySubmitting=true;aiRefresh();
+  try{await aiRunAll();}finally{aiCategorySubmitting=false;aiRefresh();}
  };
  refresh();
 }
+
+function aiHasCategoryMaterials(){return Object.values(ai.materials||{}).some(files=>files.excel||files.pdf);}
+function aiClearCategoryMaterials(){
+ const files=Object.values(ai.materials||{}).flatMap(group=>Object.values(group));ai.materials={};
+ // Detach files immediately; clean browser storage without blocking the page.
+ files.forEach(file=>{if(file?.id)aiMaterialStorage('delete',file.id).catch(()=>{});});
+ aiRenderMaterials();persist();
+}
+changeCategoryScope=function(){
+ if(readOnly)return;
+ const site=$('#marketSite').value,level=$('#marketLevel').value;
+ if(site===m.site&&level===String(m.categoryLevel))return;
+ const hasFiles=aiHasCategoryMaterials();
+ const apply=()=>{
+  aiClearCategoryMaterials();m.site=site;m.categoryLevel=level;m.category='';m.categoryMode='tree';m.categoryReuse='';
+  $('#marketSite').value=site;$('#marketLevel').value=level;$('#marketCategory').value='';setCategorySaved(false);clearCategoryError();closeCategorySuggestions();
+  persist();refreshCompScope();updateCategoryReuseAvailability();renderCompList();aiRenderMaterials();
+ };
+ if(!m.category.trim()&&!hasFiles){apply();return;}
+ $('#marketSite').value=m.site;$('#marketLevel').value=m.categoryLevel;
+ const dialog=openDialog('确认切换调研范围','<p>切换站点或品类等级将清空调研品类及已上传资料，下方已有分析数据将保留。是否继续？</p>','<button type="button" class="btn" data-cancel-scope>取消</button><button type="button" class="btn primary" data-confirm-scope>确认切换</button>');
+ dialog.querySelector('[data-cancel-scope]').onclick=()=>close(dialog);dialog.querySelector('[data-confirm-scope]').onclick=()=>{apply();close(dialog);};
+};
+$('#marketSite').onchange=changeCategoryScope;$('#marketLevel').onchange=changeCategoryScope;
+const aiOriginalChooseCategory=chooseResearchCategory;
+chooseResearchCategory=function(path){
+ if(path===m.category){aiOriginalChooseCategory(path);return;}
+ const apply=()=>{aiClearCategoryMaterials();aiOriginalChooseCategory(path);aiRenderMaterials();};
+ if(!aiHasCategoryMaterials()){apply();return;}
+ closeCategorySuggestions();
+ const dialog=openDialog('确认切换调研品类','<p>切换调研品类将清空已上传资料，下方已有分析数据将保留。是否继续？</p>','<button type="button" class="btn" data-category-change-cancel>取消</button><button type="button" class="btn primary" data-category-change-confirm>确认切换</button>');
+ dialog.querySelector('[data-category-change-cancel]').onclick=()=>{$('#marketCategory').value=m.category;close(dialog);refreshCategoryControls();};
+ dialog.querySelector('[data-category-change-confirm]').onclick=()=>{apply();close(dialog);};
+};
 
 /* Detail presentation changes are confined to the AI version. */
 const aiOriginalOpDetails=opDetailsHtml;
@@ -981,12 +1188,31 @@ validatePendingRequiredFields=function(){
  return aiDetailOriginalRequired();
 };
 const aiDetailOriginalValidate=validate;
+function aiPendingNeedsCompletion(product){
+ if(!String(product.purchaseLink??product.url??'').trim()||!String(product.purchaseNotes||'').trim())return true;
+ return product.skus.some(sku=>{
+  if(missingOpFields(buildOpRequest(product,sku)).length)return true;
+  if(!String(sku.accessoryList??sku.packagingList??sku.competitor??'').trim())return true;
+  if(!/^\d+$/.test(String(sku.moq??'')))return true;
+  const request=buildOpRequest(product,sku),values=[sku.price,pendingSalePrice(sku),...['length','width','height','weight'].map(key=>request.carton[key]),...(request.product?['length','width','height','weight'].map(key=>request.product[key]):[])];
+  return values.some(value=>!/^\d+(?:\.\d{1,2})?$/.test(String(value)));
+ });
+}
 validate=function(){
- const missing=products.find(p=>!String(p.purchaseLink??p.url??'').trim());
- if(missing){showToast('请补全待开发产品采购链接','error');$('#pendingSection').scrollIntoView({behavior:'smooth',block:'center'});return false;}
+ document.activeElement?.blur();
+ const missing=isVisible?products.find(aiPendingNeedsCompletion):null;
+ if(missing){openEdit(missing.spu);validatePendingRequiredFields();showToast('请补全待开发产品必填信息及数值格式','error');return false;}
  return aiDetailOriginalValidate();
 };
+
+function aiAlignCompetitorOverview(){
+ $('#compDetail .comp-overview-image')?.remove();
+ const path=$('#compDetail .comp-category-path'),warning=$('#compDetail .comp-category-warning');
+ if(warning){const icon=warning.querySelector('[aria-hidden="true"]');if(icon){icon.className='ai-warning-icon';icon.textContent='!';}}
+ if(path&&warning&&warning.parentElement!==path)path.append(warning);
+}
 function aiCleanDetailActions(){
+ aiAlignCompetitorOverview();
  $('#toggleCompetitorItems')?.remove();
  $$('#compDetail [data-comp-progress]').forEach(node=>node.remove());
 }
@@ -998,7 +1224,7 @@ renderCompetitors=function(){aiDetailOriginalCompetitors();aiCleanDetailActions(
 const aiDetailOriginalProducts=renderProducts;
 renderProducts=function(){
  aiDetailOriginalProducts();
- const headers=[...$('#pendingHead tr').children],removed=headers.map((cell,index)=>['起订量','配件搭配清单'].includes(cell.textContent.trim())?index:-1).filter(index=>index>=0);
+ const headers=[...$('#pendingHead tr').children],removed=headers.map((cell,index)=>['起订量','产品包装清单'].includes(cell.textContent.trim())?index:-1).filter(index=>index>=0);
  $$('#pendingBody tr').forEach(row=>{
   const cells=[...row.children];if(cells.length===1){cells[0].colSpan=10;return;}
   removed.forEach(index=>cells[index]?.remove());
@@ -1010,6 +1236,7 @@ renderProducts=function(){
   if(spu){const view=document.createElement('button');view.type='button';view.className='link ai-view-product';view.textContent='查看';view.dataset.pendingView=id;view.onclick=()=>aiViewPending(id);operation.prepend(view);if(view.nextSibling)view.after(document.createElement('br'));}
  });
  removed.forEach(index=>headers[index].remove());
+ $$('#pendingBody .pending-operation-fixed').forEach(cell=>{const edit=cell.querySelector('.edit-product'),view=cell.querySelector('[data-pending-view]'),others=[...cell.querySelectorAll('button,a')].filter(node=>node!==edit&&node!==view);cell.replaceChildren(...[edit,view,...others].filter(Boolean));cell.classList.add('ai-inline-operations');});
  if(!$('#pendingHead .pending-operation-fixed'))$('#pendingHead tr').insertAdjacentHTML('beforeend','<th class="pending-operation-fixed">操作</th>');
  $('.pending-table').classList.add('has-operations');schedulePendingStickyWidth();
 };
@@ -1023,8 +1250,13 @@ function aiRestorePendingControls(){
 }
 const aiDetailOriginalOpenEdit=openEdit;
 openEdit=function(id){aiRestorePendingControls();aiDetailOriginalOpenEdit(id);};
-function aiViewPending(id){
- openEdit(id);if(!$('#editModal').classList.contains('open'))return;
+function aiViewPending(id,snapshot=null){
+ const index=snapshot?products.findIndex(product=>product.spu===id):-1,live=index>=0?products[index]:null;
+ if(live)products[index]=structuredClone(snapshot);
+ try{openEdit(id);}finally{if(live)products[index]=live;}
+if(!$('#editModal').classList.contains('open'))return;
+ // The reusable editor is mounted before dynamic dialogs; move it above its caller.
+ document.body.append($('#editModal'));
  aiPendingViewing=true;$('#editModal').classList.add('ai-pending-readonly');
  $('#editModal .modal-title').textContent='查看待开发产品';
  $$('#editModal input,#editModal select,#editModal textarea,#editModal button').forEach(node=>{
@@ -1032,10 +1264,232 @@ function aiViewPending(id){
   aiPendingControlSnapshot.push([node,node.disabled,node.hidden]);node.disabled=true;
   if(node.id==='saveProduct'||node.id==='addVariant'||node.classList.contains('edit-remove-variant'))node.hidden=true;
  });
- $('#editModal .modal-foot [data-close]').textContent='关闭';
+ $('#editModal .modal-foot [data-close]').textContent='关闭';$('#editModal .modal-head [data-close]')?.focus();
 }
 const aiDetailOriginalSaveProduct=$('#saveProduct').onclick;
 $('#saveProduct').onclick=function(event){if(aiPendingViewing||!canWrite())return;return aiDetailOriginalSaveProduct.call(this,event);};
 aiCleanDetailActions();renderProducts();
+
+// Populate SKU references directly from this task's reference-product list.
+const aiOriginalEditVariants=renderEditVariants;
+renderEditVariants=function(product){
+ aiOriginalEditVariants(product);
+ $$('#editVariantBody > tr').forEach(row=>{
+  const sku=product.skus.find(item=>item.sku===row.dataset.sku),input=row.querySelector('[data-field="reference"]');
+  if(!sku||!input)return;
+  const selected=sku.reference??product.asin??'',select=document.createElement('select');
+  select.className=input.className;select.dataset.field='reference';select.setAttribute('aria-label','参考产品ASIN');select.setAttribute('aria-required','true');select.disabled=input.disabled;
+  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=refs.length?'请选择参考产品':'暂无参考产品';select.append(placeholder);
+  const seen=new Set();
+  refs.forEach(reference=>{if(!reference.asin||seen.has(reference.asin))return;seen.add(reference.asin);const option=document.createElement('option');option.value=reference.asin;option.textContent=reference.asin;option.title=reference.title||reference.asin;option.selected=reference.asin===selected;select.append(option);});
+  if(selected&&!seen.has(selected)){const option=document.createElement('option');option.value=selected;option.textContent=selected+'（已不在参考产品列表）';option.disabled=true;option.selected=true;select.append(option);}
+  if(!selected)placeholder.selected=true;
+  input.replaceWith(select);
+ });
+};
+
+// Keep report SKU details focused on the seven presentation fields.
+const aiOriginalPendingReport=pendingProductsReportHtml;
+pendingProductsReportHtml=function(){
+ const container=document.createElement('div');container.innerHTML=aiOriginalPendingReport();
+ container.querySelectorAll('.report-skus').forEach(table=>{
+  table.querySelectorAll('tr').forEach(row=>{
+   if(row.children.length===1){row.children[0].colSpan=7;return;}
+   [7,6].forEach(index=>row.children[index]?.remove());
+  });
+  const headers=table.querySelectorAll('thead th');
+  ['SKU编码','标题','产品图片','参考产品','采购价（CNY）','预计售价（USD）','利润测算结果'].forEach((title,index)=>{if(headers[index])headers[index].textContent=title;});
+ });
+ return container.innerHTML;
+};
+
+const aiOriginalRefreshCompScope=refreshCompScope;
+refreshCompScope=function(){aiOriginalRefreshCompScope();aiAlignCompetitorOverview();};
+aiAlignCompetitorOverview();
+
+const aiOriginalRenderCompList=renderCompList;
+renderCompList=function(){
+ aiOriginalRenderCompList();
+ $$('#compList .comp-list-metrics').forEach(node=>node.remove());
+ $$('#compList .comp-completion').forEach(node=>{if(node.classList.contains('incomplete'))node.textContent='待完善';else node.remove();});
+};
+renderCompList();
+setCategorySaved=function(){const mark=$('#categorySaved');if(mark){mark.hidden=true;mark.setAttribute('aria-hidden','true');mark.textContent='';}};
+setCategorySaved(false);
+
+const aiOriginalRenderReferences=renderRefs;
+renderRefs=function(){
+ aiOriginalRenderReferences();
+ $$('#referenceBody .reference-asin-status').forEach(group=>{
+  const association=group.querySelector('.tag.teal'),identity=group.querySelector('.reference-identity-tags');
+  if(association){association.classList.add('reference-competitor-tag');group.append(association);}
+  if(identity&&!identity.children.length)identity.remove();
+ });
+};
+renderRefs();
+
+// Select task reference products in a compact table with filtered select-all.
+const aiOriginalChooseCompetitors=chooseCompetitors;
+chooseCompetitors=function(){
+ aiOriginalChooseCompetitors();
+ const dialog=document.querySelector('.comp-add-dialog')?.closest('.modal-mask');if(!dialog)return;
+ const list=dialog.querySelector('#compAddReferenceList'),empty=dialog.querySelector('#compAddSearchEmpty');
+ const rows=[...list.querySelectorAll('[data-reference-search]')].map(label=>{
+  const row=document.createElement('tr');row.dataset.referenceSearch=label.dataset.referenceSearch;
+  if(label.classList.contains('is-added'))row.classList.add('is-added');
+  const checkbox=label.querySelector('[data-comp-ref]'),name=label.querySelector('.comp-add-product-name'),status=label.querySelector('.comp-add-existing');
+  for(let i=0;i<4;i++)row.append(document.createElement('td'));
+  checkbox.setAttribute('aria-label','选择参考产品 '+checkbox.dataset.compRef);row.children[0].append(checkbox);
+  row.children[1].textContent=checkbox.dataset.compRef;row.children[2].textContent=name?.textContent||'未填写产品名称';row.children[2].title=row.children[2].textContent;
+  if(status)row.children[3].append(status);
+  return row;
+ });
+ const table=document.createElement('table');table.className='ai-comp-reference-table';table.innerHTML='<colgroup><col style="width:44px"><col style="width:130px"><col><col style="width:68px"></colgroup><thead><tr><th><input type="checkbox" data-comp-ref-all aria-label="全选当前搜索结果中可添加的参考产品"></th><th>ASIN</th><th>产品名称</th><th>状态</th></tr></thead><tbody></tbody>';
+ table.querySelector('tbody').append(...rows);list.replaceChildren(table,empty);
+ const all=table.querySelector('[data-comp-ref-all]'),search=dialog.querySelector('#compAddReferenceSearch');
+ let page=1,pageSize=10;
+ const matching=()=>{const query=search.value.trim().toLowerCase();return rows.filter(row=>row.dataset.referenceSearch.includes(query));};
+ const eligible=()=>matching().map(row=>row.querySelector('[data-comp-ref]')).filter(input=>!input.disabled);
+ const sync=()=>{const inputs=eligible(),selected=inputs.filter(input=>input.checked).length;all.disabled=!inputs.length;all.checked=inputs.length>0&&selected===inputs.length;all.indeterminate=selected>0&&selected<inputs.length;all.setAttribute('aria-checked',all.indeterminate?'mixed':String(all.checked));};
+ rows.forEach(row=>{const checkbox=row.querySelector('[data-comp-ref]'),update=checkbox.onchange;checkbox.onchange=()=>{update?.();sync();};row.onclick=event=>{if(event.target.closest('input,button,a')||checkbox.disabled)return;checkbox.checked=!checkbox.checked;checkbox.onchange();};});
+ all.onchange=()=>{const inputs=eligible();inputs.forEach(input=>input.checked=all.checked);if(inputs.length)inputs[0].onchange();else sync();};
+ const pager=document.createElement('div');pager.className='pagination ai-reference-pagination';pager.setAttribute('aria-label','参考产品分页');
+ pager.innerHTML='<span data-ref-page-total></span><button type="button" class="page-btn" data-ref-page-prev aria-label="上一页">‹</button><span data-ref-page-current aria-live="polite"></span><button type="button" class="page-btn" data-ref-page-next aria-label="下一页">›</button><select class="control" data-ref-page-size aria-label="每页条数"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select>';
+ list.after(pager);
+ const paintPage=()=>{const matches=matching(),pages=Math.max(1,Math.ceil(matches.length/pageSize));page=Math.min(page,pages);const visible=new Set(matches.slice((page-1)*pageSize,page*pageSize));rows.forEach(row=>row.hidden=!visible.has(row));empty.hidden=matches.length>0;pager.querySelector('[data-ref-page-total]').textContent='共 '+matches.length+' 条';const pageNumbers=pager.querySelector('[data-ref-page-current]');pageNumbers.replaceChildren();const first=Math.max(1,Math.min(page-2,pages-4));for(let n=first;n<=Math.min(pages,first+4);n++){const button=document.createElement('button');button.type='button';button.className='page-btn'+(n===page?' active':'');button.textContent=n;button.setAttribute('aria-label','第'+n+'页');if(n===page)button.setAttribute('aria-current','page');button.onclick=()=>{page=n;paintPage();};pageNumbers.append(button);}pager.querySelector('[data-ref-page-prev]').disabled=page<=1;pager.querySelector('[data-ref-page-next]').disabled=page>=pages;list.scrollTop=0;sync();};
+ pager.querySelector('[data-ref-page-size]').onchange=event=>{pageSize=Number(event.target.value);page=1;paintPage();};
+ pager.querySelector('[data-ref-page-prev]').onclick=()=>{if(page>1){page--;paintPage();}};
+ pager.querySelector('[data-ref-page-next]').onclick=()=>{if(page*pageSize<matching().length){page++;paintPage();}};
+ const searchInput=search.oninput;
+ search.oninput=()=>{searchInput();page=1;paintPage();};search.addEventListener('search',()=>{page=1;paintPage();});
+ paintPage();
+};
+if($('#selectCompetitors'))$('#selectCompetitors').onclick=chooseCompetitors;
+
+// Review and preproject views share the submitted, approved report snapshot.
+const aiLiveReportHtml=reportHtml;
+reportHtml=function(){
+ if(m.stage==='done'&&m.approvedReportHtml)return m.approvedReportHtml;
+ if(['review','terminated'].includes(m.stage)&&m.submittedReportHtml)return m.submittedReportHtml;
+ return aiLiveReportHtml();
+};
+function aiRefreshPreproject(){
+ const button=$('#preproject');if(!button)return;
+ button.textContent='进入预立项';button.disabled=m.stage!=='done';button.title=button.disabled?'开发任务审核通过后可进入预立项':'';
+ const note=$('#preprojectLink .subtle');if(note)note.textContent='进入预立项后自动生成PDF并关联项目';
+}
+const aiPreprojectRefresh=aiRefresh;
+aiRefresh=function(){aiPreprojectRefresh();aiRefreshPreproject();};
+function aiRenderProjectReport(dialog){
+ const record=m.projectResearchReport;if(!record)return;
+ const row=`<tr><td class="left">${esc(record.name)}</td><td>PDF</td><td>${esc(record.modifiedBy)}</td><td><button type="button" class="link" data-project-report-preview>预览</button> <button type="button" class="link" data-project-report-pdf>下载PDF</button></td></tr>`;
+ dialog.querySelector('.modal-body').innerHTML=`<div class="ai-project-report-tabs"><button type="button" class="btn primary" data-project-report-tab="detail">项目详情</button><button type="button" class="btn" data-project-report-tab="list">开发调研方案列表</button></div><h3 data-project-report-heading>开发调研方案</h3><div class="table-shell"><table><thead><tr><th>名称</th><th>格式</th><th>修改人</th><th>操作</th></tr></thead><tbody>${row}</tbody></table></div>`;
+ dialog.querySelectorAll('[data-project-report-tab]').forEach(button=>button.onclick=()=>{dialog.querySelectorAll('[data-project-report-tab]').forEach(item=>item.classList.toggle('primary',item===button));dialog.querySelector('[data-project-report-heading]').textContent=button.dataset.projectReportTab==='detail'?'开发调研方案':'开发调研方案列表';});
+ dialog.querySelector('[data-project-report-preview]').onclick=()=>{const report=openDialog('市场分析报告 · 只读预览',record.html,'','report-dialog');aiAttachReportExport(report);};
+ dialog.querySelector('[data-project-report-pdf]').onclick=()=>{const report=openDialog('市场分析报告',record.html,'','report-dialog');aiPrintReport(report);window.addEventListener('afterprint',()=>report.remove(),{once:true});};
+}
+$('#preproject').onclick=()=>{
+ if(m.stage!=='done')return;
+ const html=m.approvedReportHtml||reportHtml(),content=document.createElement('div');content.innerHTML=html;
+ const name=content.querySelector('h1')?.textContent||'市场分析报告';
+ if(m.projectResearchReport?.html!==html){
+  m.projectResearchReport={name,fileName:name+'.pdf',modifiedBy:'AC系统',html};m.preprojectReportHtml=html;persist();
+ }
+ const dialog=openDialog('预立项 · 开发调研方案','','','ai-project-research-dialog');aiRenderProjectReport(dialog);
+};
+aiRefreshPreproject();
+
+// Reuse the review dialog; the research-state shortcut only previews its interaction.
+function aiProfitHelpMarkup(){
+ const fullName=['海运','多渠道利润测算（OP）'].join('-');
+ return `<button type="button" class="pending-help-icon" data-pending-help="${esc(fullName)}：所有平台店铺利润率均大于0%，且至少1家大于10%，判定为利润通过；否则不通过。" aria-label="利润测算说明" aria-expanded="false">?</button>`;
+}
+function aiReviewProductsHtml(rows){
+ const profit=(product,sku)=>{const result=opAssessment(product,sku);return `<span class="pending-profit-result ${result.state}">${esc(result.label)}</span>`;};
+ return `<table class="ai-review-products"><colgroup><col style="width:44px"><col style="width:155px"><col style="width:76px"><col style="width:240px"><col style="width:200px"><col style="width:140px"><col style="width:135px"><col style="width:115px"><col style="width:120px"><col style="width:120px"><col style="width:65px"></colgroup><thead><tr><th><input type="checkbox" data-review-all aria-label="全选审核SKU"></th>${['SPU/SKU','产品图片','产品标题','供应商','参考产品','来源','采购价（CNY）','预计售价（USD）','利润测算结果','操作'].map(title=>`<th>${title}${title==='利润测算结果'?' '+aiProfitHelpMarkup():''}</th>`).join('')}</tr></thead><tbody>${rows.map(product=>`<tr class="ai-review-spu"><td></td><td class="left"><button type="button" class="tree-toggle" data-review-fold="${esc(product.spu)}" aria-expanded="true">▾</button>${esc(product.spu)}</td><td>${reportImageHtml(product.img,true,'SPU产品图片')}</td><td class="left">${esc(product.title)}</td><td class="left">${esc(product.supplier)}${product.purchaseNotes?`<div class="subtle">${esc(product.purchaseNotes)}</div>`:''}</td><td></td><td>${sourceCell(product)}</td><td></td><td></td><td></td><td><button type="button" class="link" data-review-view="${esc(product.spu)}">查看</button></td></tr>${product.skus.map(sku=>`<tr data-review-parent="${esc(product.spu)}"><td><input type="checkbox" data-review-sku="${esc(sku.sku)}" aria-label="审核通过 ${esc(sku.sku)}"></td><td class="left">${esc(sku.sku)}</td><td>${reportImageHtml(sku.img||product.img,true,'SKU产品图片')}</td><td class="left">${esc(sku.variantTitle||product.title)}</td><td></td><td>${esc(sku.reference||product.asin)}<br>${esc(sku.referenceType||'')}</td><td>${esc(product.source||'')}</td><td>${reportValue(sku.price==null||sku.price===''?'':Number(sku.price).toFixed(2))}</td><td>${reportValue(pendingSalePrice(sku)===null?'':pendingSalePrice(sku).toFixed(2))}</td><td>${profit(product,sku)}</td><td></td></tr>`).join('')}`).join('')||'<tr><td colspan="11">暂无待开发产品</td></tr>'}</tbody></table>`;
+}
+const aiOriginalOpenReview=openReview;
+openReview=function(demo=false){
+ aiOriginalOpenReview();
+ const dialog=[...document.querySelectorAll('.modal-mask')].findLast(node=>node.querySelector('.review-table'));if(!dialog)return;
+ dialog.querySelector('.modal').classList.add('ai-review-dialog');dialog.querySelector('.modal-title').textContent='审核';dialog.querySelector('.modal').setAttribute('aria-label','审核');dialog.querySelector('.modal-foot [data-cancel]').textContent='取消';
+ const rejectButton=dialog.querySelector('[data-reject]');
+ // Existing review handlers are registered as listeners, so retain their buttons.
+ const approveButton=dialog.querySelector('[data-approve]');
+ const actual=m.stage==='review'&&!demo,interactive=actual||demo;
+ const rows=m.submittedProducts&&m.stage!=='research'?m.submittedProducts:products;
+ const body=dialog.querySelector('.modal-body'),banner=dialog.querySelector('.review-banner');
+ banner.innerHTML=isVisible?`<button type="button" class="btn report-preview-button ai-review-report-button" data-review-report aria-label="预览市场分析报告">${$('#previewInline svg')?.outerHTML||''}<span>预览市场分析报告</span></button>`:'';
+ banner.querySelector('[data-review-report]')?.addEventListener('click',event=>{event.preventDefault();preview();});
+ banner.insertAdjacentHTML('afterend',`<div class="ai-review-decision"><span><span class="required">*</span> 审核结果</span><label><input type="radio" name="ai-review-decision-${dialog.id}" value="approve" checked ${interactive?'':'disabled'}> 审核通过</label><label><input type="radio" name="ai-review-decision-${dialog.id}" value="reject" ${interactive?'':'disabled'}> 审核驳回</label></div>`);
+ const heading=dialog.querySelector('h3');heading.classList.add('ai-review-sku-heading');heading.innerHTML='<span><span class="required">*</span> 已开发SKU</span>';
+ const reportButton=banner.querySelector('[data-review-report]');heading.insertAdjacentHTML('beforeend','<span class="subtle">请选择审核通过的SKU</span>');if(reportButton)heading.append(reportButton);banner.remove();
+ const table=dialog.querySelector('.review-table');table.classList.add('ai-review-table');table.innerHTML=aiReviewProductsHtml(rows);
+ const master=table.querySelector('[data-review-all]'),checks=[...table.querySelectorAll('[data-review-sku]')];
+ if(!interactive){checks.forEach(input=>{input.checked=(m.approvedSkuCodes||[]).includes(input.dataset.reviewSku);input.disabled=true;});master.disabled=true;}
+ const sync=()=>{master.checked=checks.length>0&&checks.every(input=>input.checked);master.indeterminate=checks.some(input=>input.checked)&&!master.checked;};
+ master.onchange=()=>{checks.forEach(input=>input.checked=master.checked);sync();};checks.forEach(input=>input.onchange=sync);sync();
+ table.querySelectorAll('[data-review-fold]').forEach(button=>button.onclick=()=>{const expanded=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'▾':'▸';table.querySelectorAll('[data-review-parent]').forEach(row=>{if(row.dataset.reviewParent===button.dataset.reviewFold)row.hidden=!expanded;});});
+ table.querySelectorAll('[data-review-view]').forEach(button=>button.onclick=()=>aiViewPending(button.dataset.reviewView,rows.find(product=>product.spu===button.dataset.reviewView)));
+ const opinion=dialog.querySelector('.review-opinion');opinion.disabled=!interactive;opinion.placeholder='请输入备注';
+ const opinionHeading=[...body.querySelectorAll('h3')].at(-1);opinionHeading.textContent='备注';
+ const foot=dialog.querySelector('.modal-foot');
+ if(actual){approveButton.hidden=true;rejectButton.hidden=true;}
+ const confirm=document.createElement('button');confirm.type='button';confirm.className='btn primary';confirm.textContent='确认';confirm.dataset.reviewConfirm='true';
+ if(interactive){foot.append(confirm);confirm.onclick=()=>{
+  const rejecting=dialog.querySelector('input[type="radio"][value="reject"]').checked;
+  if(rejecting&&!opinion.value.trim()){dialog.querySelector('#reviewError').textContent='审核驳回时请填写备注';opinion.focus();return;}
+  if(!rejecting&&!checks.some(input=>input.checked)){dialog.querySelector('#reviewError').textContent='请选择审核通过的SKU';return;}
+  if(demo){close(dialog);return;}
+  if(rejecting)rejectButton.click();else{m.approvedSkuCodes=checks.filter(input=>input.checked).map(input=>input.dataset.reviewSku);approveButton.click();}
+ };}
+};
+$('#openReview').onclick=()=>openReview();
+const aiReviewShortcut=document.createElement('button');aiReviewShortcut.type='button';aiReviewShortcut.className='link ai-review-shortcut';aiReviewShortcut.textContent='审核弹窗';aiReviewShortcut.dataset.reviewDemo='true';aiReviewShortcut.onclick=()=>openReview(true);$('#taskStatusTag').after(aiReviewShortcut);
+
+/* Export the saved report using the browser PDF printer; no external service. */
+function aiPrintReport(dialog){
+ if(!dialog||document.body.classList.contains('ai-printing-report'))return;
+ document.activeElement?.blur();
+ dialog.dataset.aiPrintReport='true';document.body.classList.add('ai-printing-report');
+ const previousTitle=document.title;document.title=dialog.querySelector('.report-paper h1')?.textContent||'市场分析报告';
+ const cleanup=()=>{document.body.classList.remove('ai-printing-report');delete dialog.dataset.aiPrintReport;document.title=previousTitle;window.removeEventListener('afterprint',cleanup);};
+ window.addEventListener('afterprint',cleanup,{once:true});
+ // The native print dialog provides Save as PDF and page-size controls.
+ const print=()=>{try{window.print();}catch{cleanup();showToast('无法打开导出窗口，请重试','error');}};
+ const images=[...dialog.querySelectorAll('img')].filter(img=>!img.complete);
+ Promise.all(images.map(img=>new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});setTimeout(resolve,1500);}))).then(()=>document.fonts?.ready).then(print);
+}
+// The offline prototype models AC export tasks; the final file uses the browser PDF printer.
+const aiReportExportTasks=[];
+function aiRenderDownloadCenter(dialog){
+ const body=dialog.querySelector('.modal-body');
+ body.innerHTML=`<div class="table-shell"><table><thead><tr><th>文件名称</th><th>状态</th><th>操作</th></tr></thead><tbody>${aiReportExportTasks.length?aiReportExportTasks.map(task=>`<tr><td class="left">${esc(task.name)}</td><td>${task.ready?'导出成功':'导出中'}</td><td><button type="button" class="link" data-ai-download-task="${task.id}" ${task.ready?'':'disabled'}>下载PDF</button></td></tr>`).join(''):'<tr><td colspan="3">暂无下载任务</td></tr>'}</tbody></table></div>`;
+ body.querySelectorAll('[data-ai-download-task]').forEach(button=>button.onclick=()=>{
+  const task=aiReportExportTasks.find(item=>item.id===button.dataset.aiDownloadTask);if(!task?.ready)return;
+  const report=openDialog('市场分析报告',task.html,'','report-dialog');
+  aiPrintReport(report);
+  window.addEventListener('afterprint',()=>report.remove(),{once:true});
+ });
+}
+function aiOpenDownloadCenter(){
+ const dialog=openDialog('下载中心','','','ai-download-center');aiRenderDownloadCenter(dialog);return dialog;
+}
+function aiQueueReportExport(dialog){
+ const task={id:'REPORT-'+Date.now()+'-'+aiReportExportTasks.length,name:(dialog.querySelector('.report-paper h1')?.textContent||'市场分析报告')+'.pdf',html:dialog.querySelector('.report-paper').outerHTML,ready:false};
+ aiReportExportTasks.unshift(task);showToast('导出任务已提交，请前往下载中心查看');
+ setTimeout(()=>{task.ready=true;document.querySelectorAll('.ai-download-center').forEach(node=>aiRenderDownloadCenter(node.closest('.modal-mask')));},350);
+}
+const aiDownloadCenterButton=document.createElement('button');aiDownloadCenterButton.type='button';aiDownloadCenterButton.className='link';aiDownloadCenterButton.textContent='下载中心';aiDownloadCenterButton.dataset.aiDownloadCenter='true';aiDownloadCenterButton.onclick=aiOpenDownloadCenter;
+($('.top-actions')||$('.topbar')).append(aiDownloadCenterButton);
+function aiAttachReportExport(dialog){
+ if(!dialog||dialog.querySelector('[data-ai-export-pdf]'))return;
+ const button=document.createElement('button');button.type='button';button.className='btn primary';button.textContent='导出PDF';button.dataset.aiExportPdf='true';button.onclick=()=>aiQueueReportExport(dialog);dialog.querySelector('.modal-foot').prepend(button);
+}
+const aiReportOriginalPreview=preview;
+preview=function(){
+ aiReportOriginalPreview();const dialog=[...document.querySelectorAll('.modal-mask')].findLast(mask=>mask.querySelector('.report-dialog'));aiAttachReportExport(dialog);
+};
+$('#previewReport').onclick=preview;$('#previewInline').onclick=preview;
 
 })();
