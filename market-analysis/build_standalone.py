@@ -132,6 +132,9 @@ ai_controller = ai_controller.replace("m.stage='research';$('#workflowState').va
 cut = ai_controller.rindex('})();')
 ai_controller = ai_controller[:cut] + (root / 'ai-competitor-compare.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-import-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-report-export.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 ai_controller = ai_controller.replace('配件搭配清单', '产品包装清单')
+ai_controller = ai_controller.replace('产品规格 / 尺寸需注明单位', '请注明包装尺寸/重量的单位')
+ai_controller = ai_controller.replace('产品规格/尺寸（注明单位）', '包装尺寸/重量（注明单位）').replace('产品规格 / 尺寸', '包装尺寸/重量（注明单位）')
+
 ai_controller = ai_controller.replace('reportValue(r.english)', 'reportValue(r.english,false)').replace("['采购链接',reportValue(link,false)]", "['采购链接',reportValue(link)]")
 def normalize_ai_profit_labels(text):
     text = text.replace('海运-多渠道利润测算（OP）', '利润测算结果').replace('海运－多渠道利润测算（OP）', '利润测算结果')

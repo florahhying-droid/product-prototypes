@@ -9,7 +9,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const source=window.REPORT_SOURCE;
 const asinLinkIcon='<svg class="asin-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 13 4-4M8 16l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m0 2 1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(2 0)"/></svg>';
 const definitions=[
- ['D','品线名称','定位与市场数据','input'],['H','精准关键词','定位与市场数据','textarea'],['O','产品规格 / 尺寸','定位与市场数据','input'],['P','BSR排名 / 对应类目','定位与市场数据','input'],['R','核心词下搜索竞品数量（核心词下）','定位与市场数据','input'],['S','核心关键词搜索量（月）','定位与市场数据','input'],
+ ['D','品线名称','定位与市场数据','input'],['H','精准关键词','定位与市场数据','textarea'],['O','包装尺寸/重量（注明单位）','定位与市场数据','input'],['P','BSR排名 / 对应类目','定位与市场数据','input'],['R','核心词下搜索竞品数量（核心词下）','定位与市场数据','input'],['S','核心关键词搜索量（月）','定位与市场数据','input'],
  ['N','核心卖点（功能 / 场景 / 设计）','内容分析','rich'],['T','核心差评点（高频问题）','内容分析','rich'],['U','用户图片反馈','内容分析','rich'],
  ['V','供应链成熟度','开发可行性','input'],['W','预估采购成本（CNY）','开发可行性','input'],['X','竞品利润测算（FBA）','开发可行性','input'],['Y','MOQ（起订量）','开发可行性','input'],['Z','合规 / 认证要求','开发可行性','input'],['AA','专利风险','开发可行性','input'],['AB','差异化开发方向','开发可行性','rich'],
  ['AC','同品类关联产品点','关联搭配与备注','textarea'],['AD','搭配场景 / 逻辑','关联搭配与备注','textarea'],['AE','产品线角色','关联搭配与备注','input'],['AF','采购注意事项 / 利润优化建议','关联搭配与备注','textarea']
@@ -133,7 +133,7 @@ function fieldControl(asin,d){const [k,label,,type]=d;const required=k==='AB';co
 const compFieldDefinitions=[
  ['name','产品名称','text'],['date','上架时间','date'],['rating','市场评分','number'],
  ['reviews','Review数量','number'],['price','竞品售价（USD）','number'],['sales','近30天销量','number'],
- ['bsr','BSR小类排名','text'],['specs','产品规格 / 尺寸','text'],
+ ['bsr','BSR小类排名','text'],['specs','包装尺寸/重量（注明单位）','text'],
  ['targetUsers','目标用户','textarea'],['userPainPoints','用户痛点','textarea'],['usageScenarios','使用场景','textarea'],['negative','核心差评点','textarea'],['direction','差异化开发方向','textarea']
 ];
 const compPositionPlaceholders={season:'请填写具体周期/时段（如圣诞节：11月-12月，旺季12月前）',scene:'请填写核心消费场景',audience:'请填写目标客群（如北美家庭/性别/职业身份等）'};
@@ -194,7 +194,7 @@ function compMissing(r){
  if(r.rating!==''&&(!/^\d+(?:\.\d)?$/.test(String(r.rating))||+r.rating>5))fields.push({key:'rating',message:'市场评分应为0～5之间的非负数字，最多一位小数'});
  if(r.reviews!==''&&(!/^\d+$/.test(String(r.reviews))))fields.push({key:'reviews',message:'Review数量应为非负整数'});
  if(r.price!==''&&!/^\d+(?:\.\d{1,2})?$/.test(String(r.price)))fields.push({key:'price',message:'售价应为非负数字，最多两位小数'});if(r.sales!==''&&!/^\d+$/.test(String(r.sales)))fields.push({key:'sales',message:'近30天销量应为非负整数'});
- if(r.specs&&!/((?:^|[^a-z])(?:cm|mm|m|in|inch|inches|ft|oz|ounces|lb|lbs|pounds|g|kg|ml|l)\b|厘米|毫米|英寸|英尺|克|千克|毫升|磅|盎司|升)/i.test(r.specs))fields.push({key:'specs',message:'产品规格 / 尺寸需注明单位'});
+ if(r.specs&&!/((?:^|[^a-z])(?:cm|mm|m|in|inch|inches|ft|oz|ounces|lb|lbs|pounds|g|kg|ml|l)\b|厘米|毫米|英寸|英尺|克|千克|毫升|磅|盎司|升)/i.test(r.specs))fields.push({key:'specs',message:'请注明包装尺寸/重量的单位'});
  return fields;
 }
 function compCompletion(r){const total=13;return `${Math.max(0,total-new Set(compMissing(r).map(e=>e.key)).size)}/${total}`;}
@@ -223,7 +223,7 @@ function compGroupProgress(key,r){
 }
 function compProgressHtml(key,r){return `<span class="analysis-required-progress" data-comp-progress="${key}">${compGroupProgress(key,r)}</span>`;}
 function refreshCompProgress(){const c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active);$$('#competitors [data-comp-progress]').forEach(el=>{const key=el.dataset.compProgress;if(key==='position'||r)el.textContent=compGroupProgress(key,r);});}
-const compDisplayLabels={specs:'产品规格/尺寸（注明单位）',selling:'核心卖点（功能/场景/设计）',negative:'核心差评点（高频问题）',direction:'差异化开发方向（设计/功能/组合）'};
+const compDisplayLabels={specs:'包装尺寸/重量（注明单位）',selling:'核心卖点（功能/场景/设计）',negative:'核心差评点（高频问题）',direction:'差异化开发方向（设计/功能/组合）'};
 function compControl(r,key,label,type='text',optional=false){
  label=compDisplayLabels[key]||label;
  const attrs=`${type==='date'?`class="${r[key]?'':'is-empty-date'}"`:''} data-cfield="${key}" data-comp-group="${['targetUsers','userPainPoints','usageScenarios','negative'].includes(key)?'feedback':key==='direction'||key==='remark'?'advice':'base'}-${r.asin}" aria-label="${esc(label)}" ${optional?'':'aria-required="true"'} ${readOnly?'disabled':''}`;
@@ -235,7 +235,7 @@ function renderCompDetail(){
  const c=ensureCompetitorState(),r=c.items.find(r=>r.asin===c.active),target=$('#compDetail');if(!target)return;
  if(!r){target.innerHTML='<div class="comp-detail-empty">请选择或添加竞品</div>';refreshCompFoldControl();return;}
  const overview=`<div class="comp-product-overview"><div class="comp-overview-image">${r.image?`<img loading="lazy" decoding="async" src="${esc(compImage(r.image))}" alt="${esc(r.name)}">${!r.systemImage?`<button type="button" class="link market-write" data-comp-product-upload ${readOnly?'hidden':''}>重新上传</button>`:''}`:readOnly?'<span>暂无图片</span>':`<button type="button" class="comp-product-empty-upload market-write" data-comp-product-upload aria-label="上传商品图片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 16 5-5 5 5 4-4 4 4M15 7h4M17 5v4"/></svg><span>上传图片</span></button>`}</div><div class="comp-overview-copy">${compControl(r,'name','产品名称')}<div class="comp-original-title">英文名：${r.english?esc(r.english):'—'}</div><div class="comp-original-title comp-category-path">品类：${esc(compCategoryPath(r))}</div>${compMismatchHtml(r)}</div></div>`;
- const base=overview+`<div class="comp-form-grid">${['date','rating','reviews','price','sales','bsr'].map(key=>compFieldDefinitions.find(d=>d[0]===key)).map(([k,l,t])=>compControl(r,k,l,t)).join('')}${compControl(r,'specs','产品规格 / 尺寸','text')}</div>`;
+ const base=overview+`<div class="comp-form-grid">${['date','rating','reviews','price','sales','bsr'].map(key=>compFieldDefinitions.find(d=>d[0]===key)).map(([k,l,t])=>compControl(r,k,l,t)).join('')}${compControl(r,'specs','包装尺寸/重量（注明单位）','text')}</div>`;
  const feedback=`<div class="comp-positioning-grid">${compControl(r,'targetUsers','目标用户','textarea')}${compControl(r,'userPainPoints','用户痛点','textarea')}${compControl(r,'usageScenarios','使用场景','textarea')}</div>`+`<div class="comp-feedback-group">${compControl(r,'negative','核心差评点','textarea').replace('</textarea></div></div>','</textarea>')}<div class="comp-feedback-images"><div class="comp-feedback-tools"><span>用户反馈图片（最多3张）</span><button type="button" class="btn primary market-write" data-comp-feedback-upload ${readOnly?'hidden':''} ${r.feedback.length>=3?'disabled':''}>上传图片</button></div><div class="comp-feedback-thumbs">${r.feedback.map((img,i)=>`<div class="comp-feedback-thumb"><img loading="lazy" decoding="async" src="${esc(compImage(img.src))}" alt="用户反馈图片"><button type="button" class="category-image-delete market-write" data-comp-feedback-delete="${i}" aria-label="删除用户反馈图片" ${readOnly?'hidden':''}>×</button></div>`).join('')||'<span class="comp-no-feedback">暂无图片</span>'}</div></div></div></div></div>`;
  target.innerHTML=compModule('base','基础信息',base,r)+compModule('feedback','市场定位与用户反馈',feedback,r)+compModule('advice','开发建议',compControl(r,'direction','差异化开发方向','textarea')+compControl(r,'remark','备注','textarea',true).replace('<textarea id="ci-remark"','<textarea placeholder="采购注意事项、利润优化建议等" id="ci-remark"'),r);
  refreshCompFoldControl();refreshCompScope();
@@ -362,7 +362,7 @@ function reportPairs(fields){const rows=[];for(let i=0;i<fields.length;i+=2){con
 function reportLongText(title,value,required=true){return `<div class="report-text-block"><h4>${esc(title)}</h4><div class="comp-report-text">${reportValue(value,required)}</div></div>`;}
 function categoryReportHtml(dims,rankings){return rankingReportHtml(rankings)+source.dimensions.map((d,i)=>{const parts=dimensionParts(dims[i]);return `<article class="report-analysis"><h3>${i+1}. ${esc(d.title)}</h3><div class="report-rich comp-report-text">${reportValue(parts.text)}</div>${i<6?`<div class="report-analysis-image">${reportImageList(parts.images,true,'分析图片')}</div>`:''}</article>`;}).join('');}
 function competitorReportHtml(){const c=ensureCompetitorState();return `${c.items.length?c.items.map((r,i)=>{
- const basic=[['产品名称',reportValue(r.name)+`<div class="report-english-name">${reportValue(r.english,false)}</div>`],['产品图片',reportImageHtml(r.image,true,'竞品产品图片')],...['date','rating','reviews','price','sales','bsr'].map(key=>{const [,label]=compFieldDefinitions.find(d=>d[0]===key);return [label,reportValue(r[key])];}),['产品规格 / 尺寸',reportValue(r.specs)]];
+ const basic=[['产品名称',reportValue(r.name)+`<div class="report-english-name">${reportValue(r.english,false)}</div>`],['产品图片',reportImageHtml(r.image,true,'竞品产品图片')],...['date','rating','reviews','price','sales','bsr'].map(key=>{const [,label]=compFieldDefinitions.find(d=>d[0]===key);return [label,reportValue(r[key])];}),['包装尺寸/重量（注明单位）',reportValue(r.specs)]];
  const keywords=(r.keywords||[]).filter(row=>[row.word,row.count,row.volume].some(v=>String(v??'').trim()));
  return `<article class="report-competitor"><h3>${i+1}. ASIN：${reportValue(r.asin)}</h3><h4>基础信息</h4>${reportPairs(basic)}<h4>市场定位与用户反馈</h4>${reportLongText('目标用户',r.targetUsers)}${reportLongText('用户痛点',r.userPainPoints)}${reportLongText('使用场景',r.usageScenarios)}${reportLongText('核心差评点',r.negative)}<div class="report-text-block"><h4>用户反馈图片</h4>${reportImageList(r.feedback,false,'用户反馈图片')}</div>${reportLongText('差异化开发方向',r.direction)}${reportLongText('备注',r.remark,false)}</article>`;
  }).join(''):`<p>${reportValue('')}</p>`}`;}
