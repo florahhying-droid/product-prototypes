@@ -12,7 +12,7 @@ window.AI_COMPETITOR_SAMPLE = {
     listingDate: '2025-05-02',
     priceUsd: 23.99,
     rating: 4.8,
-    reviewCount: 436,
+    ratingCount: null,
     estimatedSales30d: '估算：1448件/月（Sorftime月销量估算，非精确30天订单数）',
     bsrSmallCategoryRank: '27（Kits；Sorftime）',
     specifications: '8件装：4个3 fl oz（90 ml）硅胶挤压瓶、4个3 fl oz（90 ml）乳霜罐；附透明旅行收纳袋及标签贴纸。收纳袋尺寸约6.46 × 2.87 × 5.31英寸；商品包装尺寸约6.18 × 5.43 × 3.78英寸，重量约1.06磅。当前ASIN变体为Blue - Large。'
@@ -39,7 +39,7 @@ window.AI_COMPETITOR_SAMPLE = {
       listingDate: 'Sorftime product_detail，ASIN直接数据',
       priceUsd: 'Sorftime product_detail，ASIN直接数据',
       rating: 'Sorftime product_detail，ASIN直接数据；与SellerSprite数据存在差异',
-      reviewCount: 'Sorftime product_detail，ASIN直接数据；与SellerSprite数据存在差异',
+      ratingCount: '原演示样本未提供可核验的ratings评分数；不使用文字评论数替代',
       estimatedSales30d: 'Sorftime product_detail月销量估算；非精确30天订单数',
       bsrSmallCategoryRank: 'Sorftime product_detail，ASIN直接数据；SellerSprite返回的排名及小类名称不同',
       specifications: 'SellerSprite asin_detail及Sorftime product_detail、product_content；商品规格以商品页面描述为依据',

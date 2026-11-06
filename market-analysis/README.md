@@ -22,7 +22,32 @@ AI版复用 `index.html`、`market.js`、`market.css`、`layout.js/css` 和 `rep
 - 产品开发：采购备注、采购链接、SKU产品包装清单及适用装箱数据必填；保存后按SKU自动测算7平台9店铺利润。只读查看按任务权限开放。品牌中心草稿承接采购链接及包装数据，采购价和预计售价不传递。
 - 报告：三章节只读展示，必填空值为“待完善”、选填空值为“无”。导出先创建任务，再到下载中心下载；离线文件最后通过浏览器打印功能保存PDF。
 - 进入预立项：自动关联已审核报告快照，在项目详情和开发调研方案列表展示同一份记录；名称取报告名称、修改人为AC系统，重复进入复用该记录。
-- 原型不连接真实Agent、OP或AC下载中心。AI通过 `window.aiPrototypeService(request)`、利润测算通过 `window.opPrototypeService(request)`预留接入。正式AI能力配置在星仔Agent，由AC用系统token调用，返回结构化JSON。
+- 原型不连接真实Agent、OP或AC下载中心。AI通过 `window.aiPrototypeService(request)`、利润测算通过 `window.opPrototypeService(request)`预留接入。星仔Agent「AC市场分析助手」已配置，正式接入由AC用系统token调用，返回结构化JSON。
 - 源码职责：`ai-assist.js`共享AI状态；`ai-category-view.js`类目结构化展示与填充；`ai-import-view.js`资料上传及范围切换；`ai-competitor-compare.js`结果适配与逐字段比较；`ai-detail-view.js`产品查看、报告及选择表格；`ai-report-export.js`导出任务与下载中心交互。
 - `ai-category-data.js`保留用户指定Google文档最后一次完整8模块输出及版本信息；`ai-competitor-data.js`保留用户提供的US／B0FKB9CYXY结果。缺失原因由样本／Agent返回，前端不推断。样本资料含内部数据，发布前需核对授权。
 - 竞品结果契约：`{scene:'competitor_analysis',asin,marketplace,status,fields,dataQuality}`；字段为 `{status:'success',value,source?,collectedAt?,scope?,unit?,period?,estimated?}` 或 `{status:'missing',reason,source?}`。销量整数与估算、周期元数据分别存储。
+
+## 当前Skill口径
+
+- 竞品评分数对应 `basicInfo.ratingCount`：优先 `competitor_lookup.ratings`，备用 `asin_detail.ratings`；非负整数，0有效，缺失为null，不使用文字评论数替代。AC内部存储键 `reviews` 仅为兼容旧记录，接口按 `ratingCount` 映射。
+- 类目概况使用“平均评分数”；Excel统计值、计算结果和结论数字由Skill交叉核验，AC按返回JSON展示。
+- 当前竞品样本未包含可核验的ratings，演示AI结果留空并提示补充，不把旧评论数转换成评分数。
+
+## 本地文件保留与清理建议（2026-11-06）
+
+当前目录约7.68 MB，共40个文件。以下清点只给出建议，未删除文件。
+
+| 文件／目录 | 用途与建议 |
+| --- | --- |
+| `plan.html`、AI在线／离线HTML | 当前方案与演示入口，保留。离线HTML为生成文件，但分享或直接打开时需要。 |
+| `build_standalone.py`、`ai-*.js`、`ai.css` | 构建脚本、扩展源码、数据样本及样式，保留。`ai-market.js`虽由构建生成，也是在线页面运行所需。 |
+| `index.html`、`market.js/css`、`layout.js/css`、`report-data.js`、`assets/` | AI版复用的基础结构和图片，当前构建有依赖，不能因属于标准版基础就直接删除。 |
+| `ai-ranking-view.js` | 仍由构建脚本拼接，负责清理榜单相关DOM；当前不可单独删除。 |
+| `市场分析报告交互原型.html` | 标准版离线历史副本，当前AI版不读取，可归档；若删除需同步移除历史入口链接。 |
+| 根目录 `.pnpm-store/`（约10.95 MB） | 包管理缓存，不参与页面运行或Python构建，可清理，后续安装依赖时可能重新下载。 |
+| 根目录 `tmp/`（约11.14 MB） | 临时改造脚本、旧备份、DOM验收脚本及其依赖。交付和发布不需要；建议保留有用的回归脚本，其余可清理。 |
+| `output/market-analysis-prd-20261106/PRD.md`、`PRD.pdf` | PRD本地备份及导出交付件，建议保留；Google Docs为在线正文。 |
+| 上述PRD目录内32张PNG（约8.16 MB） | 分页渲染图、拼图和验收截图，不参与交付或页面运行，可清理，需要时从PDF重建。 |
+| 根目录 `outputs/series-diff-421-vs-368/` | 其他任务的系列差异文档，与本次市场分析无关，不按本任务冗余文件处理。 |
+
+根目录下其他产品原型文件夹各自对应其他需求，保留。`.git/`是仓库记录，保留。

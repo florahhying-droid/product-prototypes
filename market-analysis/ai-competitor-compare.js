@@ -1,7 +1,7 @@
 function aiWarningIcon(){return '<span class="ai-warning-icon" aria-hidden="true">!</span>';}
 /* Agent supplies independent results. AC owns reconciliation and field-level decisions. */
 const AI_COMP_KEYS=['name','english','categoryPath','date','price','rating','reviews','sales','bsr','specs','targetUsers','userPainPoints','usageScenarios','negative','feedback','direction','remark'];
-const AI_COMP_SOURCE_KEYS={name:'productName',english:'englishTitle',date:'listingDate',price:'priceUsd',reviews:'reviewCount',sales:'estimatedSales30d',bsr:'bsrSmallCategoryRank',specs:'specifications',negative:'coreNegativeReviews',feedback:'reviewImages',direction:'differentiationDirection'};
+const AI_COMP_SOURCE_KEYS={name:'productName',english:'englishTitle',date:'listingDate',price:'priceUsd',reviews:'ratingCount',sales:'estimatedSales30d',bsr:'bsrSmallCategoryRank',specs:'specifications',negative:'coreNegativeReviews',feedback:'reviewImages',direction:'differentiationDirection'};
 function aiCompEmpty(value){return value===null||value===undefined||Array.isArray(value)&&!value.length||typeof value==='string'&&['','--','—'].includes(value.trim());}
 function aiCompText(value){return String(value??'').normalize('NFKC').replace(/\s+/g,' ').trim();}
 function aiCompNumber(value,key,meta={}){
@@ -40,6 +40,15 @@ function aiCompStoredValue(key,result){
  return structuredClone(result.value);
 }
 function aiNormalizeCompResponse(response,asin,site){
+ // Skill JSON uses ratingCount; the legacy AC storage key remains reviews.
+ if(response?.basicInfo&&!response.fields){
+  const values={...response.basicInfo,...response.marketPosition,...response.userFeedback,...response.developmentAdvice},quality=response.dataQuality||{};
+  response={...response,fields:Object.fromEntries(AI_COMP_KEYS.map(key=>{
+   const sourceKey=AI_COMP_SOURCE_KEYS[key]||key,value=values[sourceKey];
+   const missing=quality.missingFields?.find(item=>item.field===sourceKey||item.field?.endsWith('.'+sourceKey));
+   return [key,{status:aiCompEmpty(value)?'missing':'success',value,reason:missing?.reason||'',source:quality.fieldSources?.[sourceKey]||quality.fieldSources?.['basicInfo.'+sourceKey]||''}];
+  }))};
+ }
  if(!response||response.asin&&response.asin!==asin||response.marketplace&&response.marketplace!==site||!response.fields||typeof response.fields!=='object')throw Error('AI返回数据与请求不匹配');
  const fields={};
  for(const key of AI_COMP_KEYS){
@@ -70,9 +79,10 @@ function aiMockCompetitorSource(request){
  const asin=request.asin,site=request.marketplace||request.scope?.site,sample=window.AI_COMPETITOR_SAMPLE;
  if(sample&&asin===sample.asin&&site===sample.marketplace){
   const b=sample.basicInfo,p=sample.marketPosition,d=sample.developmentAdvice;
-  const values={name:b.productName,english:b.englishTitle,categoryPath:b.categoryPath,date:b.listingDate,price:b.priceUsd,rating:b.rating,reviews:b.reviewCount,sales:b.estimatedSales30d,bsr:b.bsrSmallCategoryRank,specs:b.specifications,...p,direction:d.differentiationDirection,remark:d.remark};
+  const values={name:b.productName,english:b.englishTitle,categoryPath:b.categoryPath,date:b.listingDate,price:b.priceUsd,rating:b.rating,reviews:b.ratingCount,sales:b.estimatedSales30d,bsr:b.bsrSmallCategoryRank,specs:b.specifications,...p,direction:d.differentiationDirection,remark:d.remark};
   const fields=Object.fromEntries(Object.entries(values).map(([key,value])=>[key,{status:aiCompEmpty(value)?'missing':'success',value,source:sample.dataQuality.fieldSources[AI_COMP_SOURCE_KEYS[key]||key]||'',...(key==='price'?{unit:'USD'}:key==='rating'?{unit:'stars'}:key==='reviews'?{unit:'count'}:{})}]));
   fields.negative={status:'missing',reason:sample.userFeedback.coreNegativeReviews,source:sample.dataQuality.fieldSources.coreNegativeReviews};
+  if(aiCompEmpty(b.ratingCount))fields.reviews={status:'missing',reason:'演示样本未提供可核验的ratings评分数，请人工补充。'};
   fields.feedback={status:'missing',reason:sample.dataQuality.fieldSources.reviewImages,source:'Sorftime product_reviews'};
   Object.assign(fields.sales,{value:1448,unit:'units',period:'month',estimated:true,scope:'Sorftime月销量估算，非精确30天订单数'});
   return {scene:'competitor_analysis',asin,marketplace:site,status:'partial',fields,dataQuality:structuredClone(sample.dataQuality)};
@@ -84,7 +94,15 @@ function aiInitCompetitorComparison(){
  const sample=window.AI_COMPETITOR_SAMPLE;if(activeHistoryTask||!sample||sample.marketplace!==m.site)return;
  for(const item of ensureCompetitorState().items){const itemState=aiCompetitorState(item.asin);if(itemState.numericSalesVersion===1)continue;const sales=aiCompSales(item.sales);if(!itemState.manual.sales&&!aiCompEmpty(item.sales)&&sales&&sales.unit==='units'&&Number.isInteger(sales.number)&&sales.number>=0){itemState.previousSalesValue=item.sales;item.sales=String(sales.number);}itemState.numericSalesVersion=1;}
  const record=ensureCompetitorState().items.find(r=>r.asin===sample.asin);if(!record)return;
- const state=aiCompetitorState(record.asin);if(state.comparisonVersion===2)return;
+ const state=aiCompetitorState(record.asin);
+ if(state.ratingCountVersion!==1){
+  const previous=state.comparison?.fields?.reviews;
+  // Discard only a provable automatic comment count; retain manually maintained AC values.
+  if(!state.manual.reviews&&previous?.status==='success'&&/Sorftime/.test(previous.source||'')&&String(record.reviews)===String(previous.value))record.reviews='';
+  if(state.comparison?.fields){delete state.comparison.fields.reviews;delete state.comparison.outcomes?.reviews;}
+  state.ratingCountVersion=1;persist();
+ }
+ if(state.comparisonVersion===2)return;
  // Migrate only the previous automatic placeholder, never genuine manual review content.
  if(!state.manual.negative&&record.negative===sample.userFeedback.coreNegativeReviews)record.negative='';
  if(!state.manual.sales&&record.sales===sample.basicInfo.estimatedSales30d)record.sales='1448';
