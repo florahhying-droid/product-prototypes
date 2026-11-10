@@ -131,3 +131,24 @@ function aiCategoryHistoryEvidence(data){
  const note=text=>text?`<p class="ai-table-note">数据说明：${esc(text)}</p>`:'';
  return (data.tables?.length?`<div class="ai-seller-tables">${data.tables.map(table=>`<section class="ai-seller-table"><h5>${esc(table.title)}</h5>${aiCategoryTable(table)}${note(table.note)}</section>`).join('')}</div>`:aiCategoryTable(data))+note(data.note);
 }
+
+function aiCategoryHistoryReportName(record){return record.reportName||record.name+'·市场分析报告';}
+previewCategoryHistory=function(record){
+ const dialog=openDialog('市场分析报告 · 只读预览',aiHistoryReportSnapshot(record),'','report-dialog');
+ aiAttachReportExport(dialog);
+};
+
+function aiHistoryReportSnapshot(record){
+ if(record.approvedReportHtml)return record.approvedReportHtml;
+ // Isolate historical fixtures from the currently edited task and its products.
+ const current=m,history=activeHistoryTask,currentProducts=products.slice();
+ try{
+  activeHistoryTask=record;
+  m={...structuredClone(initial),site:record.site,categoryLevel:record.level,category:record.path,dims:record.dimensions,selected:[],competitorAnalysis:structuredClone(record.competitorAnalysis||{items:[],active:'',position:{}})};
+  products.splice(0,products.length,...structuredClone(record.products||[]));
+  const content=document.createElement('div');content.innerHTML=aiLiveReportHtml();
+  content.querySelector('.report-header h1').textContent=aiCategoryHistoryReportName(record);
+  content.querySelector('.report-info-line').textContent=record.id+' · 已完成 · '+record.developer;
+  return content.innerHTML;
+ }finally{m=current;activeHistoryTask=history;products.splice(0,products.length,...currentProducts);}
+}

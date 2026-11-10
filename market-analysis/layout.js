@@ -11,7 +11,7 @@
   const nav = document.createElement('nav');
   nav.className = 'module-anchor-bar';
   nav.setAttribute('aria-label', '任务详情模块导航');
-  nav.innerHTML = `<div class="module-anchor-list">${items.map(([id, label], i) => `<button class="module-anchor ${i === 0 ? 'active' : ''}" type="button" data-target="${id}" ${id === 'marketSection' ? 'id="marketJump"' : ''}><span>${label}</span>${id === 'basicSection' ? '' : `<span class="module-anchor-count" data-count-for="${id}">0</span>`}</button>`).join('')}</div><div class="module-anchor-actions"></div>`;
+  nav.innerHTML = `<div class="module-anchor-list">${items.map(([id, label], i) => `<button class="module-anchor ${i === 0 ? 'active' : ''}" type="button" data-target="${id}" ${id === 'marketSection' ? 'id="marketJump"' : ''}><span>${label}</span>${['basicSection', 'marketSection'].includes(id) ? '' : `<span class="module-anchor-count" data-count-for="${id}">0</span>`}</button>`).join('')}</div><div class="module-anchor-actions"></div>`;
   oldNav?.remove();
   main.querySelector('.detail-hero').after(nav);
   const actions = main.querySelector('.task-actions');
@@ -90,10 +90,9 @@
           const fields = [...section.querySelectorAll('.task-grid > div')];
           const value = name => {const label = fields.find(el => el.classList.contains('label') && el.textContent.trim() === name); return label?.nextElementSibling?.textContent.trim() || '';};
           text = value('星商品线') + ' · 负责人 ' + value('负责人');
-        } else text = count + (id === 'marketSection' ? '份分析' : '条');
+        } else text = id === 'marketSection' ? '1个类目 · ' + (count - 1) + '个竞品' : count + '条';
         if (summary.textContent !== text) summary.textContent = text;
       }
-      if (id === 'marketSection') {const title = '1份类目分析、' + (count - 1) + '份竞品分析'; if (badge.title !== title) badge.title = title;}
       if (id === 'pendingSection' && badge.title !== 'SPU和SKU总数') badge.title = 'SPU和SKU总数';
     });
     market?.querySelectorAll('.dim-card').forEach(card => ready(card, card.querySelector(':scope > .field-head'), card.querySelector('.field-head')?.textContent.trim() || '分析内容'));

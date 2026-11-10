@@ -39,6 +39,7 @@ if(!ai.initialized){
  const rankingState=aiCategoryState('rankings');if(m.rankingImages?.newTop?.src!=='assets/image10.png')rankingState.manual.newTop=true;if(m.rankingImages?.monthTop)rankingState.manual.monthTop=true;
  ai.initialized=true;persist();
 }
+aiMigrateCompetitorAnalysis();
 function aiRefresh(){
  refreshAiCategoryUI();
  const target=$('#compDetail'),record=ensureCompetitorState().items.find(row=>row.asin===ensureCompetitorState().active);

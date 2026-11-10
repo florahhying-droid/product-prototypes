@@ -99,6 +99,8 @@ ai_controller = ai_controller.replace('产品卖点与用户反馈', '市场定�
 ai_controller = ai_controller.replace("${reportLongText('核心卖点',r.selling)}", "<h4>市场定位与用户反馈</h4>${reportLongText('目标用户',r.targetUsers)}${reportLongText('用户痛点',r.userPainPoints)}${reportLongText('使用场景',r.usageScenarios)}")
 # AI competitor control types and precision rules; standard version is unchanged.
 ai_controller = ai_controller.replace("['sales','近30天销量','text']", "['sales','近30天销量','number']").replace("['specs','产品规格 / 尺寸','textarea']", "['specs','产品规格 / 尺寸','text']")
+# Preserve legacy range endpoints before the demo's single-price migration.
+ai_controller = ai_controller.replace('const value=pendingSalePrice(sku);sku.salePrice=value;', "const legacyRange=String(sku.sale||'').match(/\\d+(?:\\.\\d+)?/g)||[];if(legacyRange.length>=2){sku.saleMin??=Number(legacyRange[0]);sku.saleMax??=Number(legacyRange[1]);}const value=pendingSalePrice(sku);sku.salePrice=value;")
 ai_controller = ai_controller.replace("compControl(r,'specs','产品规格 / 尺寸','textarea')", "compControl(r,'specs','产品规格 / 尺寸','text')")
 ai_controller = ai_controller.replace("key==='reviews'?'step=\"1\"'", "['reviews','sales'].includes(key)?'step=\"1\"'")
 ai_controller = ai_controller.replace("if(r.rating!==''&&(!Number.isFinite(+r.rating)||+r.rating<0||+r.rating>5))fields.push({key:'rating',message:'市场评分应为0～5之间的数字'});", "if(r.rating!==''&&(!/^\\d+(?:\\.\\d)?$/.test(String(r.rating))||+r.rating>5))fields.push({key:'rating',message:'市场评分应为0～5之间的非负数字，最多一位小数'});")
@@ -117,13 +119,27 @@ ai_controller = ai_controller[:history_apply_start] + """ function applyHistory(
  };
 """ + ai_controller[history_apply_end:]
 # AI-only list presentation and automatic first analysis on successful additions.
+ai_controller = ai_controller.replace("const update=()=>{confirm.disabled=mode==='reference'?!selected().length:!input.value.trim();dlg.querySelector('#compAddError').textContent='';};", "const duplicate=()=>mode==='direct'&&c.items.some(item=>item.asin===input.value.trim().toUpperCase());const update=()=>{const exists=duplicate();confirm.disabled=mode==='reference'?!selected().length:!input.value.trim()||exists;dlg.querySelector('#compAddError').textContent=exists?'当前竞品列表已存在该ASIN。':'';if(exists){input.setAttribute('aria-invalid','true');input.setAttribute('aria-describedby','compAddError');}else{input.removeAttribute('aria-invalid');input.removeAttribute('aria-describedby');}};")
+ai_controller = ai_controller.replace("  const snapshot={items:structuredClone(c.items)", "  if(asins.some(asin=>c.items.some(item=>item.asin===asin))){dlg.querySelector('#compAddError').textContent='当前竞品列表已存在该ASIN。';input.setAttribute('aria-invalid','true');input.setAttribute('aria-describedby','compAddError');input.focus();return;}\n  const snapshot={items:structuredClone(c.items)")
+record_start = ai_controller.index('function makeCompRecord(')
+record_end = ai_controller.index('\nfunction syncCompPositionFromCategory', record_start)
+record_source = ai_controller[record_start:record_end].replace(' return {asin,origin,', ' const record={asin,origin,')
+record_source = record_source.rsplit('\n}', 1)[0] + "\n for(const key of ['name','english','date','rating','reviews','price','sales','bsr','specs','targetUsers','userPainPoints','usageScenarios','negative','direction','remark'])record[key]='';record.feedback=[];record.categoryPath='';return record;\n}"
+ai_controller = ai_controller[:record_start] + record_source + ai_controller[record_end:]
+path_start = ai_controller.index('function compCategoryPath(r){')
+path_end = ai_controller.index('\nfunction compCategoryMismatch', path_start)
+ai_controller = ai_controller[:path_start] + "function compCategoryPath(r){return r.categoryPath||'—';}" + ai_controller[path_end:]
+ai_controller = ai_controller.replace('const expected=parts(m.category),current=parts(actual).slice(0,Number(m.categoryLevel||3));', 'const level=Number(m.categoryLevel||3),expected=parts(m.category).slice(0,level),current=parts(actual).slice(0,level);if(expected.length<level||current.length<level)return false;')
+ai_controller = ai_controller.replace('<th>任务编号</th><th>品线</th>', '<th>任务编号</th><th>报告名称</th><th>品线</th>')
+ai_controller = ai_controller.replace('<td class="history-product-line">${esc(record.line)}</td>', '<td class="history-report-name"><button type="button" class="link" data-category-report-preview="${esc(record.id)}">${esc(aiCategoryHistoryReportName(record))}</button></td><td class="history-product-line">${esc(record.line)}</td>')
+ai_controller = ai_controller.replace(" let selected=null;\n dlg.querySelector('[data-cancel]')", " dlg.querySelectorAll('[data-category-report-preview]').forEach(button=>button.onclick=()=>{const record=matches.find(item=>item.id===button.dataset.categoryReportPreview);if(record)previewCategoryHistory(record);});\n let selected=null;\n dlg.querySelector('[data-cancel]')")
 ai_controller = ai_controller.replace('<span class="tag teal">竞品分析</span>', '<span class="tag teal">已加入竞品</span>')
-ai_controller = ai_controller.replace("  renderCompetitors();renderRefs();close(dlg);", "  renderCompetitors();renderRefs();close(dlg);const added=asins.filter(asin=>!snapshot.items.some(item=>item.asin===asin));added.forEach(asin=>{const state=aiCompetitorState(asin);state.status='idle';state.comparison=null;void aiFetchCompetitorComparison(asin);});")
-ai_controller = ai_controller.replace('<div class="field-error" id="compAddError" role="alert"></div>', '<p class="subtle comp-add-ai-tip">确认添加后，系统将自动获取AI竞品分析。已有内容将保留，差异项可逐项采用AI值。</p><div class="field-error" id="compAddError" role="alert"></div>')
+ai_controller = ai_controller.replace("  renderCompetitors();renderRefs();close(dlg);", "  renderCompetitors();renderRefs();close(dlg);const added=asins.filter(asin=>!snapshot.items.some(item=>item.asin===asin));added.forEach(asin=>{const state=aiCompetitorState(asin);state.status='idle';state.comparison=null;state.analysisCompleted=false;state.manual={};void aiFetchCompetitorComparison(asin);});")
+ai_controller = ai_controller.replace('<div class="field-error" id="compAddError" role="alert"></div>', '<p class="subtle comp-add-ai-tip">确认添加后，系统将自动获取AI竞品分析。首次填充空白项并保留人工输入；重新分析时比较差异，可逐项采用AI值。</p><div class="field-error" id="compAddError" role="alert"></div>')
 # Category ASIN references show identifiers; commercial values stay in the task.
 ai_controller = ai_controller.replace('class="reference-category-asin" title="${esc(ref.title||ref.asin)}"', 'class="reference-category-asin"')
 ai_controller = ai_controller.replace(',salePrice:s.salePrice', '')
-ai_controller = ai_controller.replace('p.spuDraft.skus.forEach(sku=>delete sku.cartons);', 'p.spuDraft.skus.forEach(sku=>{delete sku.cartons;delete sku.salePrice;delete sku.price;});')
+ai_controller = ai_controller.replace('p.spuDraft.skus.forEach(sku=>delete sku.cartons);', "p.spuDraft.skus.forEach((sku,index)=>{delete sku.cartons;if(aiPendingIsXingqu()){delete sku.salePrice;delete sku.price;delete sku.purchaseCurrency;}else{sku.price=p.skus[index].price;sku.purchaseCurrency=p.skus[index].purchaseCurrency||'CNY';}});")
 ai_controller = ai_controller.replace('该ASIN正在进行竞品分析，请先从市场分析中移除', '当前ASIN已有竞品分析，无法删除参考产品。请先删除对应的竞品分析，再删除参考产品。')
 ai_controller = ai_controller.replace(".join(', ')", ".join(',')")
 # Freeze review data and allow preproject use only after approval.
@@ -131,12 +147,12 @@ ai_controller = ai_controller.replace("m.stage='review';$('#workflowState').valu
 ai_controller = ai_controller.replace("m.stage='done';$('#workflowState').value='done';persist();applyWorkflow();", "m.stage='done';m.approvedReportHtml=m.submittedReportHtml||reportHtml();$('#workflowState').value='done';persist();applyWorkflow();")
 ai_controller = ai_controller.replace("m.stage='research';$('#workflowState').value='research';persist();", "m.stage='research';delete m.submittedReportHtml;delete m.approvedReportHtml;delete m.submittedProducts;delete m.approvedSkuCodes;$('#workflowState').value='research';persist();")
 cut = ai_controller.rindex('})();')
-ai_controller = ai_controller[:cut] + (root / 'ai-competitor-compare.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-import-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-report-export.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
+ai_controller = ai_controller[:cut] + (root / 'ai-competitor-compare.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-assist.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-category-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-ranking-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-import-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-detail-view.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-pending-rules.js').read_text(encoding='utf-8') + '\n' + (root / 'ai-report-export.js').read_text(encoding='utf-8') + '\n' + ai_controller[cut:]
 ai_controller = ai_controller.replace('配件搭配清单', '产品包装清单')
 ai_controller = ai_controller.replace('产品规格 / 尺寸需注明单位', '请注明包装尺寸/重量的单位')
 ai_controller = ai_controller.replace('产品规格/尺寸（注明单位）', '包装尺寸/重量（注明单位）').replace('产品规格 / 尺寸', '包装尺寸/重量（注明单位）')
 
-ai_controller = ai_controller.replace('reportValue(r.english)', 'reportValue(r.english,false)').replace("['采购链接',reportValue(link,false)]", "['采购链接',reportValue(link)]")
+ai_controller = ai_controller.replace('reportValue(r.english)', "(r.english?esc(r.english):'—')").replace("reportImageHtml(r.image,true,'竞品产品图片')", "(r.image?reportImageHtml(r.image,false,'竞品产品图片'):'<span class=\"subtle\">暂无图片</span>')").replace("['采购链接',reportValue(link,false)]", "['采购链接',reportValue(link)]")
 def normalize_ai_profit_labels(text):
     text = text.replace('海运-多渠道利润测算（OP）', '利润测算结果').replace('海运－多渠道利润测算（OP）', '利润测算结果')
     return text.replace('data-pending-help="全部平台店铺利润大于0，且有一个大于10%时可算利润通过。"', 'data-pending-help="海运-多渠道利润测算（OP）：所有平台店铺利润率均大于0%，且至少1家大于10%，判定为利润通过；否则不通过。"')
@@ -152,6 +168,9 @@ ai_source = ai_source.replace('>原版原型</a>', '>标准版</a>').replace('�
 ai_source = ai_source.replace("p.asin=row.querySelector('[data-field=\"reference\"]').value.trim().toUpperCase();", "s.reference=row.querySelector('[data-field=\"reference\"]').value.trim().toUpperCase();").replace('pendingEscape(p.asin)}<br>${pendingEscape(s.referenceType', 'pendingEscape(s.reference??p.asin)}<br>${pendingEscape(s.referenceType')
 ai_source = ai_source.replace('配件搭配清单', '产品包装清单')
 ai_source = normalize_ai_profit_labels(ai_source)
+import hashlib
+# Resource URLs change with their contents so a deployed entry cannot reuse stale code.
+ai_source = re.sub(r'(?:src|href)="([^"/?]+\.(?:js|css))"', lambda match: match.group(0)[:-1] + '?v=' + hashlib.sha256((root / match.group(1)).read_bytes()).hexdigest()[:12] + '"', ai_source)
 (root / 'ai-index.html').write_text(ai_source, encoding='utf-8')
 ai_offline = html.replace('<title>', '<title>AI辅助版 · ', 1)
 ai_offline = ai_offline.replace(old_nav, '<a href="市场分析报告交互原型.html">原版原型</a>').replace('<a href="市场分析报告AI辅助原型.html">AI辅助版</a>', '<a class="active" aria-current="page" href="市场分析报告AI辅助原型.html">AI辅助版</a>')

@@ -207,3 +207,13 @@
 .ai-review-sku-heading .ai-review-report-button:hover,.ai-review-sku-heading .ai-review-report-button:focus-visible{border-color:var(--teal-dark);background:#f0faf8;color:var(--teal-dark)}
 
 .ai-project-report-tabs{display:flex;gap:8px;margin-bottom:18px}.ai-project-research-dialog{width:min(980px,94vw)}
+.category-history-table .history-report-name{text-align:left;min-width:170px}
+.category-history-table .history-report-name .link{white-space:normal;text-align:left;line-height:1.6;text-decoration:underline}
+.comp-add-dialog .comp-add-direct{display:grid;grid-template-columns:58px minmax(0,1fr);gap:4px 10px}
+.comp-add-dialog .comp-add-direct>label{grid-column:1;grid-row:1}
+.comp-add-dialog .comp-add-direct>input{grid-column:2;grid-row:1;min-width:0;width:100%}
+.comp-add-dialog .comp-add-direct>#compAddError{grid-column:2;grid-row:2;margin:0;text-align:left}
+#editModal .pending-help-icon[hidden]{display:none!important}
+#compDetail [data-comp-number]::placeholder{color:#9aa3af;opacity:1}
+#compDetail .comp-control>[data-comp-number-error]{margin:5px 0 0;width:100%;font-size:11px;line-height:18px}
+#compDetail [data-comp-number][aria-invalid="true"]{border-color:#e6656e}

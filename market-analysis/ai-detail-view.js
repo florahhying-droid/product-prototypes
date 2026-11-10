@@ -23,7 +23,7 @@ $('label[for="editPurchaseLink"]').insertAdjacentHTML('afterbegin','<span class=
 aiPurchaseLink.addEventListener('input',()=>{if(aiPurchaseLink.value.trim())clearPendingRequiredError(aiPurchaseLink.closest('.pending-basic-field'));});
 const aiDetailOriginalRequired=validatePendingRequiredFields;
 validatePendingRequiredFields=function(){
- if(!aiPurchaseLink.value.trim()){
+ if(aiPendingIsXingqu()&&!aiPurchaseLink.value.trim()){
   const field=aiPurchaseLink.closest('.pending-basic-field');clearPendingRequiredError(field);field.classList.add('pending-field-invalid');aiPurchaseLink.setAttribute('aria-invalid','true');field.insertAdjacentHTML('beforeend','<div class="inline-error pending-required-error">请填写采购链接</div>');showToast('请填写采购链接','error');aiPurchaseLink.focus();return false;
  }
  return aiDetailOriginalRequired();
@@ -139,7 +139,7 @@ pendingProductsReportHtml=function(){
    [7,6].forEach(index=>row.children[index]?.remove());
   });
   const headers=table.querySelectorAll('thead th');
-  ['SKU编码','标题','产品图片','参考产品','采购价（CNY）','预计售价（USD）','利润测算结果'].forEach((title,index)=>{if(headers[index])headers[index].textContent=title;});
+  ['SKU编码','标题','产品图片','参考产品','采购价','预计售价','利润测算结果'].forEach((title,index)=>{if(headers[index])headers[index].textContent=title;});
  });
  return container.innerHTML;
 };
@@ -152,7 +152,12 @@ const aiOriginalRenderCompList=renderCompList;
 renderCompList=function(){
  aiOriginalRenderCompList();
  $$('#compList .comp-list-metrics').forEach(node=>node.remove());
- $$('#compList .comp-completion').forEach(node=>{if(node.classList.contains('incomplete'))node.textContent='待完善';else node.remove();});
+ $$('#compList .comp-completion').forEach(node=>{
+  if(!node.classList.contains('incomplete')){node.remove();return;}
+  node.textContent='待完善';
+  const asin=node.closest('[data-comp-select]')?.dataset.compSelect,record=ensureCompetitorState().items.find(item=>item.asin===asin);
+  if(record){const reasons=[...new Set(compMissing(record).map(item=>item.message))];node.title=reasons.join('；');node.setAttribute('aria-label','待完善：'+reasons.join('；'));}
+ });
 };
 renderCompList();
 setCategorySaved=function(){const mark=$('#categorySaved');if(mark){mark.hidden=true;mark.setAttribute('aria-hidden','true');mark.textContent='';}};
@@ -173,6 +178,11 @@ renderRefs();
 const aiOriginalChooseCompetitors=chooseCompetitors;
 chooseCompetitors=function(){
  aiOriginalChooseCompetitors();
+ const addDialog=[...document.querySelectorAll('.comp-add-dialog')].at(-1);
+ if(addDialog){
+  const error=addDialog.querySelector('#compAddError'),directInput=addDialog.querySelector('#directCompAsin'),tip=addDialog.querySelector('.comp-add-ai-tip');
+  addDialog.querySelectorAll('[data-add-mode]').forEach(button=>button.addEventListener('click',()=>{if(button.dataset.addMode==='direct')directInput.after(error);else tip.before(error);}));
+ }
  const dialog=document.querySelector('.comp-add-dialog')?.closest('.modal-mask');if(!dialog)return;
  const list=dialog.querySelector('#compAddReferenceList'),empty=dialog.querySelector('#compAddSearchEmpty');
  const rows=[...list.querySelectorAll('[data-reference-search]')].map(label=>{
@@ -247,7 +257,7 @@ function aiProfitHelpMarkup(){
 }
 function aiReviewProductsHtml(rows){
  const profit=(product,sku)=>{const result=opAssessment(product,sku);return `<span class="pending-profit-result ${result.state}">${esc(result.label)}</span>`;};
- return `<table class="ai-review-products"><colgroup><col style="width:44px"><col style="width:155px"><col style="width:76px"><col style="width:240px"><col style="width:200px"><col style="width:140px"><col style="width:135px"><col style="width:115px"><col style="width:120px"><col style="width:120px"><col style="width:65px"></colgroup><thead><tr><th><input type="checkbox" data-review-all aria-label="全选审核SKU"></th>${['SPU/SKU','产品图片','产品标题','供应商','参考产品','来源','采购价（CNY）','预计售价（USD）','利润测算结果','操作'].map(title=>`<th>${title}${title==='利润测算结果'?' '+aiProfitHelpMarkup():''}</th>`).join('')}</tr></thead><tbody>${rows.map(product=>`<tr class="ai-review-spu"><td></td><td class="left"><button type="button" class="tree-toggle" data-review-fold="${esc(product.spu)}" aria-expanded="true">▾</button>${esc(product.spu)}</td><td>${reportImageHtml(product.img,true,'SPU产品图片')}</td><td class="left">${esc(product.title)}</td><td class="left">${esc(product.supplier)}${product.purchaseNotes?`<div class="subtle">${esc(product.purchaseNotes)}</div>`:''}</td><td></td><td>${sourceCell(product)}</td><td></td><td></td><td></td><td><button type="button" class="link" data-review-view="${esc(product.spu)}">查看</button></td></tr>${product.skus.map(sku=>`<tr data-review-parent="${esc(product.spu)}"><td><input type="checkbox" data-review-sku="${esc(sku.sku)}" aria-label="审核通过 ${esc(sku.sku)}"></td><td class="left">${esc(sku.sku)}</td><td>${reportImageHtml(sku.img||product.img,true,'SKU产品图片')}</td><td class="left">${esc(sku.variantTitle||product.title)}</td><td></td><td>${esc(sku.reference||product.asin)}<br>${esc(sku.referenceType||'')}</td><td>${esc(product.source||'')}</td><td>${reportValue(sku.price==null||sku.price===''?'':Number(sku.price).toFixed(2))}</td><td>${reportValue(pendingSalePrice(sku)===null?'':pendingSalePrice(sku).toFixed(2))}</td><td>${profit(product,sku)}</td><td></td></tr>`).join('')}`).join('')||'<tr><td colspan="11">暂无待开发产品</td></tr>'}</tbody></table>`;
+ return `<table class="ai-review-products"><colgroup><col style="width:44px"><col style="width:155px"><col style="width:76px"><col style="width:240px"><col style="width:200px"><col style="width:140px"><col style="width:135px"><col style="width:115px"><col style="width:120px"><col style="width:120px"><col style="width:65px"></colgroup><thead><tr><th><input type="checkbox" data-review-all aria-label="全选审核SKU"></th>${['SPU/SKU','产品图片','产品标题','供应商','参考产品','来源','采购价','预计售价','利润测算结果','操作'].map(title=>`<th>${title}${title==='利润测算结果'?' '+aiProfitHelpMarkup():''}</th>`).join('')}</tr></thead><tbody>${rows.map(product=>`<tr class="ai-review-spu"><td></td><td class="left"><button type="button" class="tree-toggle" data-review-fold="${esc(product.spu)}" aria-expanded="true">▾</button>${esc(product.spu)}</td><td>${reportImageHtml(product.img,true,'SPU产品图片')}</td><td class="left">${esc(product.title)}</td><td class="left">${esc(product.supplier)}${product.purchaseNotes?`<div class="subtle">${esc(product.purchaseNotes)}</div>`:''}</td><td></td><td>${sourceCell(product)}</td><td></td><td></td><td></td><td><button type="button" class="link" data-review-view="${esc(product.spu)}">查看</button></td></tr>${product.skus.map(sku=>`<tr data-review-parent="${esc(product.spu)}"><td><input type="checkbox" data-review-sku="${esc(sku.sku)}" aria-label="审核通过 ${esc(sku.sku)}"></td><td class="left">${esc(sku.sku)}</td><td>${reportImageHtml(sku.img||product.img,true,'SKU产品图片')}</td><td class="left">${esc(sku.variantTitle||product.title)}</td><td></td><td>${esc(sku.reference||product.asin)}<br>${esc(sku.referenceType||'')}</td><td>${esc(product.source||'')}</td><td>${reportValue(sku.price==null||sku.price===''?'':Number(sku.price).toFixed(2))} <span class="pending-currency-label">${esc(sku.purchaseCurrency||'CNY')}</span></td><td>${reportValue(pendingSalePrice(sku)===null?'':pendingSalePrice(sku).toFixed(2))} <span class="pending-currency-label">${esc(sku.saleCurrency||'USD')}</span></td><td>${profit(product,sku)}</td><td></td></tr>`).join('')}`).join('')||'<tr><td colspan="11">暂无待开发产品</td></tr>'}</tbody></table>`;
 }
 const aiOriginalOpenReview=openReview;
 openReview=function(demo=false){
@@ -255,7 +265,7 @@ openReview=function(demo=false){
  const dialog=[...document.querySelectorAll('.modal-mask')].findLast(node=>node.querySelector('.review-table'));if(!dialog)return;
  dialog.querySelector('.modal').classList.add('ai-review-dialog');dialog.querySelector('.modal-title').textContent='审核';dialog.querySelector('.modal').setAttribute('aria-label','审核');dialog.querySelector('.modal-foot [data-cancel]').textContent='取消';
  const rejectButton=dialog.querySelector('[data-reject]');
- // Existing review handlers are registered as listeners, so retain their buttons.
+ // Keep handler references for confirmation, but remove the duplicate footer controls.
  const approveButton=dialog.querySelector('[data-approve]');
  const actual=m.stage==='review'&&!demo,interactive=actual||demo;
  const rows=m.submittedProducts&&m.stage!=='research'?m.submittedProducts:products;
@@ -275,7 +285,7 @@ openReview=function(demo=false){
  const opinion=dialog.querySelector('.review-opinion');opinion.disabled=!interactive;opinion.placeholder='请输入备注';
  const opinionHeading=[...body.querySelectorAll('h3')].at(-1);opinionHeading.textContent='备注';
  const foot=dialog.querySelector('.modal-foot');
- if(actual){approveButton.hidden=true;rejectButton.hidden=true;}
+ approveButton?.remove();rejectButton?.remove();
  const confirm=document.createElement('button');confirm.type='button';confirm.className='btn primary';confirm.textContent='确认';confirm.dataset.reviewConfirm='true';
  if(interactive){foot.append(confirm);confirm.onclick=()=>{
   const rejecting=dialog.querySelector('input[type="radio"][value="reject"]').checked;
@@ -287,3 +297,11 @@ openReview=function(demo=false){
 };
 $('#openReview').onclick=()=>openReview();
 const aiReviewShortcut=document.createElement('button');aiReviewShortcut.type='button';aiReviewShortcut.className='link ai-review-shortcut';aiReviewShortcut.textContent='审核弹窗';aiReviewShortcut.dataset.reviewDemo='true';aiReviewShortcut.onclick=()=>openReview(true);$('#taskStatusTag').after(aiReviewShortcut);
+const aiReturnToResearch=document.createElement('button');aiReturnToResearch.type='button';aiReturnToResearch.className='link ai-review-shortcut';aiReturnToResearch.textContent='返回调研（演示）';aiReturnToResearch.dataset.returnResearchDemo='true';aiReturnToResearch.hidden=!['review','done'].includes(m.stage);aiReviewShortcut.after(aiReturnToResearch);
+aiReturnToResearch.onclick=()=>{
+ if(activeHistoryTask)return;
+ delete m.submittedReportHtml;delete m.approvedReportHtml;delete m.submittedProducts;delete m.approvedSkuCodes;
+ $('#currentUser').value='developer';$('#workflowState').value='research';$('#workflowState').onchange();
+ showToast('已返回调研中，已填写内容保留');
+};
+const aiResearchDemoRefresh=aiRefresh;aiRefresh=function(){aiResearchDemoRefresh();aiReturnToResearch.hidden=!!activeHistoryTask||!['review','done'].includes(m.stage);};
