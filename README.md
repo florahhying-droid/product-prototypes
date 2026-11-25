@@ -14,6 +14,7 @@
 - `product-data-permission/`：选品数据权限配置
 - `asin-selection/`：ASIN选品与开发任务完整交互
 - `market-analysis/`：市场分析报告前置与结构化，含可离线打开的单文件HTML与分离版源码
+- `independent-site-recommendation/`：独立站运营推荐开发，包含方案和原型两个入口
 - `1688-sourcing-demo/`：1688 Pro ASIN 商品溯源演示套件
   - `index.html`：寻源通 API Pro 接口与字段说明
   - `phase1-plan.html`：一期产品方案
